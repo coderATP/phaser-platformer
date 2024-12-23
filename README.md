@@ -1,13 +1,13 @@
-Phaser Game v1.0
+#Phaser Game v1.0
 
-Creating Platformer Game with html5, css and Phaser library
+#Creating Platformer Game with html5, css and Phaser library
 
-avoided tile bleeding by using tiles with no margin/spacing on the foreground
-parallax scrolling
-smooth camera/pixels
-Ladder climbing
-Currently built one level (forest) with four playable scenes
-Transitioning from scene to scene in the forest level
+°avoided tile bleeding by using tiles with no margin/spacing on the foreground
+°parallax scrolling
+°smooth camera/pixels
+°Ladder climbing
+°Currently built one level (forest) with four playable scenes
+°Transitioning from scene to scene in the forest level
 
 
 to-do:
