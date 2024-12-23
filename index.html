@@ -1,13 +1,64 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name= "screen-orientation" content="landscape">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>platformer game 12.0</title>
     <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-      
-      <div id="gameWrapper">
+</head>
+<body>
+    <div id="gameWrapper">
+        <!--LOADING SCREEN-->
+        <section id="loadingScreen">
+            <button id = "loading_startBtn">LOADING...</button>
+        </section>
+        <!--MENU SCREEN-->
+        <section id="menuScreen">
+            <div id="button">
+                <button id="menu_playBtn">PLAY</button>
+                <button id="menu_optionsBtn">OPTION</button>   
+                <button id="menu_leaderboardBtn">LEADERBOARD</button>
+                <button id="menu_tutorialBtn">TUTORIAL</button>   
+                <button id="menu_exitBtn">EXIT</button>   
+            </div>
+        </section>
+        
+        <!--LEVEL-SELECT SCREEN-->
+        <section id="levelSelectScreen">
+            <div id="imageDiv">
+                <canvas id = "levelScreenshot_canvas">
+                    <img id="forestScreenshot" value= "0" src="assets/levelScreenshots/level0.jpg" alt="levelScreenshot"/>
+                    <img id="ruinsScreenshot" value= "1" src="assets/levelScreenshots/level1.jpg" alt="levelScreenshot"/>
+                    <img id="cryptScreenshot" value= "2" src="assets/levelScreenshots/level2.jpg" alt="levelScreenshot"/>
+                    <img id="cemeteryScreenshot" value= "3" src="assets/levelScreenshots/level3.jpg" alt="levelScreenshot"/>
+
+                </canvas>
+                <p id="imageDescription">forest</p>
+                <div id="navigationButtons">
+                    <button class = "go-to" id="levelSelect_previous"> < </button>
+                    <button class = "go-to" id ="levelSelect_next"> > </button> 
+                </div>
+                <div id="navigationCircles">
+                    <button class = "go-to" id="levelSelect_forest">  O </button>
+                    <button class = "go-to" id ="levelSelect_ruins">  O  </button>
+                    <button class = "go-to" id ="levelSelect_crypt"> O </button>  
+                    <button class = "go-to" id ="levelSelect_cemetry"> O </button> 
+                </div>
+            </div>
+
+            <div id="changeStateButtons">
+                <button class = "go-to" id="levelSelect_enter">ENTER</button>
+                <button class = "go-to" id="levelSelect_back">BACK</button>    
+            </div>
+
+        </section>
+        
+        <!--PLAY SCREEN-->
+        <section id="playScreen">
+            <div id="canvasWrapper" width="1024" height="576">
+              <!--  <canvas id="canvas" width="1024" height="576"></canvas>  -->
+            </div>
+
             <div id = "buttonsLayer">
                 <div id='leftControlButtons'>
                     <button id='left' class='playButtons'>l</button>
@@ -25,9 +76,69 @@
                     <button id="play_pauseBtn">pause</button>
 
                 </div>
-            </di v>
-      </div>
-      <script src= "lib/phaser.min.js"></script>
-      <script type = "module" src="src/script.js"></script>
-  </body>
+            </div>
+        </section>
+        <!--CURTAIN-->
+        <section id="playSceneCurtain">
+                <div id= "message">
+                   -- <p id = "transitionToPlayMessage">Curtains Rolling...</p>  
+                </div>
+        </section>
+        <!--PAUSE SCREEN-->
+        <section id="pauseScreen">
+            <button id="pause_resumeBtn">RESUME</button>
+            <button id="pause_restartBtn">RESTART</button>
+            <button id="pause_menuBtn">MENU</button>
+        </section>
+        <!-- RESTART CONFIRMATION DIALOGUE BOX -->
+        <section id="restartConfirmScreen">
+            <p>Are you sure you want to restart?</p>
+            <button id="restart_yesBtn">YES</button>
+            <button id="restart_noBtn">NO</button>
+        </section>
+        <!--END-OF-LEVEL SCREEN-->
+        <section id="levelCompleteScreen">
+            <div id="message">
+                <h1>Level Complete!</h1>
+                <div id="summary">
+                    <p id="score">Score:</p>
+                    <p id="time_bonus">Time bonus:</p>
+                </div>
+            </div>
+            <div id="buttons">
+                <button id="levelComplete_replayBtn">REPLAY</button>
+                <button id="levelComplete_nextBtn">NEXT</button>
+                <button id="levelComplete_menuBtn">MENU</button>
+            </div>
+            
+        </section>
+        <!--GAME OVER SCREEN-->
+        <section id="gameOverScreen">
+            <button id="gameOver_replayBtn">REPLAY</button>
+            <button id="gameOver_menuBtn">MENU</button>
+        </section>
+
+        <!--OPTIONS SCREEN-->
+        <section id="optionsScreen">
+            <div id="sfx_div">
+                <p id="sfx_p">SFX: </p>
+                <input type="range" name="sfx" id="options_sfx" min = 0 max = 10>
+            </div>
+            <div id="vol_div">
+                <p id="vol_p"> VOLUME: </p>
+                <input type="range" name="music" id="options_music" min = 0 max = 10> 
+            </div>
+            <div id="go-to">
+                <button id= "options_backBtn">BACK</button>
+            </div>
+
+        </section>
+
+    </div>
+
+    <!--Phaser-->
+    <script src= "lib/phaser_v87/phaser.min.js"></script>
+    <!--Script-->
+    <script type = "module" src="script.js"></script>
+</body>
 </html>
