@@ -1,5 +1,6 @@
 import {myInput} from "../myInput.js";
 
+
 export class Player extends Phaser.Physics.Arcade.Sprite{
     //state design
     static Status = {
