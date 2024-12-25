@@ -17,10 +17,66 @@ export class PreloadScene extends GameState{
     
     loadEntities(){
         //PLAYER
-        this.load.spritesheet('player', "assets/player/move_sprite_1.png", {
-            frameWidth: 32, spacing: 32, frameHeight: 38,
+        this.load.spritesheet('player', "assets/player/Idle-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
         });
-        //LADDER
+        this.load.spritesheet('player-attack', "assets/player/Attack-01-Sheet.png", {
+            frameWidth: 80, frameHeight: 80,
+        }); 
+        this.load.spritesheet('player-death', "assets/player/Dead-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        }); 
+        this.load.spritesheet('player-jump', "assets/player/Jump-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+        this.load.spritesheet('player-fall', "assets/player/Fall-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        }); 
+        this.load.spritesheet('player-run', "assets/player/Run-Sheet.png", {
+            frameWidth: 80, frameHeight: 80,
+        }); 
+        
+        //ENEMIES
+        this.load.spritesheet('orc-base', "assets/enemies/Orc Base/Idle-Sheet.png", {
+            frameWidth: 32, frameHeight: 32,
+        });
+        this.load.spritesheet('orc-base-death', "assets/enemies/Orc Base/Death-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+        this.load.spritesheet('orc-base-run', "assets/enemies/Orc Base/Run-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+        
+        this.load.spritesheet('orc-rogue', "assets/enemies/Orc Rogue/Idle-Sheet.png", {
+            frameWidth: 32, frameHeight: 32,
+        });
+        this.load.spritesheet('orc-rogue-death', "assets/enemies/Orc Rogue/Death-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+        this.load.spritesheet('orc-rogue-run', "assets/enemies/Orc Rogue/Run-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+        
+        this.load.spritesheet('orc-shaman', "assets/enemies/Orc Shaman/Idle-Sheet.png", {
+            frameWidth: 32, frameHeight: 32,
+        });
+        this.load.spritesheet('orc-shaman-death', "assets/enemies/Orc Shaman/Death-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+        this.load.spritesheet('orc-shaman-run', "assets/enemies/Orc Shaman/Run-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+        
+        this.load.spritesheet('orc-warrior', "assets/enemies/Orc Warrior/Idle-Sheet.png", {
+            frameWidth: 32, frameHeight: 32,
+        });
+        this.load.spritesheet('orc-warrior-death', "assets/enemies/Orc Warrior/Death-Sheet.png", {
+            frameWidth: 96, frameHeight: 80,
+        });
+        this.load.spritesheet('orc-warrior-run', "assets/enemies/Orc Warrior/Run-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+        
     }
     
     preload(){

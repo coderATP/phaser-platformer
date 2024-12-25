@@ -1,6 +1,8 @@
 /**@type {import("../typings/phaser")} */
 import { GameState } from "./GameState.js";
 import { Player } from "../entities/Player.js";
+import { Enemy } from "../entities/Enemy.js";
+import { Enemies } from "../groups/Enemies.js";
 import { ui } from "../ui.js";
 import { myInput } from "../myInput.js";
 import { eventEmitter } from "../events/EventEmitter.js";
@@ -10,6 +12,7 @@ export class PlayScene extends GameState{
     constructor(config){
         super('PlayScene', config);
         this.config = config;
+        this.enemies;
     }
     
     //ON ENTERING SCENE, WHAT TO DO FIRST
@@ -22,6 +25,9 @@ export class PlayScene extends GameState{
     create(){
         this.enter();
         
+        //ANIMATIONS
+        this.createAnimKeys();
+        
         //map and its layers
         this.map = this.createMap();
         this.bgLayers = this.createBackgroundLayers(this.map);
@@ -31,7 +37,12 @@ export class PlayScene extends GameState{
         this.endZone = this.createEndZone(this.mapLayers);
         
         //player
-        this.player = this.createPlayer();
+        this.player = this.createPlayer(this.mapLayers);
+        this.player.createAnimKeys();
+        
+        //enemies
+        this.enemies = this.createEnemies(this.mapLayers);
+        this.enemies.handleAnimations();
         
         //camera
         this.cameraSetup(this.player);
@@ -44,6 +55,7 @@ export class PlayScene extends GameState{
         if(!this.player || !this.map) return;
 
         this.platformCollider = this.physics.add.collider(this.player, this.mapLayers.collisionblocks);
+        this.physics.add.collider(this.enemies, this.mapLayers.collisionblocks);
         this.ladderCollider = this.physics.add.overlap(this.player, this.mapLayers.ladders, this.checkLadder.bind(this));
         
         this.toNewScene();
@@ -76,12 +88,13 @@ export class PlayScene extends GameState{
         const decoration = map.createLayer("decoration", tileset1);
         const exit_zone = map.getObjectLayer("exit_zone").objects;
         const player_spawn_zone = map.getObjectLayer("player_spawn_zone").objects;
-        const enemy_spawn_zone = map.getObjectLayer("enemy_spawn_zones").objects;
+        
+        const enemy_spawn_zones = map.getObjectLayer("enemy_spawn_zones").objects;
         
         const ladders = map.createLayer("ladders", tileset1).setDepth(10).setCollisionByExclusion(-1, true);
         ladders.y = -0.01;
         
-        return { collisionblocks, exit_zone, player_spawn_zone, enemy_spawn_zone, ladders, foreground, traps, stationary_platforms, mobile_platforms_zones, decoration };
+        return { collisionblocks, exit_zone, player_spawn_zone, enemy_spawn_zones, ladders, foreground, traps, stationary_platforms, mobile_platforms_zones, decoration };
     }
     
     createBackgroundLayers(map){
@@ -100,8 +113,22 @@ export class PlayScene extends GameState{
         return layers;
     }
     
-    createPlayer(){
-        return new Player(this, 0, 0, "player")
+    createPlayer(layers){
+        if(!layers) return;
+        let player;
+        layers.player_spawn_zone.forEach(zone=>{
+            player =  new Player(this, zone.x, zone.y, "player")
+        })
+        return player;
+    }
+    
+    createEnemies(layers){
+        if(!layers) return;
+        const enemies = new Enemies(this);
+        layers.enemy_spawn_zones.forEach(zone=>{
+            enemies.add(new Enemy(this, zone.x, zone.y, "orc-base"));
+        })
+        return enemies;
     }
     
     createEndZone(layers){
@@ -219,6 +246,38 @@ export class PlayScene extends GameState{
             this.scene.start("TransitionToPlayScene");
         })
     }
+    
+    //ANIMATION KEYS
+    createAnimKeys(){
+        this.anims.create({
+            key: "orc-death",
+            frames: this.anims.generateFrameNumbers(
+                "orc-base-death",
+                {start: 0, end: 5},
+            ),
+            frameRate: 8,
+            repeat: -1 
+        });
+        this.anims.create({
+            key: "orc-idle",
+            frames: this.anims.generateFrameNumbers(
+                "orc-base",
+                {start: 0, end: 3},
+            ),
+            frameRate: 4,
+            repeat: -1 
+        });
+        this.anims.create({
+            key: "orc-run",
+            frames: this.anims.generateFrameNumbers(
+                "orc-base-run",
+                {start: 0, end: 5},
+            ),
+            frameRate: 8,
+            repeat: -1 
+        });
+    }
+    
     
     //UPDATE LOOP
     update(time, delta ){

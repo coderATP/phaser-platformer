@@ -70,16 +70,6 @@ const config= {
     scene: [ new PreloadScene(SHARED_CONFIG), new MenuScene(SHARED_CONFIG), new LevelSelectScene(SHARED_CONFIG), new TransitionToPlayScene(SHARED_CONFIG), new PlayScene(SHARED_CONFIG)],
 };
 
-
-let timestart = 0;
-function loop(timestamp = 0, deltaTime = 0){
-        requestAnimationFrame(loop);
-
-        deltaTime = timestamp - timestart;
-        timestart = timestamp;
-    }
-loop();
-    
 const game = new Phaser.Game(config);
 
 
