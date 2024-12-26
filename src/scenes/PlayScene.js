@@ -6,6 +6,8 @@ import { Enemies } from "../groups/Enemies.js";
 import { ui } from "../ui.js";
 import { myInput } from "../myInput.js";
 import { eventEmitter } from "../events/EventEmitter.js";
+import { Container } from "../hud/Container.js";
+import { Graphics } from "../hud/Graphics.js";
 
 
 export class PlayScene extends GameState{
@@ -24,10 +26,7 @@ export class PlayScene extends GameState{
     //CREATE GAMEOBJECTS
     create(){
         this.enter();
-        
-        //ANIMATIONS
-        this.createAnimKeys();
-        
+
         //map and its layers
         this.map = this.createMap();
         this.bgLayers = this.createBackgroundLayers(this.map);
@@ -38,7 +37,6 @@ export class PlayScene extends GameState{
         
         //player
         this.player = this.createPlayer(this.mapLayers);
-        this.player.createAnimKeys();
         
         //enemies
         this.enemies = this.createEnemies(this.mapLayers);
@@ -46,6 +44,14 @@ export class PlayScene extends GameState{
         
         //camera
         this.cameraSetup(this.player);
+        
+        //lighting
+        this.light = this.createLighting(this.player);
+        
+        //head-under-display (HUD) container
+        this.container = new Container(this, 0, 0);
+        this.graphics = new Graphics(this);
+        const rect1 = this.graphics.drawPlayerHealthbar(0, 0, 100, 16);
         
         //EVENTS TRANSITIONING
         this.acceptEvents();
@@ -103,11 +109,14 @@ export class PlayScene extends GameState{
         for (let i = 7; i >= 3; i--) {
             //const key = this.mapID + "" + i;
             const key = 0+""+i;
-            const bg = this.add.tileSprite(0, 0, 1920+this.config.width, 1080, key)
+            const bg = this.add.tileSprite(0, 0, 1920+this.config.width, 1080, key )
                 .setOrigin(0)
-                .setScale(0.25)
+                .setScale(0.3)
                 .setDepth(-i)
                 .setScrollFactor(0,1)
+            bg
+            .setPipeline('Light2D')
+            .setAlpha(1)
             layers.push(bg);
         }
         return layers;
@@ -125,10 +134,22 @@ export class PlayScene extends GameState{
     createEnemies(layers){
         if(!layers) return;
         const enemies = new Enemies(this);
-        layers.enemy_spawn_zones.forEach(zone=>{
+        layers.enemy_spawn_zones.forEach((zone, index)=>{
+            //if(index > 0) return;
             enemies.add(new Enemy(this, zone.x, zone.y, "orc-base"));
         })
         return enemies;
+    }
+    
+    createLighting(player){
+        if(!player.body) return;
+        var radius = 100, color = 0xff00ff;
+        var light = this.lights
+            .enable()
+            .addLight(player.body.center.x, player.body.center.y, radius)
+            .setIntensity(1);
+        
+        return light;
     }
     
     createEndZone(layers){
@@ -146,8 +167,8 @@ export class PlayScene extends GameState{
         const tile2 = this.map.getTileAtWorldXY(this.player.body.center.x, this.player.body.top, true);
         
         this.player.onLadder = (tile&& tile.index > -1) || (tile2&& tile2.index > -1) ? true : false;
-        this.player.canClimbDown = (tile&& tile.index > -1 && myInput.keys[0] === "down") ? true : false;
-        this.player.canClimbUp = (tile2&& tile2.index > -1 && myInput.keys[0] === "up") ? true : false;
+        this.player.canClimbDown = (tile&& tile.index > -1 && (myInput.keys[0] === "down" || myInput.keys[0] === "ArrowDown" || myInput.keys[0] === "s")) ? true : false;
+        this.player.canClimbUp = (tile2&& tile2.index > -1 && myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") ? true : false;
 
     }
     
@@ -155,8 +176,8 @@ export class PlayScene extends GameState{
         const tile = this.map.getTileAtWorldXY(this.player.body.center.x, this.player.body.bottom, true);
         const tile2 = this.map.getTileAtWorldXY(this.player.body.center.x, this.player.body.top, true);
         
-        if( (tile&& tile.index > -1 && myInput.keys[0]==="down") ||
-            (tile2&& tile2.index > -1 && myInput.keys[0] ==="up")){
+        if( (tile&& tile.index > -1 && myInput.keys[0]==="down"  || myInput.keys[0] === "ArrowDown" || myInput.keys[0] === "s") ||
+            (tile2&& tile2.index > -1 && myInput.keys[0] ==="up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w")){
             this.platformCollider.active = false;
         }
         else this.platformCollider.active = true;
@@ -181,7 +202,7 @@ export class PlayScene extends GameState{
         
         cam.startFollow(cameraPerson);
         cam.pan(0, 0, 1000, 'Linear');
-        cam.zoomTo(3, 2000);
+        cam.zoomTo(this.cameraZoomFactor, 2000);
         //world bounds
         this.physics.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
         //camera bounds
@@ -247,40 +268,13 @@ export class PlayScene extends GameState{
         })
     }
     
-    //ANIMATION KEYS
-    createAnimKeys(){
-        this.anims.create({
-            key: "orc-death",
-            frames: this.anims.generateFrameNumbers(
-                "orc-base-death",
-                {start: 0, end: 5},
-            ),
-            frameRate: 8,
-            repeat: -1 
-        });
-        this.anims.create({
-            key: "orc-idle",
-            frames: this.anims.generateFrameNumbers(
-                "orc-base",
-                {start: 0, end: 3},
-            ),
-            frameRate: 4,
-            repeat: -1 
-        });
-        this.anims.create({
-            key: "orc-run",
-            frames: this.anims.generateFrameNumbers(
-                "orc-base-run",
-                {start: 0, end: 5},
-            ),
-            frameRate: 8,
-            repeat: -1 
-        });
-    }
-    
     
     //UPDATE LOOP
     update(time, delta ){
+        if(!this.bgLayers) return;
+        
+        this.light.x = this.player.body.center.x;
+        this.light.y = this.player.body.center.y;
         
         this.bgLayers.forEach((layer, index)=>{
             layer.tilePositionX = this.cameras.main.scrollX * 0.3 * (index+1);

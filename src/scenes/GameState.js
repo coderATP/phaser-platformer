@@ -22,6 +22,7 @@ export class GameState extends Phaser.Scene{
     constructor(scene, config){
         super(scene);
         this.config = config;
+        this.cameraZoomFactor = config.zoomFactor;
         this.map = null;
         this.currentLevel = null;
         this.currentScene = null;

@@ -20,64 +20,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
  
     }
     
-    createAnimKeys(){
-        this.scene.anims.create({
-            key: "player-death",
-            frames: this.scene.anims.generateFrameNumbers(
-                "player-death",
-                {start: 0, end: 7},
-            ),
-            frameRate: 4,
-            repeat: -1 
-        });
-        this.anims.create({
-            key: "player-idle",
-            frames: this.scene.anims.generateFrameNumbers(
-                "player",
-                {start: 0, end: 3},
-            ),
-            frameRate: 4,
-            repeat: -1 
-        });
-        this.scene.anims.create({
-            key: "player-run",
-            frames: this.scene.anims.generateFrameNumbers(
-                "player-run",
-                {start: 0, end: 7},
-            ),
-            frameRate: 8,
-            repeat: -1 
-        });
-        this.scene.anims.create({
-            key: "player-attack",
-            frames: this.scene.anims.generateFrameNumbers(
-                "player-attack",
-                {start: 0, end: 7},
-            ),
-            frameRate: 8,
-            repeat: -1 
-        });
-        
-        this.scene.anims.create({
-            key: "player-jump",
-            frames: this.scene.anims.generateFrameNumbers(
-                "player-jump",
-                {start: 0, end: 3},
-            ),
-            frameRate: 3,
-            repeat: -1
-        });
-        this.scene.anims.create({
-            key: "player-fall",
-            frames: this.scene.anims.generateFrameNumbers(
-                "player-run",
-                {start: 0, end: 3},
-            ),
-            frameRate: 3,
-            repeat: -1
-        });
-    }
-    
     init(){
         this.scene.events.on("update", this.update, this);
         this.name = "player";
@@ -88,6 +30,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.canClimbUp = false;
         this.jumpCount = 0;
         this.maxJumps = 3;
+        this.lives = 10;
+        this.maxLives = 10;
         this.lastDirection = "left";
         this
             .setOrigin(0.5, 1)
@@ -141,12 +85,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
             case Player.Status.Walking:
                 this.body.setAllowGravity(true);
                 
-                if (myInput.keys[0] === "right") {
+                if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
                     this.setFlipX(false)
                     this.setVelocityX(this.speedX)
                     //this.play("player-run", true);
                 }
-                else if (myInput.keys[0] === "left") {
+                else if (myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a") {
                     this.setFlipX(true)
                     this.setVelocityX(-this.speedX)
                     //this.play("player-run", true);
@@ -157,13 +101,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
                 }
                 
                 if(this.body.onFloor()) this.jumpCount = 0;
-                if (myInput.keys[0] === "up" && myInput.keypressed && this.jumpCount < this.maxJumps) {
+                if (( myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") && myInput.keypressed && this.jumpCount < this.maxJumps) {
                     this.jumpCount ++;
                     this.setVelocityY(-this.speedY)
                     myInput.keypressed = false;
                 }
                 
-                if(this.onLadder && (myInput.keys[0] === "right" || myInput.keys[0] === "left")){
+                if(this.onLadder && (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d"|| myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a")){
                     this.setStatus(Player.Status.Climbing)
                 }
                 //canClimbUp and canClimbDown are derivations of onLadder
@@ -179,11 +123,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
             case Player.Status.Climbing:
                 this.body.setAllowGravity(false);
                 
-                if (myInput.keys[0] === "right") {
+                if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
                     this.setFlipX(false)
                     this.setVelocityX(this.speedX*0.7)
                 }
-                else if (myInput.keys[0] === "left") {
+                else if (myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a") {
                     this.setFlipX(true)
                     this.setVelocityX(-this.speedX*0.7)
                 }
@@ -194,10 +138,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
                 if(myInput.keys[0]=== "special"){
                     this.flipX ? this.setVelocityX(-1000) : this.setVelocityX(1000)
                 }
-                if (myInput.keys[0] === "up") {
+                if (myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") {
                     this.setVelocityY(-40)
                 }
-                else if (myInput.keys[0] === "down"){
+                else if (myInput.keys[0] === "down"  || myInput.keys[0] === "ArrowDown" || myInput.keys[0] === "s"){
                     this.setVelocityY(40)
                 }
                 else{
@@ -205,7 +149,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
                 }
                 
                 if(!this.onLadder){
-                    if(myInput.keys[0] === "up") this.setVelocityY(-this.speedY*0.5)
+                    if(myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") this.setVelocityY(-this.speedY*0.5)
                     this.setStatus(Player.Status.Walking);
                 }
             break;

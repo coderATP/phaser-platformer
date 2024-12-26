@@ -323,7 +323,8 @@ section#playSceneCurtain{
     left: 0;
     bottom: 0;
     right: 0;
-    background-color: tomato;
+    border: 15px dashed greenyellow;
+    background-color: green;
     display: none;
 }
 section#playSceneCurtain div#message{

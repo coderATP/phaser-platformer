@@ -1,12 +1,12 @@
 /**@type {import("../typings/phaser")} */
 /**@type {import("../typings/matter") }*/
 
-import { Game } from "./game.js";
-import { PreloadScene } from "./src/scenes/PreloadScene.js";
-import { MenuScene } from "./src/scenes/MenuScene.js";
-import { LevelSelectScene } from "./src/scenes/LevelSelectScene.js";
-import { TransitionToPlayScene } from "./src/scenes/TransitionToPlayScene.js";
-import { PlayScene } from "./src/scenes/PlayScene.js";
+
+import { PreloadScene } from "./scenes/PreloadScene.js";
+import { MenuScene } from "./scenes/MenuScene.js";
+import { LevelSelectScene } from "./scenes/LevelSelectScene.js";
+import { TransitionToPlayScene } from "./scenes/TransitionToPlayScene.js";
+import { PlayScene } from "./scenes/PlayScene.js";
 
 
 const play_fullscreenBtn = document.getElementById("play_fullscreenBtn");
@@ -22,17 +22,12 @@ function toggleFullscreen(){
     
 const GAME_WIDTH = 1024;
 const GAME_HEIGHT = 576;
-
-const MAP_WIDTH = 1600
-const MAP_HEIGHT = 600;
-
-const ZOOM_FACTOR = 1.5;
+const ZOOM_FACTOR = 3;
 
 const SHARED_CONFIG = {
     width: GAME_WIDTH, 
     height: GAME_HEIGHT,
-    offsetX: MAP_WIDTH - GAME_WIDTH,
-    offsetY: MAP_HEIGHT - GAME_HEIGHT,
+    zoomFactor: ZOOM_FACTOR,
     topLeft: {
         x: ( GAME_WIDTH - (GAME_WIDTH/ZOOM_FACTOR) ) / 2,
         y: ( GAME_HEIGHT - (GAME_HEIGHT/ZOOM_FACTOR) ) / 2,
@@ -45,7 +40,7 @@ const SHARED_CONFIG = {
         x: ( ( GAME_WIDTH - (GAME_WIDTH/ZOOM_FACTOR) ) / 2 ) + (GAME_WIDTH/ZOOM_FACTOR),
         y: ( (GAME_HEIGHT - (GAME_HEIGHT/ZOOM_FACTOR) ) / 2 ) + (GAME_HEIGHT/ZOOM_FACTOR),
     },
-    debug: true
+    debug: false
 };
 
 const config= {

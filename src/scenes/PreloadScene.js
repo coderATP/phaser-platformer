@@ -2,6 +2,9 @@
 import { GameState } from "./GameState.js";
 import { eventEmitter } from "../events/EventEmitter.js";
 import { ui } from "../ui.js";
+import { createEnemyAnimKeys } from "../anims/enemyAnims.js"
+import { createPlayerAnimKeys } from "../anims/playerAnims.js"
+
 
 export class PreloadScene extends GameState{
     constructor(config){
@@ -13,6 +16,15 @@ export class PreloadScene extends GameState{
     enterScene(){
         this.hideAllScreens();
         this.show(this.loadingScreen, "grid");
+    }
+    
+    loadAnims(){
+        createPlayerAnimKeys(this);
+        createEnemyAnimKeys(this);
+    }
+    
+    loadIcons(){
+        this.load.image("lifeIcon", "assets/icons/lifeIcon.png");
     }
     
     loadEntities(){
@@ -80,6 +92,8 @@ export class PreloadScene extends GameState{
     }
     
     preload(){
+        this.enterScene();
+
         // track and display assets loading progress
         //added 1 new file
         this.load.on("addfile", ()=>{
@@ -102,6 +116,9 @@ export class PreloadScene extends GameState{
         
         //when file adding is done...
         this.load.on("complete", ()=>{
+            //load animations (this has to wait till now since it requires textures to first load)
+            this.loadAnims();
+            
             this.loadingText.setText("Ready? Let's Game!!");
             ui.loading_startBtn.innerText = this.loadingText.text;
             
@@ -113,8 +130,10 @@ export class PreloadScene extends GameState{
             this.scene.start("MenuScene");
         })
         
+        //load icons
+        this.loadIcons();
+        //load entities
         this.loadEntities();
-        this.enterScene();
-
+        
     }
 }
