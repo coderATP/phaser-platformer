@@ -10,7 +10,6 @@ export class Enemies extends Phaser.GameObjects.Group{
     }
     
     update(){
-        console.log ("go")
         this.getChildren().forEach(child=>{
             child.body.velocity.x !== 0 && child.play("orc-run", true);
         })  

@@ -3,7 +3,8 @@
 #Creating Platformer Game with html5, css and Phaser library
 
 °Added lighting effect
+°Created player healthbar
+°Enemies can shoot projectiles at random intervals of 1.5 - 4.0 seconds
 
 to-do next:
-1. detect nearby opponents (player) and initiate new states (attack, take-hit, die)
-2. create player healthbar
+1. reduce player lives upon taking damage

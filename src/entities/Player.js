@@ -1,4 +1,5 @@
 import {myInput} from "../myInput.js";
+import { Graphics } from "../hud/Graphics.js";
 
 
 export class Player extends Phaser.Physics.Arcade.Sprite{
@@ -32,7 +33,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.maxJumps = 3;
         this.lives = 10;
         this.maxLives = 10;
+        this.damage = 10;
         this.lastDirection = "left";
+
         this
             .setOrigin(0.5, 1)
             .setSize(15, 40)
@@ -41,6 +44,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
             .setDepth(100)
             .setGravityY(982)
             .setCollideWorldBounds(true)
+        
+    }
+    
+    updateHealthbar(){
+
     }
     
     setStatus(newStatus){

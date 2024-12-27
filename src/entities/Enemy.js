@@ -1,4 +1,5 @@
 import { ENEMY_STATES, EnemyStateMachine } from "../states/EnemyStates.js";
+import { Projectiles } from "../groups/Projectiles.js";
 
 
 export class Enemy extends Phaser.Physics.Arcade.Sprite{
@@ -24,7 +25,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         this.rayHasHit;
         this.turnTimer = 0;
         this.turnInterval = 100;
-        
+        this.shootTimer = 0;
+        this.shootInterval = Phaser.Math.Between(1500, 4000);
         this
             .setOrigin(0.5,1)
             .setSize(10, 26)
@@ -35,6 +37,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         //states
         this.enemyStateMachine = new EnemyStateMachine();
         this.currentState = ENEMY_STATES.RUN;
+        
+        //projectiles
+        this.projectiles = new Projectiles(this.scene, "fireball");
         
         this.scene.events.on("update", this.update, this);
     }
@@ -55,6 +60,19 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         }
     }
     
+    shootProjectile(delta){
+        if(this.shootTimer < this.shootInterval){
+            this.shootTimer+= delta;
+        }
+        else{
+            this.shootInterval = Phaser.Math.Between(1500, 4000);
+            this.shootTimer = 0;
+            const projectile = this.projectiles.getFreeProjectile();
+            if(projectile) projectile.fire(this, this.body.center.x, this.body.center.y, "fire");
+        }
+    }
+    
+    //SENSORS
     castSensors(rayLength = 3){
         this.sensors = {
             horizontal: new Phaser.Geom.Line(),
@@ -153,6 +171,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         }
         
         this.enemyStateMachine.updateState(this.currentState, this, time, delta);
-        
+        this.shootProjectile(delta);
     }
 }

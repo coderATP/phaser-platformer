@@ -48,11 +48,13 @@ export class PlayScene extends GameState{
         //lighting
         this.light = this.createLighting(this.player);
         
+        //graphics
+        this.graphics = new Graphics(this);
+        this.graphics.drawPlayerHealthbar(0,0,100,16);
+        
         //head-under-display (HUD) container
         this.container = new Container(this, 0, 0);
-        this.graphics = new Graphics(this);
-        const rect1 = this.graphics.drawPlayerHealthbar(0, 0, 100, 16);
-        
+
         //EVENTS TRANSITIONING
         this.acceptEvents();
         this.processEvents();

@@ -4,6 +4,7 @@ import { eventEmitter } from "../events/EventEmitter.js";
 import { ui } from "../ui.js";
 import { createEnemyAnimKeys } from "../anims/enemyAnims.js"
 import { createPlayerAnimKeys } from "../anims/playerAnims.js"
+import { createProjectileAnimKeys } from "../anims/projectileAnims.js"
 
 
 export class PreloadScene extends GameState{
@@ -21,6 +22,7 @@ export class PreloadScene extends GameState{
     loadAnims(){
         createPlayerAnimKeys(this);
         createEnemyAnimKeys(this);
+        createProjectileAnimKeys(this);
     }
     
     loadIcons(){
@@ -89,6 +91,13 @@ export class PreloadScene extends GameState{
             frameWidth: 64, frameHeight: 64,
         });
         
+        //PROJECTILES
+        this.load.spritesheet("fireball", "assets/weapons/fireball.png", {
+            frameWidth: 32, frameHeight: 32
+        })
+        this.load.spritesheet("iceball", "assets/weapons/iceball.png", {
+            frameWidth: 32, frameHeight: 32
+        });
     }
     
     preload(){

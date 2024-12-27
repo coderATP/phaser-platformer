@@ -17,14 +17,14 @@ export class Graphics extends Phaser.GameObjects.Graphics{
         this.clear();
         //container
         this.fillStyle(0x9800ff);
-        const healthbar = this.strokeRect(topLeft.x + x, topLeft.y + y, width, height);
+        this.strokeRect(topLeft.x + x, topLeft.y + y, width, height);
         
         //lives
         var lifeIcon;
         var lifeWidth = width/maxLives;
         var lifeHeight = height*0.8;
         var padding = 1.5;
-        
+        const healthbars = [];
         this.fillStyle(0xffffff);
         for(let i = 0; i < lives; ++i){
             const pos  = {
@@ -33,12 +33,13 @@ export class Graphics extends Phaser.GameObjects.Graphics{
             }
             
             this.fillRect(pos.x, pos.y, lifeWidth-padding, lifeHeight);
-            lifeIcon = this.scene.add.image(pos.x+padding*3, pos.y, "lifeIcon")
-                .setOrigin(0.5, 0)
+            lifeIcon = this.scene.add.image(pos.x-padding, pos.y, "lifeIcon")
+                .setOrigin(0, 0)
                 .setScrollFactor(0)
                 .setScale(0.8)
-                .setDepth(10)
+                .setDepth(10);
+            healthbars.push(lifeIcon);
         }
-        return healthbar;
+        return healthbars;
     }
 }
