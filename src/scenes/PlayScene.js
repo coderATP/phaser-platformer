@@ -7,7 +7,6 @@ import { ui } from "../ui.js";
 import { myInput } from "../myInput.js";
 import { eventEmitter } from "../events/EventEmitter.js";
 import { Container } from "../hud/Container.js";
-import { Graphics } from "../hud/Graphics.js";
 
 
 export class PlayScene extends GameState{
@@ -48,10 +47,6 @@ export class PlayScene extends GameState{
         //lighting
         this.light = this.createLighting(this.player);
         
-        //graphics
-        this.graphics = new Graphics(this);
-        this.graphics.drawPlayerHealthbar(0,0,100,16);
-        
         //head-under-display (HUD) container
         this.container = new Container(this, 0, 0);
 
@@ -61,10 +56,25 @@ export class PlayScene extends GameState{
         
         //COLLIDERS
         if(!this.player || !this.map) return;
-
+        //player vs platforms
         this.platformCollider = this.physics.add.collider(this.player, this.mapLayers.collisionblocks);
+        //enemies vs platforms
         this.physics.add.collider(this.enemies, this.mapLayers.collisionblocks);
+        //player vs ladders
         this.ladderCollider = this.physics.add.overlap(this.player, this.mapLayers.ladders, this.checkLadder.bind(this));
+      
+        //enemy-projectiles
+        this.enemies.getChildren().forEach(enemy=>{
+            //vs player
+            enemy.projectiles.onPlayerHit(); 
+            //vs platforms
+            enemy.projectiles.onPlatformHit();
+        })
+
+        //player-projectiles vs enemies
+        this.player.projectiles.onEnemyHit();
+        //player-projectiles vs platforms
+        this.player.projectiles.onPlatformHit(); 
         
         this.toNewScene();
     }
@@ -273,6 +283,7 @@ export class PlayScene extends GameState{
     
     //UPDATE LOOP
     update(time, delta ){
+        
         if(!this.bgLayers) return;
         
         this.light.x = this.player.body.center.x;

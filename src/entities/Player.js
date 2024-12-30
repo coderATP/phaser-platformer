@@ -1,5 +1,6 @@
 import {myInput} from "../myInput.js";
-import { Graphics } from "../hud/Graphics.js";
+import { Projectiles } from "../groups/Projectiles.js";
+import { PlayerHealthbar } from "../hud/Healthbar.js";
 
 
 export class Player extends Phaser.Physics.Arcade.Sprite{
@@ -31,11 +32,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.canClimbUp = false;
         this.jumpCount = 0;
         this.maxJumps = 3;
-        this.lives = 10;
-        this.maxLives = 10;
+        this.maxHealth = 100;
+        this.health = this.maxHealth; 
+        this.pixelPerHealth = 10;
+
         this.damage = 10;
         this.lastDirection = "left";
-
+        this.projectiles = new Projectiles(this.scene, "iceball");
+        
         this
             .setOrigin(0.5, 1)
             .setSize(15, 40)
@@ -43,12 +47,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
             .setScale(0.5)
             .setDepth(100)
             .setGravityY(982)
-            .setCollideWorldBounds(true)
-        
+            .setCollideWorldBounds(true);
+            
+        this.healthbar = new PlayerHealthbar(this.scene, this); 
     }
     
-    updateHealthbar(){
-
+    addCollider(otherGameObject, callback){
+        this.scene.physics.add.collider(this, otherGameObject, callback, null, this);
+    }
+    
+    onEnemyProjectileHit(player, projectile){
+        player.health -= projectile.damage;
+        
+        projectile.deactivate();
     }
     
     setStatus(newStatus){
@@ -85,9 +96,34 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         } 
    }
    
-    update(){
+   shoot(key, anim){
+       const projectile = this.projectiles.getFreeProjectile();
+       if(projectile){
+           projectile.key = key;
+           projectile.fire(this, this.getCenter().x, this.getCenter().y, anim);
+       }
+   }
+   
+   handleShooting(){
+        //shoot
+        if(myInput.keys[0] === "rangedShot" && myInput.keypressed){
+            this.shoot("iceball", "ice");
+            myInput.keypressed = false;
+        }
+        else if(myInput.keys[0] === "special" && myInput.keypressed){
+            this.shoot("fireball", "fire");
+            myInput.keypressed = false;
+        }
+          
+   }
+   
+    update(time, delta){
+        super.update(time, delta );
+        
         if(!this.body) return;
+        this.healthbar.draw();
         this.handleAnimations();
+        this.handleShooting();
         
         switch(this.status){
             case Player.Status.Walking:
@@ -168,7 +204,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         }
         
         //SETTING PLAYER Hitbox
-        this.lastDirection = this.flipX ? "right" : "left";
-
+        this.lastDirection = this.flipX ? "left" : "right";
+        
     }
 }

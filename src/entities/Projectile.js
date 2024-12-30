@@ -8,9 +8,13 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite{
     }
     
     init(){
+        this.damage = 10;
         this
             .setDepth(11)
             .setScale(0.5)
+            .setActive(false)
+            .setVisible(false)
+            .body.reset(0, -50)
         this.distanceTravelled = 0;
         this.maxDistance = 96;
         this.scene.events.on("update", this.update, this);
@@ -34,12 +38,13 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite{
     }
     
     deactivate(){
-        this.body.reset(0,0);
+        this.body.reset(0,-50);
         this.setActive(false);
         this.setVisible(false);
     }
     
     update(time, delta){
+        if(!this.body) return;
         this.distanceTravelled += this.body.deltaAbsX();
         const bodyPosDiff = Math.abs(this.x - this.body.prev.x)
 

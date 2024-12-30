@@ -1,5 +1,6 @@
 import { ENEMY_STATES, EnemyStateMachine } from "../states/EnemyStates.js";
 import { Projectiles } from "../groups/Projectiles.js";
+import { EnemyHealthbar } from "../hud/Healthbar.js";
 
 
 export class Enemy extends Phaser.Physics.Arcade.Sprite{
@@ -15,10 +16,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
     
     init(){
         this.health = 30;
+        this.healthWidth = 30;
         this.gravity = 982;
         this.speedX = 25;
         this.rayGraphics = this.scene.add.graphics({lineStyle: { width: 1, color: "0xffffff"}});
         this.sensorGraphics = this.scene.add.graphics({lineStyle: { width: 1, color: "0x0000aa"}});
+        this.hpGraphics = this.scene.add.graphics();
         this.lastDirection = "right";
         
         this.bodyPositionDiff = 0;
@@ -32,11 +35,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
             .setSize(10, 26)
             .setDepth(10)
             .setGravityY(this.gravity)
-            .setImmovable()
-        
+            .setImmovable();
+            
+        //healthbar
+        this.healthbar = new EnemyHealthbar(this.scene, this);
         //states
         this.enemyStateMachine = new EnemyStateMachine();
         this.currentState = ENEMY_STATES.RUN;
+        //healthbar
         
         //projectiles
         this.projectiles = new Projectiles(this.scene, "fireball");
@@ -44,9 +50,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         this.scene.events.on("update", this.update, this);
     }
     
+
     //ANIMATIONS
     handleAnimations(){
-        
         if(this.body && this.health > 0 ){
             if(this.body.velocity.x !==0){
                 this.play("orc-run", true);
@@ -157,13 +163,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
     }
      
     update(time, delta){
-        if(this.lastDirection === "right") this.setFlipX(false);
-        else this.setFlipX(true);
+        super.update(time, delta);
+        
+        if(this.body) this.healthbar.draw();
         
         this.handleAnimations();
         this.optimiseRaycast();
         this.detectPlatformCollisionWithRay();
-        
+       
         if (this.config.debug) {
             this.rayGraphics.clear();
             this.rayGraphics.strokeLineShape(this.ray);
@@ -172,5 +179,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         
         this.enemyStateMachine.updateState(this.currentState, this, time, delta);
         this.shootProjectile(delta);
+        
     }
 }
