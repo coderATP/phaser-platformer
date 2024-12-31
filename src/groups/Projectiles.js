@@ -14,25 +14,9 @@ export class Projectiles extends Phaser.Physics.Arcade.Group{
         })
     }
     
-    addCollider(otherGameObject, callback) {
-        this.scene.physics.add.collider(this, otherGameObject, callback, null, this);
-    }
-    
     getFreeProjectile(){
         const projectile = this.getFirstDead(false);
         return projectile;
-    }
-    
-    getProjectiles(){
-        const projectiles = new Phaser.GameObjects.Group();
-        
-        this.getChildren().forEach(enemy=>{
-            if(enemy.projectiles){
-                projectiles.addMultiple(enemy.projectiles.getChildren());
-            }
-        })
-        
-        return projectiles;
     }
     
     onPlatformHit(){
@@ -44,30 +28,21 @@ export class Projectiles extends Phaser.Physics.Arcade.Group{
     
     onPlayerHit(){
         if(!this.scene) return;
-        this.scene.physics.add.collider(this, this.scene.player, (source, target)=>{
-            this.scene.tweens.add({
-                targets: source,
-                health: source.health - target.damage,
-                duration: 800,
-                repeat: 0,
-            })
-            target.deactivate();
+        this.scene.physics.add.collider(this, this.scene.player, (target, source)=>{
+            target.decreaseHealth(source);
+            target.playDamageTween(source);
+            source.deactivate();
         })
     }
 
     onEnemyHit(){
         if(!this.scene) return;
         this.scene.enemies.getChildren().forEach(enemy=>{
-            this.scene.physics.add.collider(this, enemy, (source, target)=>{
-                this.scene.tweens.add({
-                    targets: source,
-                    health: source.health - target.damage,
-                    duration: 800,
-                    repeat: 0,
-                })
-                target.deactivate();
-            }) 
+            this.scene.physics.add.collider(this, enemy, (target, source)=>{
+                target.decreaseHealth(source);
+                target.playDamageTween(source);
+                source.deactivate();
+            })
         })
     }
-     
 }

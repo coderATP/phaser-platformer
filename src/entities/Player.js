@@ -33,9 +33,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.jumpCount = 0;
         this.maxJumps = 3;
         this.maxHealth = 100;
-        this.health = this.maxHealth; 
-        this.pixelPerHealth = 10;
-
+        this.health = this.maxHealth;
+        this.hasBeenHit = false;
+        this.isDead = false;
         this.damage = 10;
         this.lastDirection = "left";
         this.projectiles = new Projectiles(this.scene, "iceball");
@@ -56,12 +56,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.scene.physics.add.collider(this, otherGameObject, callback, null, this);
     }
     
-    onEnemyProjectileHit(player, projectile){
-        player.health -= projectile.damage;
-        
-        projectile.deactivate();
-    }
-    
     setStatus(newStatus){
         this.status = newStatus;
     }
@@ -73,6 +67,43 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     addOverlap(otherGameObject, callback){
         this.scene.physics.add.overlap(this, otherGameObject, callback, null, this);
     }
+    
+    onEnemyLanded(enemy){
+        if(this.body.touching.down || this.body.blocked.down){
+            this.playDamageTween(enemy);
+            this.lastDirection === "left" ? this.setVelocityX(this.speedX) : this.setVelocityX(-this.speedX);
+            this.decreaseHealth(enemy);
+        }
+    }
+    
+    decreaseHealth(source){
+        this.scene.tweens.add({
+            targets: this,
+            health: this.health - source.damage,
+            duration: 800,
+            repeat: 0,
+        })
+    }
+    
+    playDamageTween(source){
+        this.hasBeenHit = true;
+        source.flipX ? this.setVelocityX(-this.speedX*1) : this.setVelocityX(this.speedX*1);
+        this.setVelocityY(-this.speedY);
+        
+        this.scene.tweens.add({
+            targets: this,
+            tint: 0x0000ff,
+            duration: 800,
+            repeat: 0,
+            onComplete: ()=>{
+                this.clearTint();
+                this.hasBeenHit = false;
+                if(this.health <= 0 ){
+                    this.isDead = true;
+                }
+            }
+        })
+    } 
     
    handleAnimations(){
         if(this.body.onFloor() || (this.onLadder && (!this.canClimbDown || !this.canClimbUp))){
@@ -97,6 +128,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
    }
    
    shoot(key, anim){
+       if(this.hasBeenHit) return;
        const projectile = this.projectiles.getFreeProjectile();
        if(projectile){
            projectile.key = key;
@@ -105,6 +137,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
    }
    
    handleShooting(){
+       if(this.hasBeenHit) return;
         //shoot
         if(myInput.keys[0] === "rangedShot" && myInput.keypressed){
             this.shoot("iceball", "ice");
@@ -117,14 +150,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
           
    }
    
-    update(time, delta){
-        super.update(time, delta );
-        
-        if(!this.body) return;
-        this.healthbar.draw();
-        this.handleAnimations();
-        this.handleShooting();
-        
+   handleMovement(){
+       if(this.hasBeenHit) return;
+       
         switch(this.status){
             case Player.Status.Walking:
                 this.body.setAllowGravity(true);
@@ -201,10 +229,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
             default:
                 //this.play("player-idle", true);
             break;
-        }
+        } 
+   }
+   
+    update(time, delta){
+        super.update(time, delta );
+        
+        if(!this.body) return;
+        this.healthbar.draw();
+        this.handleAnimations();
+        this.handleShooting();
+        this.handleMovement();
         
         //SETTING PLAYER Hitbox
         this.lastDirection = this.flipX ? "left" : "right";
-        
     }
 }

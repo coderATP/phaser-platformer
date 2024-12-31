@@ -95,9 +95,15 @@ export class PreloadScene extends GameState{
         this.load.spritesheet("fireball", "assets/weapons/fireball.png", {
             frameWidth: 32, frameHeight: 32
         })
+        this.load.spritesheet("fireball-impact", "assets/weapons/fireball_impact.png", {
+            frameWidth: 32, frameHeight: 32
+        }) 
         this.load.spritesheet("iceball", "assets/weapons/iceball.png", {
             frameWidth: 32, frameHeight: 32
         });
+        this.load.spritesheet("iceball-impact", "assets/weapons/iceball_impact.png", {
+            frameWidth: 32, frameHeight: 32
+        }); 
     }
     
     preload(){

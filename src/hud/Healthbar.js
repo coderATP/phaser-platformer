@@ -52,15 +52,14 @@ export class EnemyHealthbar extends Healthbar{
     constructor(scene, gameObject){
         super(scene, gameObject);
         this.graphics.setScrollFactor(1);
-        this.width =  gameObject.body.width*1.2;
-        this.height = 1.5;
+        this.width =  gameObject.body.width*1.4;
+        this.height = 1.8;
         this.pixelPerHealth = this.width/gameObject.health;
     }
     
     draw(){
-        this.x = (this.gameObject.body.x + this.gameObject.body.width*0.5) - this.width * 0.5;
-        this.y = this.gameObject.body.y - this.height - 2;
-        const margin = 2;
+        this.x = this.gameObject.body.center.x - this.width * 0.5;
+        this.y = this.gameObject.body.y - this.height - 3;
         
         this.graphics.clear();
         // white background

@@ -1,7 +1,7 @@
 import { ENEMY_STATES, EnemyStateMachine } from "../states/EnemyStates.js";
 import { Projectiles } from "../groups/Projectiles.js";
 import { EnemyHealthbar } from "../hud/Healthbar.js";
-
+import { ImageEffect } from "../effects/HitEffect.js";
 
 export class Enemy extends Phaser.Physics.Arcade.Sprite{
     constructor(scene, x, y, texture){
@@ -16,14 +16,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
     
     init(){
         this.health = 30;
-        this.healthWidth = 30;
+        this.isDead = false;
         this.gravity = 982;
         this.speedX = 25;
         this.rayGraphics = this.scene.add.graphics({lineStyle: { width: 1, color: "0xffffff"}});
         this.sensorGraphics = this.scene.add.graphics({lineStyle: { width: 1, color: "0x0000aa"}});
-        this.hpGraphics = this.scene.add.graphics();
+
         this.lastDirection = "right";
-        
+        this.hasBeenHit = false;
         this.bodyPositionDiff = 0;
         this.rayHasHit;
         this.turnTimer = 0;
@@ -35,15 +35,15 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
             .setSize(10, 26)
             .setDepth(10)
             .setGravityY(this.gravity)
-            .setImmovable();
+            .setImmovable(true);
             
         //healthbar
         this.healthbar = new EnemyHealthbar(this.scene, this);
         //states
         this.enemyStateMachine = new EnemyStateMachine();
         this.currentState = ENEMY_STATES.RUN;
-        //healthbar
-        
+        //hit effect
+        this.hitEffect;
         //projectiles
         this.projectiles = new Projectiles(this.scene, "fireball");
         
@@ -65,8 +65,46 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
             }
         }
     }
+
+    decreaseHealth(source){
+        this.scene.tweens.add({
+            targets: this,
+            health: this.health - source.damage,
+            duration: 800,
+            repeat: 0,
+        })
+    }
+    playDamageTween(source){
+        this.hasBeenHit = true;
+        const target = this;
+        this.hitEffect = new ImageEffect(this.scene, 0 , 0, "fireball-impact");
+        this.hitEffect.playAnimationOn(target, source, "fire-impact");
+        
+        this.scene.tweens.add({
+            targets: this,
+            tint: 0x0000ff,
+            duration: 800,
+            repeat: 0,
+            onComplete: ()=>{
+                this.clearTint();
+                this.hasBeenHit = false;
+                if(this.health <= 0){
+                    this.isDead = true;
+                }
+            }
+        })
+    }
+    cleanupAfterDeath(){
+        if(this.isDead){
+            this.healthbar.graphics.preDestroy();
+            this.rayGraphics.preDestroy();
+            this.sensorGraphics.preDestroy();
+            this.destroy();
+        }
+    }
     
     shootProjectile(delta){
+        if(!this.body || this.hasBeenHit) return;
         if(this.shootTimer < this.shootInterval){
             this.shootTimer+= delta;
         }
@@ -179,6 +217,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         
         this.enemyStateMachine.updateState(this.currentState, this, time, delta);
         this.shootProjectile(delta);
-        
+        this.cleanupAfterDeath();
+        this.hitEffect&& this.hitEffect.updatePosition(this);
     }
 }

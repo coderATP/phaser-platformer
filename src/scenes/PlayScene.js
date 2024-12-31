@@ -62,7 +62,7 @@ export class PlayScene extends GameState{
         this.physics.add.collider(this.enemies, this.mapLayers.collisionblocks);
         //player vs ladders
         this.ladderCollider = this.physics.add.overlap(this.player, this.mapLayers.ladders, this.checkLadder.bind(this));
-      
+        
         //enemy-projectiles
         this.enemies.getChildren().forEach(enemy=>{
             //vs player
@@ -70,7 +70,11 @@ export class PlayScene extends GameState{
             //vs platforms
             enemy.projectiles.onPlatformHit();
         })
-
+        //player vs enemies
+        this.physics.add.collider(this.player, this.enemies, (source, target)=>{
+            this.player.onEnemyLanded(target);
+        });
+        
         //player-projectiles vs enemies
         this.player.projectiles.onEnemyHit();
         //player-projectiles vs platforms
@@ -128,7 +132,6 @@ export class PlayScene extends GameState{
                 .setScrollFactor(0,1)
             bg
             .setPipeline('Light2D')
-            .setAlpha(1)
             layers.push(bg);
         }
         return layers;
@@ -147,7 +150,7 @@ export class PlayScene extends GameState{
         if(!layers) return;
         const enemies = new Enemies(this);
         layers.enemy_spawn_zones.forEach((zone, index)=>{
-            //if(index > 0) return;
+           // if(index > 0) return;
             enemies.add(new Enemy(this, zone.x, zone.y, "orc-base"));
         })
         return enemies;
@@ -180,7 +183,7 @@ export class PlayScene extends GameState{
         
         this.player.onLadder = (tile&& tile.index > -1) || (tile2&& tile2.index > -1) ? true : false;
         this.player.canClimbDown = (tile&& tile.index > -1 && (myInput.keys[0] === "down" || myInput.keys[0] === "ArrowDown" || myInput.keys[0] === "s")) ? true : false;
-        this.player.canClimbUp = (tile2&& tile2.index > -1 && myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") ? true : false;
+        this.player.canClimbUp = (tile2&& tile2.index > -1 && (myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") )? true : false;
 
     }
     
@@ -188,8 +191,9 @@ export class PlayScene extends GameState{
         const tile = this.map.getTileAtWorldXY(this.player.body.center.x, this.player.body.bottom, true);
         const tile2 = this.map.getTileAtWorldXY(this.player.body.center.x, this.player.body.top, true);
         
-        if( (tile&& tile.index > -1 && myInput.keys[0]==="down"  || myInput.keys[0] === "ArrowDown" || myInput.keys[0] === "s") ||
-            (tile2&& tile2.index > -1 && myInput.keys[0] ==="up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w")){
+        if( (tile&& tile.index > -1 && (myInput.keys[0]==="down"  || myInput.keys[0] === "ArrowDown" || myInput.keys[0] === "s") ) ||
+            (tile2&& tile2.index > -1 && (myInput.keys[0] ==="up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w"))
+            ){
             this.platformCollider.active = false;
         }
         else this.platformCollider.active = true;
@@ -251,7 +255,7 @@ export class PlayScene extends GameState{
     processEvents(){
         //play
         eventEmitter.on("PLAY_TO_PAUSE", ()=>{
-            //if(!this.scene.isPaused() )this.scene.pause("PlayScene");
+            if(!this.scene.isPaused() )this.scene.pause("PlayScene");
             this.hide(this.playScreen)
             this.show(this.pauseScreen, "grid");
         })
