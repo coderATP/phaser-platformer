@@ -26,8 +26,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     init(){
         this.scene.events.on("update", this.update, this);
         this.name = "player";
-        this.speedX = 80;
-        this.speedY = 300;
+        this.speedX = 60;
+        this.speedY = 280;
         this.onLadder = false;
         this.canClimbDown = false;
         this.canClimbUp = false;
@@ -198,18 +198,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
                 
                 if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
                     this.setFlipX(false)
-                    this.setVelocityX(this.speedX*0.7)
+                    this.setVelocityX(this.speedX*1)
                 }
                 else if (myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a") {
                     this.setFlipX(true)
-                    this.setVelocityX(-this.speedX*0.7)
+                    this.setVelocityX(-this.speedX*1)
                 }
                 else {
                     this.setVelocityX(0)
-                }
-                //jump off ladder
-                if(myInput.keys[0]=== "special"){
-                    this.flipX ? this.setVelocityX(-1000) : this.setVelocityX(1000)
                 }
                 if (myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") {
                     this.setVelocityY(-40)
