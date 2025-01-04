@@ -1,5 +1,5 @@
 /**@type {import("../typings/phaser")} */
-import { GameState } from "./GameState.js";
+import { BaseScene } from "./BaseScene.js";
 import { eventEmitter } from "../events/EventEmitter.js";
 import { ui } from "../ui.js";
 import { createEnemyAnimKeys } from "../anims/enemyAnims.js"
@@ -7,7 +7,7 @@ import { createPlayerAnimKeys } from "../anims/playerAnims.js"
 import { createProjectileAnimKeys } from "../anims/projectileAnims.js"
 
 
-export class PreloadScene extends GameState{
+export class PreloadScene extends BaseScene{
     constructor(config){
         super("PreloadScene", config);
         this.config = config;
@@ -23,6 +23,16 @@ export class PreloadScene extends GameState{
         createPlayerAnimKeys(this);
         createEnemyAnimKeys(this);
         createProjectileAnimKeys(this);
+    }
+    
+    loadAudio(){
+        this.load.audio("menuSong", "assets/sounds/menu_song.mp3");
+        this.load.audio("forestSong", "assets/sounds/forest_song.mp3");
+        this.load.audio("ruinsSong", "assets/sounds/ruins_song.mp3");
+        this.load.audio("buttonClick", "assets/sounds/button_sound.wav");
+        this.load.audio("buttonHover", "assets/sounds/button_hover_sound.wav");
+        this.load.audio("coinColected", "assets/sounds/coin_collected.wav");
+        this.load.audio("winSong", "assets/sounds/win_song.wav");
     }
     
     loadIcons(){
@@ -123,7 +133,7 @@ export class PreloadScene extends GameState{
         
         //while files are still being added...
         this.load.on("progress", (progress)=>{
-            this.loadingText.setText(Math.floor(progress*this.registry.get("assetsTotal")) + " of " + this.registry.get("assetsTotal") + " assets loaded..." );
+            this.loadingText.setText(Math.floor(progress*this.registry.get("assetsTotal")) + " of " + this.registry.get("assetsTotal") + " assets loading..." );
             this.loadingText.setPosition(this.config.width/2 - this.loadingText.width/2, this.config.height/2 - this.loadingText.height/2);
             
            ui.loading_startBtn.innerText = this.loadingText.text;
@@ -144,7 +154,8 @@ export class PreloadScene extends GameState{
         eventEmitter.once("PRELOAD_TO_MENU", ()=>{
             this.scene.start("MenuScene");
         })
-        
+        //load audio
+        //this.loadAudio(); 
         //load icons
         this.loadIcons();
         //load entities

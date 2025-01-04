@@ -1,12 +1,12 @@
 /**@type {import("../typings/phaser")} */
-import { GameState } from "./GameState.js";
+import { BaseScene } from "./BaseScene.js";
 import { ui } from "../ui.js";
 import { myInput } from "../myInput.js";
 import {eventEmitter} from "../events/EventEmitter.js";
 import { PlayScene } from "./PlayScene.js";
 
 
-export class LevelSelectScene extends GameState {
+export class LevelSelectScene extends BaseScene {
     constructor(config) {
         super('LevelSelectScene', config);
         
@@ -14,9 +14,12 @@ export class LevelSelectScene extends GameState {
         this.imageIndex = 0;
         this.numberOfLevels = 4;
     }
-
+    
+    destroyEvents(){
+        eventEmitter.destroy("MENU_TO_LEVELSELECT"); 
+    }
     enter() {
-        eventEmitter.destroy("MENU_TO_LEVELSELECT");
+        this.destroyEvents();
         
         this.hideAllScreens();
         this.show(this.levelSelectScreen, "grid");

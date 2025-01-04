@@ -1,25 +1,31 @@
 /**@type {import("../typings/phaser")} */
-import { GameState } from "./GameState.js";
+import { BaseScene } from "./BaseScene.js";
 import { ui } from "../ui.js";
 import { eventEmitter } from "../events/EventEmitter.js";
+import { audio } from "../audio/AudioControl.js";
 
-
-export class MenuScene extends GameState{
+export class MenuScene extends BaseScene{
     constructor(config){
         super('MenuScene', config);
         
     }
     
-    enter(){
+    destroyEvents(){
         eventEmitter.destroy("PRELOAD_TO_MENU");
         eventEmitter.destroy("LEVELSELECT_TO_MENU");
         eventEmitter.destroy("PAUSE_TO_MENU");
+        eventEmitter.destroy("LEVELCOMPLETE_TO_MENU"); 
+    }
+    enter(){
+        this.destroyEvents();
+        audio.menuSong.play();
         
         this.hideAllScreens();
         this.show(this.menuScreen, "grid");
     }
 
     create(){
+
         this.enter();
         this.initEvents();
         

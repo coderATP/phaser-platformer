@@ -51,6 +51,9 @@ class UI{
         //options
         this.options_menuBtn = document.getElementById("options_backBtn");
         this.optionsBtns = [this.options_menuBtn];
+       
+        // ALL BUTTONS
+        this.buttons = [...this.menuBtns, ...this.levelSelectBtns, ...this.levelCompleteBtns, ...this.optionsBtns, ...this.pauseBtns, ...this.restartBtns];
         
         //range for vol adjustment
         this.sfx_controller = document.getElementById("options_sfx");

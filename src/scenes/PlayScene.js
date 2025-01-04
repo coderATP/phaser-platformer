@@ -1,5 +1,5 @@
 /**@type {import("../typings/phaser")} */
-import { GameState } from "./GameState.js";
+import {LEVELS, BaseScene } from "./BaseScene.js";
 import { Player } from "../entities/Player.js";
 import { Enemy } from "../entities/Enemy.js";
 import { Enemies } from "../groups/Enemies.js";
@@ -9,7 +9,7 @@ import { eventEmitter } from "../events/EventEmitter.js";
 import { Container } from "../hud/Container.js";
 
 
-export class PlayScene extends GameState{
+export class PlayScene extends BaseScene{
     constructor(config){
         super('PlayScene', config);
         this.config = config;
@@ -17,6 +17,9 @@ export class PlayScene extends GameState{
     }
     
     //ON ENTERING SCENE, WHAT TO DO FIRST
+    destroyEvents(){
+        eventEmitter.destroy("TRANSITIONTOPLAY_PLAY");
+    }
     enter(){
         this.hideAllScreens();
         this.show(this.playScreen, "grid");
@@ -24,6 +27,7 @@ export class PlayScene extends GameState{
     
     //CREATE GAMEOBJECTS
     create(){
+        this.destroyEvents();
         this.enter();
 
         //map and its layers
@@ -80,7 +84,7 @@ export class PlayScene extends GameState{
         //player-projectiles vs platforms
         this.player.projectiles.onPlatformHit(); 
         
-        this.toNewScene();
+        this.onSceneComplete();
     }
     
     createMap(){
@@ -88,7 +92,7 @@ export class PlayScene extends GameState{
         
         const map = this.make.tilemap({key: "map"+this.currentLevel+this.currentScene});
         //tile bleeding/extrusion
-        map.addTilesetImage("Assets", "Tileset"+this.currentLevel,16, 16, 0, 0);
+        map.addTilesetImage("Assets", "Tileset"+this.currentLevel,16, 16, 1, 2);
         
         this.mapWidth = map.tileWidth * map.width;
         this.mapHeight = map.tileHeight * map.height;
@@ -105,9 +109,10 @@ export class PlayScene extends GameState{
         const stationary_platforms = map.createLayer( "stationary_platforms", tileset1).setDepth(9);
         
         const foreground = map.createLayer( "foreground", tileset1).setDepth(7);
-        
+        const beams = map.createLayer("beams", tileset1).setDepth(9) || null;
         const traps = map.createLayer("traps", tileset1);
-        const decoration = map.createLayer("decoration", tileset1);
+        const foreground_decoration = map.createLayer("foreground_decoration", tileset1).setDepth(8);
+        const background_decoration = map.createLayer("background_decoration", tileset1).setDepth(6);
         const exit_zone = map.getObjectLayer("exit_zone").objects;
         const player_spawn_zone = map.getObjectLayer("player_spawn_zone").objects;
         
@@ -116,7 +121,7 @@ export class PlayScene extends GameState{
         const ladders = map.createLayer("ladders", tileset1).setDepth(10).setCollisionByExclusion(-1, true);
         ladders.y = -0.01;
         
-        return { collisionblocks, exit_zone, player_spawn_zone, enemy_spawn_zones, ladders, foreground, traps, stationary_platforms, mobile_platforms_zones, decoration };
+        return { collisionblocks, exit_zone, player_spawn_zone, enemy_spawn_zones, ladders, foreground, traps, stationary_platforms, mobile_platforms_zones, foreground_decoration, background_decoration };
     }
     
     createBackgroundLayers(map){
@@ -200,15 +205,18 @@ export class PlayScene extends GameState{
     }
     
     //SCENE TRANSITION
-    toNewScene(){
+    onSceneComplete(){
         const eolOverlap = this.physics.add.overlap(this.player, this.endOfSceneImage, ()=>{
             eolOverlap.active = false;
             
-            this.registry.inc("currentScene", 1);
-            this.scene.start("TransitionToPlayScene");
-
+            if(this.currentScene < LEVELS[this.currentLevel].scenes){
+                eventEmitter.emit("PLAY_SCENECOMPLETE"); 
+            }
+            else{
+                eventEmitter.emit("PLAY_LEVELCOMPLETE");
+            }
+            
         })
-        
     }
     
     //CAMERA SETUP
@@ -254,33 +262,44 @@ export class PlayScene extends GameState{
     }
     processEvents(){
         //play
-        eventEmitter.on("PLAY_TO_PAUSE", ()=>{
+        ui.play_pauseBtn.addEventListener("click", ()=>{
             if(!this.scene.isPaused() )this.scene.pause("PlayScene");
             this.hide(this.playScreen)
             this.show(this.pauseScreen, "grid");
         })
         //pause
-        eventEmitter.on("PAUSE_TO_RESUME", ()=>{
+        ui.pause_resumeBtn.addEventListener("click", ()=>{
             this.show(this.playScreen, "grid");
             this.hide(this.pauseScreen);
             this.scene.resume("PlayScene");
         })
-        eventEmitter.on("PAUSE_TO_RESTART", ()=>{
+        ui.pause_restartBtn.addEventListener("click", ()=>{
             this.hide(this.pauseScreen);
             this.show(this.restartConfirmScreen, "grid");
         })
-        eventEmitter.on("PAUSE_TO_MENU", ()=>{
+        eventEmitter.once("PAUSE_TO_MENU", ()=>{
             this.registry.set("currentScene", 1);
             this.registry.set("currentLevel", 1);
             this.scene.start("MenuScene");
         })
+        //restart
         eventEmitter.on("RESTART_TO_PAUSE", () => {
             this.hide(this.restartConfirmScreen);
             this.show(this.pauseScreen, "grid");
         })
-        //restart
         eventEmitter.once("RESTART_TO_PLAY", () => {
             this.scene.start("TransitionToPlayScene");
+        })
+        //scene complete
+        eventEmitter.once("PLAY_SCENECOMPLETE", () => {
+            this.registry.inc("currentScene", 1);
+            this.setCurrentScene();
+            console.log ("Level " + this.currentLevel + ", Scene " + this.currentScene + " is next")
+            this.scene.start("TransitionToPlayScene");
+        }) 
+        //level complete
+        eventEmitter.once("PLAY_LEVELCOMPLETE", () => {
+            this.scene.start("LevelCompleteScene");
         })
     }
     
