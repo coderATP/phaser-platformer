@@ -330,15 +330,18 @@ section#playSceneCurtain{
 section#playSceneCurtain div#message{
     position: absolute;
     width: 100%;
+    height: 100%;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
 
 section#playSceneCurtain div#message p{
-    font-family: myOtherFont;
     font-size: 2em;
     text-align: center;
+    position: absolute;
+    bottom: 0;
+    right: 0;
 }
 
 /* LEVEL-SELECT */
