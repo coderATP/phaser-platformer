@@ -34,7 +34,6 @@ export class PlayScene extends BaseScene{
         this.map = this.createMap();
         this.bgLayers = this.createBackgroundLayers(this.map);
         this.mapLayers = this.createMapLayers(this.map);
-        
         //end-of-scene zone
         this.endZone = this.createEndZone(this.mapLayers);
         
@@ -53,7 +52,7 @@ export class PlayScene extends BaseScene{
         
         //head-under-display (HUD) container
         this.container = new Container(this, 0, 0);
-
+        
         //EVENTS TRANSITIONING
         this.acceptEvents();
         this.processEvents();
@@ -193,6 +192,7 @@ export class PlayScene extends BaseScene{
     }
     
     togglePlatformCollider(){
+        if(!this.map || !this.player || !this.player.body) return;
         const tile = this.map.getTileAtWorldXY(this.player.body.center.x, this.player.body.bottom, true);
         const tile2 = this.map.getTileAtWorldXY(this.player.body.center.x, this.player.body.top, true);
         
@@ -241,24 +241,12 @@ export class PlayScene extends BaseScene{
     
     //EVENT TRIGGERS
     acceptEvents() {
-        ui.play_pauseBtn.addEventListener("click", (e)=>{
-            eventEmitter.emit("PLAY_TO_PAUSE");
-        })
-        ui.pause_resumeBtn.addEventListener("click", (e)=>{
-            eventEmitter.emit("PAUSE_TO_RESUME");
-        })
-        ui.pause_restartBtn.addEventListener("click", (e)=>{
-            eventEmitter.emit("PAUSE_TO_RESTART");
-        })
         ui.pause_menuBtn.addEventListener("click", (e)=>{
             eventEmitter.emit("PAUSE_TO_MENU");
         })
         ui.restart_yesBtn.addEventListener("click", ()=>{
             eventEmitter.emit("RESTART_TO_PLAY");
         })
-        ui.restart_noBtn.addEventListener("click", ()=>{
-            eventEmitter.emit("RESTART_TO_PAUSE");
-        })  
     }
     processEvents(){
         //play
@@ -280,25 +268,32 @@ export class PlayScene extends BaseScene{
         eventEmitter.once("PAUSE_TO_MENU", ()=>{
             this.registry.set("currentScene", 1);
             this.registry.set("currentLevel", 1);
+            this.resetGame();
+            this.lights.disable();
+            this.light = null;
             this.scene.start("MenuScene");
         })
         //restart
-        eventEmitter.on("RESTART_TO_PAUSE", () => {
+        ui.restart_noBtn.addEventListener("click", () => {
             this.hide(this.restartConfirmScreen);
             this.show(this.pauseScreen, "grid");
         })
         eventEmitter.once("RESTART_TO_PLAY", () => {
+            this.resetGame();
             this.scene.start("TransitionToPlayScene");
         })
         //scene complete
         eventEmitter.once("PLAY_SCENECOMPLETE", () => {
             this.registry.inc("currentScene", 1);
             this.setCurrentScene();
-            console.log ("Level " + this.currentLevel + ", Scene " + this.currentScene + " is next")
+            //console.log ("Level " + this.currentLevel + ", Scene " + this.currentScene + " is next");
+            this.textures.remove("exitSign");
+            this.resetGame();
             this.scene.start("TransitionToPlayScene");
         }) 
         //level complete
         eventEmitter.once("PLAY_LEVELCOMPLETE", () => {
+            this.resetGame();
             this.scene.start("LevelCompleteScene");
         })
     }
@@ -307,14 +302,16 @@ export class PlayScene extends BaseScene{
     //UPDATE LOOP
     update(time, delta ){
         
-        if(!this.bgLayers) return;
+        if(this.bgLayers){
+            this.bgLayers.forEach((layer, index)=>{
+                layer.tilePositionX = this.cameras.main.scrollX * 0.3 * (index+1);
+            }) 
+        }
         
-        this.light.x = this.player.body.center.x;
-        this.light.y = this.player.body.center.y;
-        
-        this.bgLayers.forEach((layer, index)=>{
-            layer.tilePositionX = this.cameras.main.scrollX * 0.3 * (index+1);
-        })
+        if(this.light && this.player&& this.player.body){
+            this.light.x = this.player.body.center.x;
+            this.light.y = this.player.body.center.y;
+        }
         this.togglePlatformCollider();
     }
 }

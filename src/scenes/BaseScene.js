@@ -65,14 +65,14 @@ export class BaseScene extends Phaser.Scene{
     }
     
     resetGame(){
-        this.map = null;
-        this.mapID = null;
-        this.mapLayers = null;
-        this.backgrounds = null;
+        this.player&& this.player.destroy();
         this.player = null;
+        this.enemies&& this.enemies.getChildren().forEach(enemy=>{enemy.destroy()});
         this.enemies = null;
         this.mapWidth = this.mapHeight = undefined;
-        this.gamePaused; 
+        this.mapID = null;
+        //this.map&& this.map.destroy();
+        this.map = null; 
     }
     
     hideAllScreens(){

@@ -26,7 +26,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     init(){
         this.scene.events.on("update", this.update, this);
         this.name = "player";
-        this.speedX = 60;
+        this.speedX = 180;
         this.speedY = 280;
         this.onLadder = false;
         this.canClimbDown = false;
@@ -78,16 +78,25 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     }
     
     decreaseHealth(source){
+        this.hasBeenHit = true;
         this.scene.tweens.add({
             targets: this,
             health: this.health - source.damage,
-            duration: 800,
+            duration: 2000,
             repeat: 0,
+            onComplete: ()=>{
+                this.hasBeenHit = false;
+                if(this.health <= 0 ){
+                    this.isDead = true;
+                    this.setVelocity(0, -200);
+                    this.body.checkCollision.none = true;
+                    this.setCollideWorldBounds(false); 
+                }
+            }
         })
     }
     
     playDamageTween(source){
-        this.hasBeenHit = true;
         source.flipX ? this.setVelocityX(-this.speedX*1) : this.setVelocityX(this.speedX*1);
         this.setVelocityY(-this.speedY);
         
@@ -98,10 +107,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
             repeat: 0,
             onComplete: ()=>{
                 this.clearTint();
-                this.hasBeenHit = false;
-                if(this.health <= 0 ){
-                    this.isDead = true;
-                }
             }
         })
     } 

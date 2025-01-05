@@ -67,15 +67,24 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
     }
 
     decreaseHealth(source){
+        this.hasBeenHit = true; 
         this.scene.tweens.add({
             targets: this,
             health: this.health - source.damage,
-            duration: 800,
+            duration: 100,
             repeat: 0,
+            onComplete: ()=>{
+                this.hasBeenHit = false; 
+                if(this.health <= 0){
+                    //this.isDead = true;
+                    this.setVelocity(0, -200);
+                    this.body.checkCollision.none = true;
+                    this.setCollideWorldBounds(false);
+                }
+            }
         })
     }
     playDamageTween(source){
-        this.hasBeenHit = true;
         const target = this;
         this.hitEffect = new ImageEffect(this.scene, 0 , 0, "fireball-impact");
         this.hitEffect.playAnimationOn(target, source, "fire-impact");
@@ -83,22 +92,21 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         this.scene.tweens.add({
             targets: this,
             tint: 0x0000ff,
-            duration: 800,
+            duration: 2000,
             repeat: 0,
             onComplete: ()=>{
                 this.clearTint();
-                this.hasBeenHit = false;
-                if(this.health <= 0){
-                    this.isDead = true;
-                }
             }
         })
     }
     cleanupAfterDeath(){
-        if(this.isDead){
+        if(this.body&& this.body.y > this.config.height ){
             this.healthbar.graphics.preDestroy();
+            this.healthbar.graphics = null;
             this.rayGraphics.preDestroy();
+            this.rayGraphics = null;
             this.sensorGraphics.preDestroy();
+            this.sensorGraphics = null;
             this.destroy();
         }
     }
@@ -171,7 +179,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
     }
      
     detectPlatformCollisionWithRay(){
-        if(!this.scene) return;
+        if(!this.scene || !this.scene.map) return;
         
         this.rayHasHit = false;
         this.sensorHasHit = false;
