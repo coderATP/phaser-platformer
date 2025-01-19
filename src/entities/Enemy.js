@@ -3,11 +3,13 @@ import { Projectiles } from "../groups/Projectiles.js";
 import { EnemyHealthbar } from "../hud/Healthbar.js";
 import { ImageEffect } from "../effects/HitEffect.js";
 
+
 export class Enemy extends Phaser.Physics.Arcade.Sprite{
     constructor(scene, x, y, texture){
         super(scene, x, y, texture);
         this.scene = scene;
         this.config = scene.config;
+        this.texture = texture;
         
         scene.add.existing(this);
         scene.physics.add.existing(this);
@@ -16,6 +18,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
     
     init(){
         this.health = 30;
+        this.damage = 5;
         this.isDead = false;
         this.gravity = 982;
         this.speedX = 25;
@@ -33,12 +36,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         this
             .setOrigin(0.5,1)
             .setSize(10, 26)
-            .setDepth(10)
+            .setDepth(20)
             .setGravityY(this.gravity)
             .setImmovable(true);
             
         //healthbar
         this.healthbar = new EnemyHealthbar(this.scene, this);
+        this.healthbar.graphics.depth = this.depth;
         //states
         this.enemyStateMachine = new EnemyStateMachine();
         this.currentState = ENEMY_STATES.RUN;
@@ -48,22 +52,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         this.projectiles = new Projectiles(this.scene, "fireball");
         
         this.scene.events.on("update", this.update, this);
-    }
-    
-
-    //ANIMATIONS
-    handleAnimations(){
-        if(this.body && this.health > 0 ){
-            if(this.body.velocity.x !==0){
-                this.play("orc-run", true);
-                this.flipX ? this.setOffset(this.width*0.4, this.height*0.58) :
-                    this.setOffset(this.width*0.45, this.height*0.58);
-            }
-            else{
-                this.play("orc-idle", true);
-                this.setOffset(this.width*0.35, this.height*0.2);
-            }
-        }
     }
 
     decreaseHealth(source){
@@ -88,7 +76,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         const target = this;
         this.hitEffect = new ImageEffect(this.scene, 0 , 0, "fireball-impact");
         this.hitEffect.playAnimationOn(target, source, "fire-impact");
-        
+        this.hasBeenHit = true;
         this.scene.tweens.add({
             targets: this,
             tint: 0x0000ff,
@@ -96,6 +84,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
             repeat: 0,
             onComplete: ()=>{
                 this.clearTint();
+                this.hasBeenHit = false;8
             }
         })
     }
@@ -207,21 +196,35 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
             this.castSensors();
         }
     }
-     
+    
+    
+    handleAnimations() {
+        if (this.body && this.health > 0) {
+            if (this.body.velocity.x !== 0) {
+                this.flipX ? this.setOffset(this.width * 0.4, this.height * 0.58) :
+                    this.setOffset(this.width * 0.45, this.height * 0.58);
+            }
+            else {
+                this.setOffset(this.width * 0.35, this.height * 0.2);
+            }
+        }
+    }
+    
     update(time, delta){
         super.update(time, delta);
         
         if(this.body) this.healthbar.draw();
         
-        this.handleAnimations();
         this.optimiseRaycast();
         this.detectPlatformCollisionWithRay();
        
-        if (this.config.debug) {
+        if (this.config.debug&& this.rayGraphics) {
             this.rayGraphics.clear();
             this.rayGraphics.strokeLineShape(this.ray);
             this.rayGraphics.strokeLineShape(this.sensors.horizontal);
         }
+        
+        this.handleAnimations();
         
         this.enemyStateMachine.updateState(this.currentState, this, time, delta);
         this.shootProjectile(delta);

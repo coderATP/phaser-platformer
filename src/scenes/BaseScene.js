@@ -13,7 +13,7 @@ export const LEVELS = [
      {name: "forest", scenes: 3},
      {name: "ruins", scenes: 2},
      {name: "crypt", scenes: 1},
-     {name: "cemetery", scenes: 0},
+     {name: "cemetery", scenes: 1},
      {name: "garden", scenes: 0},
      {name: "grassland", scenes: 0},
      {name: "temple", scenes: 0},

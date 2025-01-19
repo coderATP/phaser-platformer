@@ -145,7 +145,7 @@
         {
          "draworder":"topdown",
          "id":4,
-         "name":"exit_zone",
+         "name":"exit_zones",
          "objects":[
                 {
                  "height":0,

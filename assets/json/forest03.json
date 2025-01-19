@@ -418,7 +418,7 @@
         {
          "draworder":"topdown",
          "id":10,
-         "name":"exit_zone",
+         "name":"exit_zones",
          "objects":[
                 {
                  "height":0,

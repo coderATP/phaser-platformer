@@ -64,43 +64,39 @@ export class PreloadScene extends BaseScene{
         this.load.spritesheet('orc-base', "assets/enemies/Orc Base/Idle-Sheet.png", {
             frameWidth: 32, frameHeight: 32,
         });
-        this.load.spritesheet('orc-base-death', "assets/enemies/Orc Base/Death-Sheet.png", {
-            frameWidth: 64, frameHeight: 64,
-        });
         this.load.spritesheet('orc-base-run', "assets/enemies/Orc Base/Run-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
-        
+        this.load.spritesheet('orc-base-death', "assets/enemies/Orc Base/Death-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });  
         this.load.spritesheet('orc-rogue', "assets/enemies/Orc Rogue/Idle-Sheet.png", {
             frameWidth: 32, frameHeight: 32,
-        });
-        this.load.spritesheet('orc-rogue-death', "assets/enemies/Orc Rogue/Death-Sheet.png", {
-            frameWidth: 64, frameHeight: 64,
         });
         this.load.spritesheet('orc-rogue-run', "assets/enemies/Orc Rogue/Run-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
-        
+        this.load.spritesheet('orc-rogue-death', "assets/enemies/Orc Rogue/Death-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });   
         this.load.spritesheet('orc-shaman', "assets/enemies/Orc Shaman/Idle-Sheet.png", {
             frameWidth: 32, frameHeight: 32,
-        });
-        this.load.spritesheet('orc-shaman-death', "assets/enemies/Orc Shaman/Death-Sheet.png", {
-            frameWidth: 64, frameHeight: 64,
         });
         this.load.spritesheet('orc-shaman-run', "assets/enemies/Orc Shaman/Run-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
-        
+        this.load.spritesheet('orc-shaman-death', "assets/enemies/Orc Shaman/Death-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });  
         this.load.spritesheet('orc-warrior', "assets/enemies/Orc Warrior/Idle-Sheet.png", {
             frameWidth: 32, frameHeight: 32,
-        });
-        this.load.spritesheet('orc-warrior-death', "assets/enemies/Orc Warrior/Death-Sheet.png", {
-            frameWidth: 96, frameHeight: 80,
         });
         this.load.spritesheet('orc-warrior-run', "assets/enemies/Orc Warrior/Run-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
-        
+        this.load.spritesheet('orc-warrior-death', "assets/enemies/Orc Warrior/Death-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });  
         //PROJECTILES
         this.load.spritesheet("fireball", "assets/weapons/fireball.png", {
             frameWidth: 32, frameHeight: 32
@@ -143,7 +139,7 @@ export class PreloadScene extends BaseScene{
         this.load.on("complete", ()=>{
             //load animations (this has to wait till now since it requires textures to first load)
             this.loadAnims();
-            
+
             this.loadingText.setText("Ready? Let's Game!!");
             ui.loading_startBtn.innerText = this.loadingText.text;
             

@@ -2,11 +2,13 @@
 import {LEVELS, BaseScene } from "./BaseScene.js";
 import { Player } from "../entities/Player.js";
 import { Enemy } from "../entities/Enemy.js";
+import { OrcBase, OrcRogue, OrcShaman, OrcWarrior} from "../entities/Orc.js";
 import { Enemies } from "../groups/Enemies.js";
 import { ui } from "../ui.js";
 import { myInput } from "../myInput.js";
 import { eventEmitter } from "../events/EventEmitter.js";
 import { Container } from "../hud/Container.js";
+import { createEnemyAnimKeys } from "../anims/enemyAnims.js";
 
 
 export class PlayScene extends BaseScene{
@@ -42,7 +44,6 @@ export class PlayScene extends BaseScene{
         
         //enemies
         this.enemies = this.createEnemies(this.mapLayers);
-        this.enemies.handleAnimations();
         
         //camera
         this.cameraSetup(this.player);
@@ -112,7 +113,7 @@ export class PlayScene extends BaseScene{
         const traps = map.createLayer("traps", tileset1);
         const foreground_decoration = map.createLayer("foreground_decoration", tileset1).setDepth(8);
         const background_decoration = map.createLayer("background_decoration", tileset1).setDepth(6);
-        const exit_zone = map.getObjectLayer("exit_zone").objects;
+        const exit_zone = map.getObjectLayer("exit_zones").objects;
         const player_spawn_zone = map.getObjectLayer("player_spawn_zone").objects;
         
         const enemy_spawn_zones = map.getObjectLayer("enemy_spawn_zones").objects;
@@ -155,11 +156,16 @@ export class PlayScene extends BaseScene{
         const enemies = new Enemies(this);
         layers.enemy_spawn_zones.forEach((zone, index)=>{
            // if(index > 0) return;
-            enemies.add(new Enemy(this, zone.x, zone.y, "orc-base"));
+           const randomNumber = Math.random();
+            if(randomNumber < 0.25) enemies.add(new OrcBase(this, zone.x, zone.y));
+            else if(randomNumber < 0.5) enemies.add(new OrcRogue(this, zone.x, zone.y));
+            else if(randomNumber < 0.75) enemies.add(new OrcShaman(this, zone.x, zone.y));
+            else enemies.add(new OrcWarrior(this, zone.x, zone.y));
         })
         return enemies;
     }
     
+    //LIGHTING
     createLighting(player){
         if(!player.body) return;
         var radius = 100, color = 0xff00ff;
@@ -225,13 +231,13 @@ export class PlayScene extends BaseScene{
         const cam = this.cameras.main;
         
         cam.startFollow(cameraPerson);
-        cam.pan(0, 0, 1000, 'Linear');
-        cam.zoomTo(this.cameraZoomFactor, 2000);
+        cam.pan(0, 0, 0, 'Linear');
+        cam.zoomTo(this.cameraZoomFactor, 0);
         //world bounds
         this.physics.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
         //camera bounds
         cam.setBounds(0, 0, this.mapWidth, this.mapHeight);
-        //smooth px, also solved issue with tiles bleeding
+        //smooth px, also solved issue with tiles bleeding (to some degrees)
         cam.roundPixels = false; 
         //lerp
         cam.setLerp(0.1, 0.1);
@@ -248,6 +254,7 @@ export class PlayScene extends BaseScene{
             eventEmitter.emit("RESTART_TO_PLAY");
         })
     }
+    
     processEvents(){
         //play
         ui.play_pauseBtn.addEventListener("click", ()=>{
@@ -297,7 +304,6 @@ export class PlayScene extends BaseScene{
             this.scene.start("LevelCompleteScene");
         })
     }
-    
     
     //UPDATE LOOP
     update(time, delta ){

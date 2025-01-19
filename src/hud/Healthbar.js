@@ -59,7 +59,7 @@ export class EnemyHealthbar extends Healthbar{
     
     draw(){
         this.x = this.gameObject.body.center.x - this.width * 0.5;
-        this.y = this.gameObject.body.y - this.height - 3;
+        this.y = this.gameObject.body.y - this.height - 4;
         
         this.graphics.clear();
         // white background

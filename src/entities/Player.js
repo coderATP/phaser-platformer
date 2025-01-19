@@ -26,7 +26,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     init(){
         this.scene.events.on("update", this.update, this);
         this.name = "player";
-        this.speedX = 180;
+        this.speedX = 70;
         this.speedY = 280;
         this.onLadder = false;
         this.canClimbDown = false;
@@ -71,9 +71,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     
     onEnemyLanded(enemy){
         if(this.body.touching.down || this.body.blocked.down){
-            this.playDamageTween(enemy);
-            this.lastDirection === "left" ? this.setVelocityX(this.speedX) : this.setVelocityX(-this.speedX);
             this.decreaseHealth(enemy);
+            this.playDamageTween(enemy);  
+            this.lastDirection === "left" ? this.setVelocityX(this.speedX) : this.setVelocityX(-this.speedX);
         }
     }
     
@@ -82,7 +82,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.scene.tweens.add({
             targets: this,
             health: this.health - source.damage,
-            duration: 2000,
+            duration: 800,
             repeat: 0,
             onComplete: ()=>{
                 this.hasBeenHit = false;
@@ -102,7 +102,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         
         this.scene.tweens.add({
             targets: this,
-            tint: 0x0000ff,
+            tint: 0x000000,
             duration: 800,
             repeat: 0,
             onComplete: ()=>{
