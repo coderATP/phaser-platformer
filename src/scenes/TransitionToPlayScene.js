@@ -3,7 +3,8 @@ import { BaseScene, LEVELS } from "./BaseScene.js";
 import { eventEmitter } from "../events/EventEmitter.js";
 import { ui } from "../ui.js";
 import { Player } from "../entities/Player.js";
-
+import { audio } from "../audio/AudioControl.js";
+ 
 
 export class TransitionToPlayScene extends BaseScene{
     constructor(config){
@@ -89,7 +90,7 @@ export class TransitionToPlayScene extends BaseScene{
 
     loadBG(){
         this.setCurrentScene();
-        const bgLength = 7;
+        const bgLength = 2;
         for(let i = bgLength; i >= 1; --i){
             const key = 0+""+i;
             if(this.textures.exists(key) ){

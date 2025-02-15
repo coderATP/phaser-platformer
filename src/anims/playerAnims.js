@@ -25,7 +25,7 @@
                 "player-run",
                 {start: 0, end: 7},
             ),
-            frameRate: 8,
+            frameRate: 12,
             repeat: -1 
         });
         scene.anims.create({

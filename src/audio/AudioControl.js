@@ -3,21 +3,31 @@ import { ui } from "../ui.js";
 
 class AudioControl{
     constructor(){
-        this.menuSong = new Audio("assets/sounds/menu_song.mp3");
-        this.forestSong = new Audio("assets/sounds/forest_song.mp3");
-        this.ruinsSong = new Audio("assets/sounds/ruins_song.mp3");
-        this.winSong = new Audio("assets/sounds/win_song.wav");
+        this.menuSong = new Audio("assets/sounds/overworld.ogg");
+        this.forestSong = new Audio("assets/sounds/forest.ogg");
+        this.ruinsSong = new Audio("assets/sounds/ruins.mp3");
+        this.cryptSong = new Audio("assets/sounds/crypt.mp3");
+        this.cemeterySong = new Audio("assets/sounds/cemetery.wav"); 
         
+        this.winSong = new Audio("assets/sounds/win.wav");
+
         this.buttonClickSound = new Audio("assets/sounds/button_hover_sound.wav");
         this.buttonHoverSound = new Audio("assets/sounds/button_sound.wav");
-        this.playStateSongs = [this.forestSong, this.ruinsSong];
+        
+        this.punchImpactSound = new Audio("assets/sounds/punch_impact.wav");
+        this.jumpSound = new Audio("assets/sounds/jump.wav");
+        this.coinCollectedSound = new Audio("assets/sounds/coin_collected.wav");
+        this.projectileLaunchSound = new Audio("assets/sounds/projectile_launch.wav");
+        this.walkSound = new Audio("assets/sounds/walk.wav");
+        
+        this.playStateSongs = [this.forestSong, this.ruinsSong, this.cryptSong, this.cemeterySong];
         //ARRAY OF ALL SONGS
         this.songs = [this.menuSong, ...this.playStateSongs, this.winSong];
-        this.songs.forEach(song=>{song.volume = 0.5;})
         //ARRAY OF ALL SOUNDS
-        //this.sounds = [this.buttonSound, this.buttonHoverSound, this.coinSound];
-        
-        
+        this.sounds = [this.buttonClickSound, this.buttonHoverSound, this.coinCollectedSound, this.projectileLaunchSound, this.walkSound];
+        //REDUCE VOLUME AT STARTUP, UNLESS OTHERWISE SPECIFIED BY USER
+        this.songs.forEach(song=>{song.volume = 0.2;});
+        this.sounds.forEach(sound=>{sound.volume = 0.1});
         this.onHover();
         this.onClick();
     }
@@ -41,6 +51,17 @@ class AudioControl{
     play(audio){
         audio.currentTime = 0;
         audio.play();
+    }
+    
+    stop(audio){
+        audio.currentTime = 0;
+        audio.pause();
+    }
+    stopAllSongs(){
+        this.songs.forEach(song=>{
+            song.currentTime = 0;
+            song.pause();
+        })
     }
     
 }

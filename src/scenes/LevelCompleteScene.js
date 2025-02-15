@@ -1,6 +1,7 @@
 import { BaseScene } from "./BaseScene.js";
 import { ui } from "../ui.js";
 import { eventEmitter } from "../events/EventEmitter.js";
+import { audio } from "../audio/AudioControl.js";
 
 
 export class LevelCompleteScene extends BaseScene{
@@ -9,6 +10,8 @@ export class LevelCompleteScene extends BaseScene{
     }
     
     enter(){
+        audio.stopAllSongs();
+        audio.winSong.play();
         this.hideAllScreens();
         this.show(this.levelCompleteScreen, "grid");
     }

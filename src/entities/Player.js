@@ -1,6 +1,7 @@
 import {myInput} from "../myInput.js";
 import { Projectiles } from "../groups/Projectiles.js";
 import { PlayerHealthbar } from "../hud/Healthbar.js";
+import { audio } from "../audio/AudioControl.js";
 
 
 export class Player extends Phaser.Physics.Arcade.Sprite{
@@ -19,7 +20,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         scene.physics.add.existing(this);
         this.init();
         this.status = Player.Status.Walking;
- 
+        
     }
     
     
@@ -33,6 +34,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.canClimbUp = false;
         this.jumpCount = 0;
         this.maxJumps = 3;
+        this.walkSoundCounter = 0;
+        this.walkSoundInterval = 350;
         this.maxHealth = 100;
         this.health = this.maxHealth;
         this.hasBeenHit = false;
@@ -50,7 +53,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
             .setGravityY(982)
             .setCollideWorldBounds(true);
             
-        this.healthbar = new PlayerHealthbar(this.scene, this); 
+        this.healthbar = new PlayerHealthbar(this.scene, this);
     }
     
     addCollider(otherGameObject, callback){
@@ -112,25 +115,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     } 
     
    handleAnimations(){
-        if(this.body.onFloor() || (this.onLadder && (!this.canClimbDown || !this.canClimbUp))){
-            if(this.body.velocity.x === 0 ){
-                this.play("player-idle", true);
-            }
-            else{
-                //this.play("player-run", true);
-            }
-        }
-        else if(this.canClimbUp || this.canClimbDown){
-            this.play("player-idle", true);
-        }
-        else{
-            if(this.body.velocity.y < 0){
-               // this.play("player-jump", true);
-            }
-            else{
-               // this.play("player-fall", true);
-            }
-        } 
+       
+       if(this.body.onFloor()){
+           this.body.velocity.x === 0 ?
+            this.play("player-idle", true) : this.play("player-run", true);
+       }
+       else{
+           this.body.velocity.y < 0 && this.play("player-jump", true);
+           this.body.velocity.y > 0 && this.play("player-fall", true);
+       }
+       //on ladder
+       this.onLadder && this.play('player-idle', true);
    }
    
    shoot(key, anim){
@@ -156,7 +151,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
           
    }
    
-   handleMovement(){
+   playWalkSound(delta){
+       if(this.body.velocity.y !== 0 && this.body.velocity.x !== 0) return;
+       if(this.walkSoundCounter < this.walkSoundInterval){
+           this.walkSoundCounter+= delta;
+       }
+       else{
+           this.walkSoundCounter = 0;
+           audio.play(audio.walkSound);
+       }
+   }
+   handleMovement(delta){
        if(this.hasBeenHit) return;
        
         switch(this.status){
@@ -164,14 +169,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
                 this.body.setAllowGravity(true);
                 
                 if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
+                    this.playWalkSound(delta);
                     this.setFlipX(false)
-                    this.setVelocityX(this.speedX)
-                    //this.play("player-run", true);
+                    this.setVelocityX(this.speedX);
                 }
                 else if (myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a") {
+                    this.playWalkSound(delta);
                     this.setFlipX(true)
                     this.setVelocityX(-this.speedX)
-                    //this.play("player-run", true);
                 }
                 else {
                     this.setVelocityX(0)
@@ -180,6 +185,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
                 
                 if(this.body.onFloor()) this.jumpCount = 0;
                 if (( myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") && myInput.keypressed && this.jumpCount < this.maxJumps) {
+                    audio.play(audio.jumpSound);
                     this.jumpCount ++;
                     this.setVelocityY(-this.speedY)
                     myInput.keypressed = false;
@@ -241,7 +247,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.healthbar.draw();
         this.handleAnimations();
         this.handleShooting();
-        this.handleMovement();
+        this.handleMovement(delta);
         
         //SETTING PLAYER Hitbox
         this.lastDirection = this.flipX ? "left" : "right";

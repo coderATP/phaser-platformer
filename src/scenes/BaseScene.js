@@ -33,6 +33,7 @@ export class BaseScene extends Phaser.Scene{
         
         this.mapLayers = null;
         this.bgLayers = null;
+        this.light = null;
         this.player = null;
         this.enemies = null;
         this.mapWidth = this.mapHeight = undefined;
@@ -65,13 +66,37 @@ export class BaseScene extends Phaser.Scene{
     }
     
     resetGame(){
+        //destroy player healthbar
+        this.player.healthbar.graphics.preDestroy();
+        //destroy player projectiles
+        this.player.projectiles&& this.player.projectiles.destroy(true);
+        this.player.projectiles = null;
+        //destroy player itself
         this.player&& this.player.destroy();
         this.player = null;
-        this.enemies&& this.enemies.getChildren().forEach(enemy=>{enemy.destroy()});
+        //remove enemies' projectiles and enemies themselves
+        this.enemies.getChildren().forEach(enemy=>{
+            enemy.projectiles.destroy(true);
+            enemy.projectiles = null;
+            enemy.destroy();
+            enemy = null;
+        })
+        //destroy enemy group
+        this.enemies.destroy(true);
         this.enemies = null;
-        this.mapWidth = this.mapHeight = undefined;
+        //disable light
+        this.light&& this.lights.disable();
+        this.light = null;
+        //remove exit sign
+        this.textures.remove("exitSign");
+        //remove level tileset
+        this.textures.remove("Tileset" + this.currentLevel);
+        //remove background images
+        this.textures.remove("01");
+        this.textures.remove("02");
+        //destroy map
         this.mapID = null;
-        //this.map&& this.map.destroy();
+        this.map&& this.map.destroy();
         this.map = null; 
     }
     

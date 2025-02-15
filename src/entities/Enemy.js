@@ -43,6 +43,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         //healthbar
         this.healthbar = new EnemyHealthbar(this.scene, this);
         this.healthbar.graphics.depth = this.depth;
+        
         //states
         this.enemyStateMachine = new EnemyStateMachine();
         this.currentState = ENEMY_STATES.RUN;
@@ -96,6 +97,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
             this.rayGraphics = null;
             this.sensorGraphics.preDestroy();
             this.sensorGraphics = null;
+            this.projectiles.getChildren().forEach(projectile=>{
+                projectile.destroy();
+                projectile = null;
+            });
             this.destroy();
         }
     }

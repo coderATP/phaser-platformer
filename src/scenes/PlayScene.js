@@ -9,6 +9,7 @@ import { myInput } from "../myInput.js";
 import { eventEmitter } from "../events/EventEmitter.js";
 import { Container } from "../hud/Container.js";
 import { createEnemyAnimKeys } from "../anims/enemyAnims.js";
+import { audio } from "../audio/AudioControl.js";
 
 
 export class PlayScene extends BaseScene{
@@ -16,6 +17,7 @@ export class PlayScene extends BaseScene{
         super('PlayScene', config);
         this.config = config;
         this.enemies;
+        
     }
     
     //ON ENTERING SCENE, WHAT TO DO FIRST
@@ -23,6 +25,8 @@ export class PlayScene extends BaseScene{
         eventEmitter.destroy("TRANSITIONTOPLAY_PLAY");
     }
     enter(){
+        audio.stopAllSongs();
+        this.playSceneAudio();
         this.hideAllScreens();
         this.show(this.playScreen, "grid");
     }
@@ -30,8 +34,9 @@ export class PlayScene extends BaseScene{
     //CREATE GAMEOBJECTS
     create(){
         this.destroyEvents();
+        
         this.enter();
-
+        
         //map and its layers
         this.map = this.createMap();
         this.bgLayers = this.createBackgroundLayers(this.map);
@@ -124,10 +129,16 @@ export class PlayScene extends BaseScene{
         return { collisionblocks, exit_zone, player_spawn_zone, enemy_spawn_zones, ladders, foreground, traps, stationary_platforms, mobile_platforms_zones, foreground_decoration, background_decoration };
     }
     
+    playSceneAudio(){
+        this.setCurrentScene();
+        const scene = LEVELS[this.currentLevel].name;
+        audio.play(audio[scene+"Song"]);
+    }
+    
     createBackgroundLayers(map){
         if (!map) return;
         const layers = [];
-        for (let i = 7; i >= 3; i--) {
+        for (let i = 2; i >= 1; i--) {
             //const key = this.mapID + "" + i;
             const key = 0+""+i;
             const bg = this.add.tileSprite(0, 0, 1920+this.config.width, 1080, key )
@@ -155,7 +166,7 @@ export class PlayScene extends BaseScene{
         if(!layers) return;
         const enemies = new Enemies(this);
         layers.enemy_spawn_zones.forEach((zone, index)=>{
-           // if(index > 0) return;
+            if(index > 0) return;
            const randomNumber = Math.random();
             if(randomNumber < 0.25) enemies.add(new OrcBase(this, zone.x, zone.y));
             else if(randomNumber < 0.5) enemies.add(new OrcRogue(this, zone.x, zone.y));
@@ -172,7 +183,7 @@ export class PlayScene extends BaseScene{
         var light = this.lights
             .enable()
             .addLight(player.body.center.x, player.body.center.y, radius)
-            .setIntensity(1);
+            .setIntensity(2);
         
         return light;
     }
@@ -293,9 +304,9 @@ export class PlayScene extends BaseScene{
         eventEmitter.once("PLAY_SCENECOMPLETE", () => {
             this.registry.inc("currentScene", 1);
             this.setCurrentScene();
-            //console.log ("Level " + this.currentLevel + ", Scene " + this.currentScene + " is next");
-            this.textures.remove("exitSign");
+            //remove player, enemies, player&enemy projectiles, player&enemyhealthbars, tileset, map amd other gameobjects
             this.resetGame();
+            //transition to next scene
             this.scene.start("TransitionToPlayScene");
         }) 
         //level complete
