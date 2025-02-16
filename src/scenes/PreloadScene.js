@@ -148,7 +148,7 @@ export class PreloadScene extends BaseScene{
             })
         })
         eventEmitter.once("PRELOAD_TO_MENU", ()=>{
-            this.toggleFullscreen()
+            //this.toggleFullscreen()
             this.scene.start("MenuScene");
         })
         //load audio

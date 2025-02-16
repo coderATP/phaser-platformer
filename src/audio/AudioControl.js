@@ -14,10 +14,13 @@ class AudioControl{
         this.buttonClickSound = new Audio("assets/sounds/button_hover_sound.wav");
         this.buttonHoverSound = new Audio("assets/sounds/button_sound.wav");
         
+        this.punchSound = new Audio("assets/sounds/punch.wav");
         this.punchImpactSound = new Audio("assets/sounds/punch_impact.wav");
         this.jumpSound = new Audio("assets/sounds/jump.wav");
         this.coinCollectedSound = new Audio("assets/sounds/coin_collected.wav");
         this.projectileLaunchSound = new Audio("assets/sounds/projectile_launch.wav");
+        this.projectileImpactSound = new Audio("assets/sounds/projectile_impact.mp3");
+        this.playerHitSound = new Audio("assets/sounds/player_hit.mp3");
         this.walkSound = new Audio("assets/sounds/walk.wav");
         
         this.playStateSongs = [this.forestSong, this.ruinsSong, this.cryptSong, this.cemeterySong];

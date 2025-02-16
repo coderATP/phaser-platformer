@@ -23,10 +23,11 @@ export class ImageEffect extends HitEffect{
     playAnimationOn(target, source, anim){
         /*
         TARGET is the GameObject that received a hit...
-        and on which this animation will be played
+        and on which this animation effect will be played
         
         SOURCE is the initiator of the animation:
         the initiator is usually a weapon wielded or thrown by an opponent
+        such as punch, kick, bomb, sword, etc.
         
         ANIM is the animation itself (fire-impact or ice-impact)
         */

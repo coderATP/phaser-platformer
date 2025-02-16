@@ -91,7 +91,7 @@ export class TransitionToPlayScene extends BaseScene{
     loadBG(){
         this.setCurrentScene();
         const bgLength = 2;
-        for(let i = bgLength; i >= 1; --i){
+        for(let i = 1; i <= bgLength; ++i){
             const key = 0+""+i;
             if(this.textures.exists(key) ){
                this.registry.inc("assetsTotal", -1); 

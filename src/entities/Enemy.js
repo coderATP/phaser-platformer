@@ -48,7 +48,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         this.enemyStateMachine = new EnemyStateMachine();
         this.currentState = ENEMY_STATES.RUN;
         //hit effect
-        this.hitEffect;
+        this.hitEffect = null;
         //projectiles
         this.projectiles = new Projectiles(this.scene, "fireball");
         
@@ -75,8 +75,15 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
     }
     playDamageTween(source){
         const target = this;
-        this.hitEffect = new ImageEffect(this.scene, 0 , 0, "fireball-impact");
-        this.hitEffect.playAnimationOn(target, source, "fire-impact");
+        if (source.texture.key === "fireball"){
+            this.hitEffect = new ImageEffect(this.scene, 0 , 0, "fireball-impact");
+            this.hitEffect.playAnimationOn(target, source, "fire-impact"); 
+        }
+        else if(source.texture.key === "iceball"){
+            this.hitEffect = new ImageEffect(this.scene, 0, 0, "iceball-impact");
+            this.hitEffect.playAnimationOn(target, source, "ice-impact");
+        }
+
         this.hasBeenHit = true;
         this.scene.tweens.add({
             targets: this,

@@ -1,6 +1,7 @@
 import {myInput} from "../myInput.js";
 import { Projectiles } from "../groups/Projectiles.js";
 import { PlayerHealthbar } from "../hud/Healthbar.js";
+import { ImageEffect } from "../effects/HitEffect.js";
 import { audio } from "../audio/AudioControl.js";
 
 
@@ -28,17 +29,18 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.scene.events.on("update", this.update, this);
         this.name = "player";
         this.speedX = 70;
-        this.speedY = 280;
+        this.speedY = 350;
         this.onLadder = false;
         this.canClimbDown = false;
         this.canClimbUp = false;
         this.jumpCount = 0;
-        this.maxJumps = 3;
+        this.maxJumps = 2;
         this.walkSoundCounter = 0;
         this.walkSoundInterval = 350;
         this.maxHealth = 100;
         this.health = this.maxHealth;
         this.hasBeenHit = false;
+        this.hitEffect = null;
         this.isDead = false;
         this.damage = 10;
         this.lastDirection = "left";
@@ -75,7 +77,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     onEnemyLanded(enemy){
         if(this.body.touching.down || this.body.blocked.down){
             this.decreaseHealth(enemy);
-            this.playDamageTween(enemy);  
+            this.playDamageTween(enemy);
+            audio.play(audio.playerHitSound);
             this.lastDirection === "left" ? this.setVelocityX(this.speedX) : this.setVelocityX(-this.speedX);
         }
     }
@@ -93,25 +96,28 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
                     this.isDead = true;
                     this.setVelocity(0, -200);
                     this.body.checkCollision.none = true;
-                    this.setCollideWorldBounds(false); 
+                    this.setCollideWorldBounds(false);
+                    //then destroy player
                 }
             }
         })
     }
     
     playDamageTween(source){
+        //send player in opposite direction when taking damage
         source.flipX ? this.setVelocityX(-this.speedX*1) : this.setVelocityX(this.speedX*1);
         this.setVelocityY(-this.speedY);
+        //play hit effect on player when taking damage
+        const target = this;
+        if (source.texture.key === "fireball"){
+            this.hitEffect = new ImageEffect(this.scene, 0 , 0, "fireball-impact");
+            this.hitEffect.playAnimationOn(target, source, "fire-impact"); 
+        }
+        else if(source.texture.key === "iceball"){
+            this.hitEffect = new ImageEffect(this.scene, 0, 0, "iceball-impact");
+            this.hitEffect.playAnimationOn(target, source, "ice-impact");
+        }
         
-        this.scene.tweens.add({
-            targets: this,
-            tint: 0x000000,
-            duration: 800,
-            repeat: 0,
-            onComplete: ()=>{
-                this.clearTint();
-            }
-        })
     } 
     
    handleAnimations(){
@@ -134,6 +140,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
        if(projectile){
            projectile.key = key;
            projectile.fire(this, this.getCenter().x, this.getCenter().y, anim);
+           audio.play(audio.projectileLaunchSound);
        }
    }
    
@@ -251,5 +258,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         
         //SETTING PLAYER Hitbox
         this.lastDirection = this.flipX ? "left" : "right";
+        
+        //hit effect
+        this.hitEffect&& this.hitEffect.updatePosition(this);
     }
 }

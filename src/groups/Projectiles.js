@@ -1,4 +1,5 @@
 import { Projectile } from "../entities/Projectile.js";
+import { audio } from "../audio/AudioControl.js";
 
 export class Projectiles extends Phaser.Physics.Arcade.Group{
     constructor(scene, key){
@@ -31,6 +32,8 @@ export class Projectiles extends Phaser.Physics.Arcade.Group{
         this.scene.physics.add.collider(this, this.scene.player, (target, source)=>{
             target.decreaseHealth(source);
             target.playDamageTween(source);
+            audio.play(audio.projectileImpactSound);
+            audio.play(audio.playerHitSound);
             source.deactivate();
         })
     }
@@ -41,6 +44,7 @@ export class Projectiles extends Phaser.Physics.Arcade.Group{
             this.scene.physics.add.collider(this, enemy, (target, source)=>{
                 target.decreaseHealth(source);
                 target.playDamageTween(source);
+                audio.play(audio.projectileImpactSound);
                 source.deactivate();
             })
         })

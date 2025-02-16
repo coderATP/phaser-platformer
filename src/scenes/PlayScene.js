@@ -138,16 +138,17 @@ export class PlayScene extends BaseScene{
     createBackgroundLayers(map){
         if (!map) return;
         const layers = [];
-        for (let i = 2; i >= 1; i--) {
+        for (let i = 1; i <= 2; i++) {
             //const key = this.mapID + "" + i;
             const key = 0+""+i;
-            const bg = this.add.tileSprite(0, 0, 1920+this.config.width, 1080, key )
+            const bg = this.add.tileSprite(0, 0, 480+this.config.width, 270, key )
                 .setOrigin(0)
-                .setScale(0.3)
-                .setDepth(-i)
+                .setScale(1)
+                .setDepth(i)
                 .setScrollFactor(0,1)
-            bg
+         /*   bg
             .setPipeline('Light2D')
+            */
             layers.push(bg);
         }
         return layers;
