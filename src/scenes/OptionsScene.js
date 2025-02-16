@@ -27,6 +27,20 @@ export class OptionsScene extends BaseScene{
         eventEmitter.once("OPTIONS_TO_MENU", ()=>{
             this.scene.start("MenuScene");
         })
+        
+        //adjust sfx
+        ui.sfx_controller.addEventListener('change', ()=>{
+            audio.sounds.forEach(sound=>{
+                sound.volume = ui.sfx_controller.value * 0.1;
+                
+            })
+        })
+        ui.music_controller.addEventListener('change', ()=>{
+            audio.songs.forEach(song=>{
+                song.volume = ui.music_controller.value * 0.1;
+                
+            })
+        }) 
     }
     
     
