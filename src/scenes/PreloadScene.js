@@ -148,6 +148,7 @@ export class PreloadScene extends BaseScene{
             })
         })
         eventEmitter.once("PRELOAD_TO_MENU", ()=>{
+            this.toggleFullscreen()
             this.scene.start("MenuScene");
         })
         //load audio
@@ -156,6 +157,13 @@ export class PreloadScene extends BaseScene{
         this.loadIcons();
         //load entities
         this.loadEntities();
-        
     }
+    toggleFullscreen(){
+       if(!document.fullscreenElement){
+           document.documentElement.requestFullscreen();
+            screen.orientation.lock("landscape");
+            }else if(document.exitFullscreen){
+                document.exitFullscreen();
+            }
+        } 
 }
