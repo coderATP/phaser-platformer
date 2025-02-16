@@ -8,6 +8,7 @@ import { LevelSelectScene } from "./scenes/LevelSelectScene.js";
 import { TransitionToPlayScene } from "./scenes/TransitionToPlayScene.js";
 import { PlayScene } from "./scenes/PlayScene.js";
 import { LevelCompleteScene} from "./scenes/LevelCompleteScene.js";
+import { OptionsScene} from "./scenes/OptionsScene.js";
 
 
 const play_fullscreenBtn = document.getElementById("play_fullscreenBtn");
@@ -64,7 +65,13 @@ const config= {
         },
 
     },
-    scene: [ new PreloadScene(SHARED_CONFIG), new MenuScene(SHARED_CONFIG), new LevelSelectScene(SHARED_CONFIG), new TransitionToPlayScene(SHARED_CONFIG), new PlayScene(SHARED_CONFIG), new LevelCompleteScene(SHARED_CONFIG)],
+    scene: [ new PreloadScene(SHARED_CONFIG),
+        new MenuScene(SHARED_CONFIG),
+        new LevelSelectScene(SHARED_CONFIG),
+        new TransitionToPlayScene(SHARED_CONFIG),
+        new PlayScene(SHARED_CONFIG),
+        new LevelCompleteScene(SHARED_CONFIG),
+        new OptionsScene(SHARED_CONFIG)],
 };
 
 const game = new Phaser.Game(config);
