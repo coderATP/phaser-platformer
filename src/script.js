@@ -15,7 +15,7 @@ play_fullscreenBtn.addEventListener('click', toggleFullscreen);
 function toggleFullscreen(){
         if(!document.fullscreenElement){
             document.documentElement.requestFullscreen();
-            screen.orientation.lock("landscape-primary");
+            screen.orientation.lock("landscape");
         }else if(document.exitFullscreen){
             document.exitFullscreen();
         }
