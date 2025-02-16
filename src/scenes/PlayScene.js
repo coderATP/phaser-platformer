@@ -166,7 +166,7 @@ export class PlayScene extends BaseScene{
         if(!layers) return;
         const enemies = new Enemies(this);
         layers.enemy_spawn_zones.forEach((zone, index)=>{
-            if(index > 0) return;
+            //if(index > 0) return;
            const randomNumber = Math.random();
             if(randomNumber < 0.25) enemies.add(new OrcBase(this, zone.x, zone.y));
             else if(randomNumber < 0.5) enemies.add(new OrcRogue(this, zone.x, zone.y));
