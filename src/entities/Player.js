@@ -3,6 +3,7 @@ import { Projectiles } from "../groups/Projectiles.js";
 import { PlayerHealthbar } from "../hud/Healthbar.js";
 import { ImageEffect } from "../effects/HitEffect.js";
 import { audio } from "../audio/AudioControl.js";
+import { PlayerIdle, PlayerStateMachine } from "../states/PlayerStates.js";
 
 
 export class Player extends Phaser.Physics.Arcade.Sprite{
@@ -30,6 +31,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.name = "player";
         this.speedX = 70;
         this.speedY = 350;
+        this.stateMachine = new PlayerStateMachine(this);
+        this.currentState = new PlayerIdle(this);
+        
         this.onLadder = false;
         this.canClimbDown = false;
         this.canClimbUp = false;
@@ -251,10 +255,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         super.update(time, delta );
         
         if(!this.body) return;
+        this.stateMachine.updateState(this.currentState, time, delta);
+        console.log (this.jumpCount)
         this.healthbar.draw();
         this.handleAnimations();
         this.handleShooting();
-        this.handleMovement(delta);
+       // this.handleMovement(delta);
         
         //SETTING PLAYER Hitbox
         this.lastDirection = this.flipX ? "left" : "right";

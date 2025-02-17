@@ -34,7 +34,7 @@ export class EnemyIdle extends EnemyState{
                 enemy.lastDirection = "left";
             }
             else{
-                enemy.enemyStateMachine.setState(ENEMY_STATES.RUN, enemy);
+                enemy.stateMachine.setState(ENEMY_STATES.RUN, enemy);
             }
             this.idleDelay = 0;
         }
@@ -78,7 +78,7 @@ export class EnemyRun extends EnemyState{
         enemy.turnTimer += delta;
         
         if(this.canIdle){
-           enemy.enemyStateMachine.setState(ENEMY_STATES.IDLE, enemy);
+           enemy.stateMachine.setState(ENEMY_STATES.IDLE, enemy);
         }
         //RAY
         if (!enemy.rayHasHit && enemy.turnTimer > enemy.turnInterval) {

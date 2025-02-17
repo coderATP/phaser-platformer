@@ -45,7 +45,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         this.healthbar.graphics.depth = this.depth;
         
         //states
-        this.enemyStateMachine = new EnemyStateMachine();
+        this.stateMachine = new EnemyStateMachine();
         this.currentState = ENEMY_STATES.RUN;
         //hit effect
         this.hitEffect = null;
@@ -238,7 +238,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         
         this.handleAnimations();
         
-        this.enemyStateMachine.updateState(this.currentState, this, time, delta);
+        this.stateMachine.updateState(this.currentState, this, time, delta);
         this.shootProjectile(delta);
         this.cleanupAfterDeath();
         this.hitEffect&& this.hitEffect.updatePosition(this);
