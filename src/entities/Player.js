@@ -3,7 +3,7 @@ import { Projectiles } from "../groups/Projectiles.js";
 import { PlayerHealthbar } from "../hud/Healthbar.js";
 import { ImageEffect } from "../effects/HitEffect.js";
 import { audio } from "../audio/AudioControl.js";
-import { PlayerIdle, PlayerStateMachine } from "../states/PlayerStates.js";
+import { PlayerWalk, PlayerStateMachine } from "../states/PlayerStates.js";
 
 
 export class Player extends Phaser.Physics.Arcade.Sprite{
@@ -32,13 +32,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.speedX = 70;
         this.speedY = 350;
         this.stateMachine = new PlayerStateMachine(this);
-        this.currentState = new PlayerIdle(this);
+        this.currentState = new PlayerWalk(this);
         
         this.onLadder = false;
         this.canClimbDown = false;
         this.canClimbUp = false;
         this.jumpCount = 0;
-        this.maxJumps = 2;
+        this.maxJumps = 1;
         this.walkSoundCounter = 0;
         this.walkSoundInterval = 350;
         this.maxHealth = 100;
@@ -172,95 +172,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
            audio.play(audio.walkSound);
        }
    }
-   handleMovement(delta){
-       if(this.hasBeenHit) return;
-       
-        switch(this.status){
-            case Player.Status.Walking:
-                this.body.setAllowGravity(true);
-                
-                if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
-                    this.playWalkSound(delta);
-                    this.setFlipX(false)
-                    this.setVelocityX(this.speedX);
-                }
-                else if (myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a") {
-                    this.playWalkSound(delta);
-                    this.setFlipX(true)
-                    this.setVelocityX(-this.speedX)
-                }
-                else {
-                    this.setVelocityX(0)
-                    //this.play("player-idle", true);
-                }
-                
-                if(this.body.onFloor()) this.jumpCount = 0;
-                if (( myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") && myInput.keypressed && this.jumpCount < this.maxJumps) {
-                    audio.play(audio.jumpSound);
-                    this.jumpCount ++;
-                    this.setVelocityY(-this.speedY)
-                    myInput.keypressed = false;
-                }
-                
-                if(this.onLadder && (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d"|| myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a")){
-                    this.setStatus(Player.Status.Climbing)
-                }
-                //canClimbUp and canClimbDown are derivations of onLadder
-                //specific to when player needs to climb up or down, respectively
-                if(this.canClimbDown){
-                    this.setStatus(Player.Status.Climbing)
-                }
-                if(this.canClimbUp){
-                    this.setStatus(Player.Status.Climbing)
-                } 
-            break;
-            
-            case Player.Status.Climbing:
-                this.body.setAllowGravity(false);
-                
-                if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
-                    this.setFlipX(false)
-                    this.setVelocityX(this.speedX*1)
-                }
-                else if (myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a") {
-                    this.setFlipX(true)
-                    this.setVelocityX(-this.speedX*1)
-                }
-                else {
-                    this.setVelocityX(0)
-                }
-                if (myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") {
-                    this.setVelocityY(-40)
-                }
-                else if (myInput.keys[0] === "down"  || myInput.keys[0] === "ArrowDown" || myInput.keys[0] === "s"){
-                    this.setVelocityY(40)
-                }
-                else{
-                    this.setVelocityY(0)
-                }
-                
-                if(!this.onLadder){
-                    if(myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") this.setVelocityY(-this.speedY*0.5)
-                    this.setStatus(Player.Status.Walking);
-                }
-            break;
-            
-            default:
-                //this.play("player-idle", true);
-            break;
-        } 
-   }
    
     update(time, delta){
         super.update(time, delta );
         
         if(!this.body) return;
         this.stateMachine.updateState(this.currentState, time, delta);
-        console.log (this.jumpCount)
         this.healthbar.draw();
         this.handleAnimations();
         this.handleShooting();
-       // this.handleMovement(delta);
         
         //SETTING PLAYER Hitbox
         this.lastDirection = this.flipX ? "left" : "right";

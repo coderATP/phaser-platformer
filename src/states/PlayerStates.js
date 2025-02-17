@@ -1,4 +1,5 @@
 import { myInput } from "../myInput.js";
+import { audio } from "../audio/AudioControl.js";
 
 class PlayerState{
     constructor(player){
@@ -16,11 +17,13 @@ export class PlayerIdle extends PlayerState{
     enter(){
         if(!this.player.body) return;
         this.player.setVelocityX(0);
+        this.player.setVelocityY(0)
     }
     
     update(time, delta){
         if(!this.player.body) return;
-         
+        this.player.body.setAllowGravity(true);
+
         //walk right
         if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
             this.player.playWalkSound(delta);
@@ -34,12 +37,22 @@ export class PlayerIdle extends PlayerState{
             this.player.stateMachine.setState(new PlayerWalk(this.player)); 
         }
         //jump
-        if ((myInput.keys[0] === "up" || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w")
-            ) {
-                    this.player.jumpCount++;
-                    myInput.keypressed = false;
-                    this.player.stateMachine.setState(new PlayerJump(this.player));
+        if(this.player.body.onFloor()) this.player.jumpCount = 0;
+        if (( myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") && myInput.keypressed && this.player.jumpCount < this.player.maxJumps) {
+            audio.play(audio.jumpSound);
+            this.player.jumpCount ++;
+            this.player.setVelocityY(-this.player.speedY)
+            myInput.keypressed = false;
         }
+        
+        //climb
+        if(this.onLadder && (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d"|| myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a")){
+            this.player.body.setAllowGravity(false)
+        } 
+        if (this.player.canClimbUp || this.player.canClimbDown) {
+            this.player.body.setAllowGravity(false)
+            this.player.stateMachine.setState(new PlayerClimb(this.player))
+        } 
     }
 }
 
@@ -58,19 +71,29 @@ export class PlayerWalk extends PlayerState{
     
     update(time, delta){
         if(!this.player.body) return;
-        
-        //idle
-        if(myInput.keys.length === 0){
+        this.player.body.setAllowGravity(true);
+
+        //idle     
+        if(myInput.keys.length === 0 ){
             this.player.stateMachine.setState(new PlayerIdle(this.player));
         }
         //jump
-        if ((myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w")&&
-            myInput.keypressed&&
-            this.player.jumpCount < this.player.maxJumps) {
-                myInput.keypressed = false;
-                this.player.jumpCount++;
-                this.player.stateMachine.setState(new PlayerJump(this.player)); 
+        if(this.player.body.onFloor()) this.player.jumpCount = 0;
+        if (( myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") && myInput.keypressed && this.player.jumpCount < this.player.maxJumps) {
+            audio.play(audio.jumpSound);
+            this.player.jumpCount ++;
+            this.player.setVelocityY(-this.player.speedY)
+            this.player.stateMachine.setState(new PlayerJump(this.player))
+            myInput.keypressed = false;
+        }
+        //climb
+        if(this.onLadder && (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d"|| myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a")){
+            this.player.body.setAllowGravity(false)
         } 
+        if (this.player.canClimbUp || this.player.canClimbDown) {
+            this.player.body.setAllowGravity(false)
+            this.player.stateMachine.setState(new PlayerClimb(this.player))
+        }
     }
 }
 
@@ -89,6 +112,7 @@ export class PlayerJump extends PlayerState{
     
     update(time, delta){
         if(!this.player.body) return;
+        this.player.body.setAllowGravity(true);
         
         //walk right
         if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
@@ -123,7 +147,8 @@ export class PlayerFall extends PlayerState{
     
     update(time, delta){
         if(!this.player.body) return;
-        
+        this.player.body.setAllowGravity(true);
+
         //walk right
         if (myInput.keys[0] === "right" || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
             this.player.playWalkSound(delta);
@@ -138,25 +163,56 @@ export class PlayerFall extends PlayerState{
         }
         //fall 
         if(this.player.body.onFloor()){
-            this.player.stateMachine.setState(new PlayerIdle(this.player));
+            this.player.stateMachine.setState(new PlayerWalk(this.player));
         }
     }
 }
 
 //CLIMB
 export class PlayerClimb extends PlayerState{
-    constructor(){
-        super();
+    constructor(player){
+        super(player);
         
     }
     
-    enter(player){
-        if(!player.body) return;
-        
+    enter(){
+        if(!this.player.body) return;
     }
     
-    update(player, time, delta){
-        if(!player.body) return;
+    update(time, delta){
+        if(!this.player.body) return;
+        this.player.body.setAllowGravity(false);
+        
+        //move sideways on ladder
+        if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
+            this.player.setFlipX(false)
+            this.player.setVelocityX(this.player.speedX*1)
+        }
+        else if (myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a") {
+                this.player.setFlipX(true)
+                this.player.setVelocityX(-this.player.speedX*1)
+        }
+        else {
+            this.player.setVelocityX(0)
+         }
+        //move up ladder      
+        if (myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") {
+            this.player.setVelocityY(-40)
+        }
+        //move down ladder
+        else if (myInput.keys[0] === "down"  || myInput.keys[0] === "ArrowDown" || myInput.keys[0] === "s"){
+            this.player.setVelocityY(40)
+        }
+        //stop moving when no key is pressed
+        else{
+            this.player.setVelocityY(0)
+        }
+        //jump off ladder
+        if(!this.player.onLadder){
+            if(myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w"){
+                this.player.stateMachine.setState(new PlayerJump(this.player))
+            }
+        }
     }
 }
 
