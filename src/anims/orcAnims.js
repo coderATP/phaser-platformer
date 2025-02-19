@@ -1,4 +1,4 @@
-export function createEnemyAnimKeys(scene){
+export function createOrcAnimKeys(scene){
     //orc-base
        scene.anims.create({
             key: "orc-base-death",

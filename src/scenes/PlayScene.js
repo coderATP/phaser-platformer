@@ -1,14 +1,16 @@
 /**@type {import("../typings/phaser")} */
 import {LEVELS, BaseScene } from "./BaseScene.js";
 import { Player } from "../entities/Player.js";
-import { Enemy } from "../entities/Enemy.js";
+import { Boss1 } from "../entities/Boss1.js";
 import { OrcBase, OrcRogue, OrcShaman, OrcWarrior} from "../entities/Orc.js";
+import { SkeletonBase, SkeletonMage, SkeletonRogue, SkeletonWarrior } from "../entities/Skeleton.js";
 import { Enemies } from "../groups/Enemies.js";
 import { ui } from "../ui.js";
 import { myInput } from "../myInput.js";
 import { eventEmitter } from "../events/EventEmitter.js";
 import { Container } from "../hud/Container.js";
-import { createEnemyAnimKeys } from "../anims/enemyAnims.js";
+import { createOrcAnimKeys } from "../anims/OrcAnims.js";
+import { createSkeletonAnimKeys } from "../anims/skeletonAnims.js"
 import { audio } from "../audio/AudioControl.js";
 
 
@@ -50,6 +52,9 @@ export class PlayScene extends BaseScene{
         //enemies
         this.enemies = this.createEnemies(this.mapLayers);
         
+        //enemy bosses
+        this.boss1 = new Boss1(this, 200, 200, "boss1-idle");
+        console.log (this.boss1)
         //camera
         this.cameraSetup(this.player);
         
@@ -167,12 +172,13 @@ export class PlayScene extends BaseScene{
         if(!layers) return;
         const enemies = new Enemies(this);
         layers.enemy_spawn_zones.forEach((zone, index)=>{
-            //if(index > 0) return;
-           const randomNumber = Math.random();
-            if(randomNumber < 0.25) enemies.add(new OrcBase(this, zone.x, zone.y));
-            else if(randomNumber < 0.5) enemies.add(new OrcRogue(this, zone.x, zone.y));
-            else if(randomNumber < 0.75) enemies.add(new OrcShaman(this, zone.x, zone.y));
-            else enemies.add(new OrcWarrior(this, zone.x, zone.y));
+            if(index > 0) return;
+            
+            const randomNumber = Math.random();
+            if(randomNumber < 0.25) enemies.add(new SkeletonBase(this, zone.x, zone.y));
+            else if(randomNumber < 0.5) enemies.add(new SkeletonRogue(this, zone.x, zone.y));
+            else if(randomNumber < 0.75) enemies.add(new SkeletonMage(this, zone.x, zone.y));
+            else enemies.add(new SkeletonWarrior(this, zone.x, zone.y));
         })
         return enemies;
     }

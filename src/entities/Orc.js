@@ -26,6 +26,9 @@ export class OrcBase extends Orc{
                 this.setOffset(this.width * 0.35, this.height * 0.2);
             }
         }
+        else {
+            this.play("orc-base-death", true);
+        }
     }
 }
 
@@ -46,6 +49,9 @@ export class OrcRogue extends Orc{
                 this.setOffset(this.width * 0.35, this.height * 0.2);
             }
         }
+        else {
+            this.play("orc-rogue-death", true);
+        } 
     }
 }
 
@@ -66,6 +72,9 @@ export class OrcShaman extends Orc {
                 this.setOffset(this.width * 0.35, this.height * 0.2);
             }
         }
+        else {
+            this.play("orc-shaman-death", true);
+        }
     }
 }
 
@@ -84,6 +93,9 @@ export class OrcWarrior extends Orc {
                 this.play("orc-warrior-idle", true)
                 this.setOffset(this.width * 0.35, this.height * 0.2);
             }
+        }
+        else {
+            this.play("orc-warrior-death", true);
         }
     }
 }

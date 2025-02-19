@@ -181,38 +181,54 @@ export class PlayerClimb extends PlayerState{
     
     update(time, delta){
         if(!this.player.body) return;
-        this.player.body.setAllowGravity(false);
-        
-        //move sideways on ladder
-        if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
-            this.player.setFlipX(false)
-            this.player.setVelocityX(this.player.speedX*1)
+        //while player is on ladder
+        if(this.player.onLadder){
+            this.player.body.setAllowGravity(false);
+            //move sideways on ladder
+            if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
+                this.player.setFlipX(false)
+                this.player.setVelocityX(this.player.speedX*1)
+            }
+            else if (myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a") {
+                    this.player.setFlipX(true)
+                    this.player.setVelocityX(-this.player.speedX*1)
+            }
+            else {
+                this.player.setVelocityX(0)
+             }
+            //move up ladder      
+            if (myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") {
+                this.player.setVelocityY(-40)
+            }
+            //move down ladder
+            else if (myInput.keys[0] === "down"  || myInput.keys[0] === "ArrowDown" || myInput.keys[0] === "s"){
+                this.player.setVelocityY(40)
+            }
+            //stop moving when no key is pressed
+            else{
+                this.player.setVelocityY(0)
+            } 
         }
-        else if (myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a") {
-                this.player.setFlipX(true)
-                this.player.setVelocityX(-this.player.speedX*1)
-        }
-        else {
-            this.player.setVelocityX(0)
-         }
-        //move up ladder      
-        if (myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") {
-            this.player.setVelocityY(-40)
-        }
-        //move down ladder
-        else if (myInput.keys[0] === "down"  || myInput.keys[0] === "ArrowDown" || myInput.keys[0] === "s"){
-            this.player.setVelocityY(40)
-        }
-        //stop moving when no key is pressed
+        //if player is off ladder
         else{
-            this.player.setVelocityY(0)
-        }
-        //jump off ladder
-        if(!this.player.onLadder){
+            //jump up
+            this.player.body.setAllowGravity(true);
             if(myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w"){
                 this.player.stateMachine.setState(new PlayerJump(this.player))
             }
+            //go to walk mode
+            if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
+                this.player.stateMachine.setState(new PlayerWalk(this.player));
+            }
+            else if (myInput.keys[0] === "left"  || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a") {
+                this.player.stateMachine.setState(new PlayerWalk(this.player));
+            }
+            //fall down with gravity
+            else if (myInput.keys[0] === "down"  || myInput.keys[0] === "ArrowDown" || myInput.keys[0] === "s") {
+                this.player.stateMachine.setState(new PlayerFall(this.player));
+            } 
         }
+
     }
 }
 

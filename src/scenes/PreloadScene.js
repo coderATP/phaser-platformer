@@ -2,9 +2,10 @@
 import { BaseScene } from "./BaseScene.js";
 import { eventEmitter } from "../events/EventEmitter.js";
 import { ui } from "../ui.js";
-import { createEnemyAnimKeys } from "../anims/enemyAnims.js"
-import { createPlayerAnimKeys } from "../anims/playerAnims.js"
-import { createProjectileAnimKeys } from "../anims/projectileAnims.js"
+import { createOrcAnimKeys } from "../anims/orcAnims.js";
+import { createSkeletonAnimKeys } from "../anims/skeletonAnims.js";
+import { createPlayerAnimKeys } from "../anims/playerAnims.js";
+import { createProjectileAnimKeys } from "../anims/projectileAnims.js";
 
 
 export class PreloadScene extends BaseScene{
@@ -21,7 +22,8 @@ export class PreloadScene extends BaseScene{
     
     loadAnims(){
         createPlayerAnimKeys(this);
-        createEnemyAnimKeys(this);
+        createOrcAnimKeys(this);
+        createSkeletonAnimKeys(this);
         createProjectileAnimKeys(this);
     }
     
@@ -61,6 +63,7 @@ export class PreloadScene extends BaseScene{
         }); 
         
         //ENEMIES
+        //ORCS
         this.load.spritesheet('orc-base', "assets/enemies/Orc Base/Idle-Sheet.png", {
             frameWidth: 32, frameHeight: 32,
         });
@@ -96,7 +99,51 @@ export class PreloadScene extends BaseScene{
         });
         this.load.spritesheet('orc-warrior-death', "assets/enemies/Orc Warrior/Death-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
+        });
+        //SKELETONS
+        this.load.spritesheet('skeleton-base', "assets/enemies/Skeleton Base/Idle-Sheet.png", {
+            frameWidth: 32, frameHeight: 32,
+        });
+        this.load.spritesheet('skeleton-base-run', "assets/enemies/Skeleton Base/Run-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+        this.load.spritesheet('skeleton-base-death', "assets/enemies/Skeleton Base/Death-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
         });  
+        this.load.spritesheet('skeleton-rogue', "assets/enemies/Skeleton Rogue/Idle-Sheet.png", {
+            frameWidth: 32, frameHeight: 32,
+        });
+        this.load.spritesheet('skeleton-rogue-run', "assets/enemies/Skeleton Rogue/Run-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+        this.load.spritesheet('skeleton-rogue-death', "assets/enemies/Skeleton Rogue/Death-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });   
+        this.load.spritesheet('skeleton-mage', "assets/enemies/Skeleton Mage/Idle-Sheet.png", {
+            frameWidth: 32, frameHeight: 32,
+        });
+        this.load.spritesheet('skeleton-mage-run', "assets/enemies/Skeleton Mage/Run-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+        this.load.spritesheet('skeleton-mage-death', "assets/enemies/Skeleton Mage/Death-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });  
+        this.load.spritesheet('skeleton-warrior', "assets/enemies/Skeleton Warrior/Idle-Sheet.png", {
+            frameWidth: 32, frameHeight: 32,
+        });
+        this.load.spritesheet('skeleton-warrior-run', "assets/enemies/Skeleton Warrior/Run-Sheet.png", {
+            frameWidth: 64, frameHeight: 64,
+        });
+       
+       this.load.spritesheet('skeleton-warrior-death', "assets/enemies/Skeleton Warrior/Death-Sheet.png", {
+            frameWidth: 64, frameHeight: 48,
+        });
+        
+        //boss1
+       this.load.spritesheet('boss1-idle', "assets/enemies/Boss1/Idle.png", {
+            frameWidth: 96, frameHeight: 96,
+        });
+        
         //PROJECTILES
         this.load.spritesheet("fireball", "assets/weapons/fireball.png", {
             frameWidth: 32, frameHeight: 32
