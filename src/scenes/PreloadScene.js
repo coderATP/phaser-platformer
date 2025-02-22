@@ -7,6 +7,7 @@ import { createSkeletonAnimKeys } from "../anims/skeletonAnims.js";
 import { createPlayerAnimKeys } from "../anims/playerAnims.js";
 import { createProjectileAnimKeys } from "../anims/projectileAnims.js";
 import { createBoss1AnimKeys } from "../anims/boss1Anims.js";
+import { createDoorAnimKeys } from "../anims/doorAnims.js";
 
 
 export class PreloadScene extends BaseScene{
@@ -27,8 +28,15 @@ export class PreloadScene extends BaseScene{
         createSkeletonAnimKeys(this);
         createProjectileAnimKeys(this);
         createBoss1AnimKeys(this);
+        createDoorAnimKeys(this);
     }
     
+    loadDoors(){
+        this.load.image("exitSign", "assets/doors/exitSign.png");
+        this.load.spritesheet('exitDoor', "assets/doors/door_sprite.png", {
+            frameWidth: 68, frameHeight: 96,
+        }); 
+    }
     loadAudio(){
         this.load.audio("menuSong", "assets/sounds/menu_song.mp3");
         this.load.audio("forestSong", "assets/sounds/forest_song.mp3");
@@ -221,12 +229,13 @@ export class PreloadScene extends BaseScene{
             })
         })
         eventEmitter.once("PRELOAD_TO_MENU", ()=>{
-            //this.toggleFullscreen()
+            this.toggleFullscreen()
             this.scene.start("MenuScene");
         })
         //load audio
         //this.loadAudio(); 
         //load icons
+        this.loadDoors()
         this.loadIcons();
         //load entities
         this.loadEntities();

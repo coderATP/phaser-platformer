@@ -22,7 +22,8 @@ class AudioControl{
         this.projectileImpactSound = new Audio("assets/sounds/projectile_impact.mp3");
         this.playerHitSound = new Audio("assets/sounds/player_hit.mp3");
         this.walkSound = new Audio("assets/sounds/walk.wav");
-        
+        this.doorOpenSound = new Audio("assets/sounds/door_open.ogg");
+         
         this.playStateSongs = [this.forestSong, this.ruinsSong, this.cryptSong, this.cemeterySong];
         //ARRAY OF ALL SONGS
         this.songs = [this.menuSong, ...this.playStateSongs, this.winSong];

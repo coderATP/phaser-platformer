@@ -29,7 +29,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     init(){
         this.scene.events.on("update", this.update, this);
         this.name = "player";
-        this.speedX = 70;
+        this.speedX = 120;
         this.speedY = 350;
         this.stateMachine = new PlayerStateMachine(this);
         this.currentState = new PlayerWalk(this);

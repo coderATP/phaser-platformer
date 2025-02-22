@@ -36,6 +36,7 @@ export class BaseScene extends Phaser.Scene{
         this.light = null;
         this.player = null;
         this.enemies = null;
+        this.doors = null;
         this.mapWidth = this.mapHeight = undefined;
         this.gamePaused;
         this.endOfSceneImage = null;
@@ -66,6 +67,9 @@ export class BaseScene extends Phaser.Scene{
     }
     
     resetGame(){
+        //remove exit sign/door(s)
+        this.doors.destroy(true);
+        this.doors = null; 
         //destroy player healthbar
         this.player.healthbar.graphics.preDestroy();
         //destroy player projectiles
@@ -90,8 +94,6 @@ export class BaseScene extends Phaser.Scene{
         //disable light
         this.light&& this.lights.disable();
         this.light = null;
-        //remove exit sign
-        this.textures.remove("exitSign");
         //remove level tileset
         this.textures.remove("Tileset" + this.currentLevel);
         //remove background images

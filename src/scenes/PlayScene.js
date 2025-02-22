@@ -2,6 +2,7 @@
 import {LEVELS, BaseScene } from "./BaseScene.js";
 import { Player } from "../entities/Player.js";
 import { Boss1 } from "../entities/Boss1.js";
+import { Doors } from "../groups/Doors.js";
 import { OrcBase, OrcRogue, OrcShaman, OrcWarrior} from "../entities/Orc.js";
 import { SkeletonBase, SkeletonMage, SkeletonRogue, SkeletonWarrior } from "../entities/Skeleton.js";
 import { Enemies } from "../groups/Enemies.js";
@@ -19,7 +20,7 @@ export class PlayScene extends BaseScene{
         super('PlayScene', config);
         this.config = config;
         this.enemies;
-        
+        this.doors;
     }
     
     //ON ENTERING SCENE, WHAT TO DO FIRST
@@ -43,18 +44,19 @@ export class PlayScene extends BaseScene{
         this.map = this.createMap();
         this.bgLayers = this.createBackgroundLayers(this.map);
         this.mapLayers = this.createMapLayers(this.map);
-        //end-of-scene zone
-        this.endZone = this.createEndZone(this.mapLayers);
-        
+
         //player
         this.player = this.createPlayer(this.mapLayers);
-        
+
+        //exit doors
+        this.doors = new Doors(this);
+        this.doors.createDoors();
+         
         //enemies
         this.enemies = this.createEnemies(this.mapLayers);
         
         //enemy bosses
         this.boss1 = new Boss1(this, 0, 0, "boss1-idle");
-        
         
         //camera
         this.cameraSetup(this.player);
@@ -103,7 +105,12 @@ export class PlayScene extends BaseScene{
         //player-projectiles vs platforms
         this.player.projectiles.onPlatformHit(); 
         
-        this.onSceneComplete();
+        //OVERLAP
+        //on scene complete
+        const overlap = this.physics.add.overlap(this.doors, this.player, (source, target)=>{
+            overlap.active = false;
+            this.onDoorOverlap(source, target)
+        })
     }
     
     createMap(){
@@ -204,15 +211,6 @@ export class PlayScene extends BaseScene{
         return light;
     }
     
-    createEndZone(layers){
-        if(!layers) return;
-        layers.exit_zone.forEach(zone=>{
-        this.endOfSceneImage = this.physics.add.image(zone.x, zone.y, "exitSign")
-                .setOrigin(1)
-                .setSize(5, this.config.height);
-        })
-    }
-    
     //COLLISION CHECK
     checkLadder(){
         const tile = this.map.getTileAtWorldXY(this.player.body.center.x, this.player.body.bottom, true);
@@ -238,18 +236,36 @@ export class PlayScene extends BaseScene{
     }
     
     //SCENE TRANSITION
-    onSceneComplete(){
-        const eolOverlap = this.physics.add.overlap(this.player, this.endOfSceneImage, ()=>{
-            eolOverlap.active = false;
-            
-            if(this.currentScene < LEVELS[this.currentLevel].scenes){
-                eventEmitter.emit("PLAY_SCENECOMPLETE"); 
+    onDoorOverlap(source, target){
+        //play door-open animation and sound
+        source.play("door-open", true);
+        audio.doorOpenSound.play();
+
+        //tween player's pos to center of door
+        source.on("animationcomplete", (animation)=>{
+            if(animation.key === "door-open"){
+                this.tweens.add({
+                    targets: target,
+                    x: source.body.center.x,
+                    duration: 1000,
+                    repeat: 0,
+                    
+                    onComplete: ()=>{
+                        target.setDepth(source.depth - 1);
+                    }
+                })
             }
-            else{
-                eventEmitter.emit("PLAY_LEVELCOMPLETE");
-            }
-            
         })
+        //emit scene complete event after 1000ms
+        setTimeout(()=>{
+        if(this.currentScene < LEVELS[this.currentLevel].scenes){
+            eventEmitter.emit("PLAY_SCENECOMPLETE"); 
+        }
+        else{
+            eventEmitter.emit("PLAY_LEVELCOMPLETE");
+        }  
+         
+        }, 1000*2) 
     }
     
     //CAMERA SETUP
