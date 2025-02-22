@@ -49,4 +49,15 @@ export class Projectiles extends Phaser.Physics.Arcade.Group{
             })
         })
     }
+    
+    onBoss1Hit(){
+        if(!this.scene) return;
+        this.scene.physics.add.collider(this, this.scene.boss1, (target, source)=>{
+            target.decreaseHealth(source);
+            target.playDamageTween(source);
+            audio.play(audio.projectileImpactSound);
+           // audio.play(audio.playerHitSound);
+            source.deactivate();
+        })
+    }
 }

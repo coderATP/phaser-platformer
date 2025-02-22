@@ -92,7 +92,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
             repeat: 0,
             onComplete: ()=>{
                 this.clearTint();
-                this.hasBeenHit = false;8
+                this.hasBeenHit = false;
             }
         })
     }

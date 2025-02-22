@@ -53,8 +53,9 @@ export class PlayScene extends BaseScene{
         this.enemies = this.createEnemies(this.mapLayers);
         
         //enemy bosses
-        this.boss1 = new Boss1(this, 200, 200, "boss1-idle");
-        console.log (this.boss1)
+        this.boss1 = new Boss1(this, 0, 0, "boss1-idle");
+        
+        
         //camera
         this.cameraSetup(this.player);
         
@@ -84,13 +85,21 @@ export class PlayScene extends BaseScene{
             //vs platforms
             enemy.projectiles.onPlatformHit();
         })
-        //player vs enemies
+        //player landed on 
+        //enemies
         this.physics.add.collider(this.player, this.enemies, (source, target)=>{
             this.player.onEnemyLanded(target);
         });
+        //boss 
+        this.physics.add.collider(this.player, this.boss1, (source, target)=>{
+            this.player.onEnemyLanded(target);
+        });
         
-        //player-projectiles vs enemies
+        //player-projectiles
+        //vs enemies
         this.player.projectiles.onEnemyHit();
+        //vs boss1
+        this.player.projectiles.onBoss1Hit();
         //player-projectiles vs platforms
         this.player.projectiles.onPlatformHit(); 
         

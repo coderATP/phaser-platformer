@@ -6,6 +6,7 @@ import { createOrcAnimKeys } from "../anims/orcAnims.js";
 import { createSkeletonAnimKeys } from "../anims/skeletonAnims.js";
 import { createPlayerAnimKeys } from "../anims/playerAnims.js";
 import { createProjectileAnimKeys } from "../anims/projectileAnims.js";
+import { createBoss1AnimKeys } from "../anims/boss1Anims.js";
 
 
 export class PreloadScene extends BaseScene{
@@ -25,6 +26,7 @@ export class PreloadScene extends BaseScene{
         createOrcAnimKeys(this);
         createSkeletonAnimKeys(this);
         createProjectileAnimKeys(this);
+        createBoss1AnimKeys(this);
     }
     
     loadAudio(){
@@ -140,10 +142,34 @@ export class PreloadScene extends BaseScene{
         });
         
         //boss1
+       this.load.spritesheet('boss1-blue-head-strike', "assets/enemies/Boss1/Attack1.png", {
+            frameWidth: 96, frameHeight: 96,
+        });
+       this.load.spritesheet('boss1-purple-head-strike', "assets/enemies/Boss1/Attack2.png", {
+            frameWidth: 96, frameHeight: 96,
+        });
+       this.load.spritesheet('boss1-run', "assets/enemies/Boss1/Run.png", {
+            frameWidth: 96, frameHeight: 96,
+        });
+       this.load.spritesheet('boss1-running-strike', "assets/enemies/Boss1/Attack4.png", {
+            frameWidth: 96, frameHeight: 96,
+        });
+
+       this.load.spritesheet('boss1-death', "assets/enemies/Boss1/Death.png", {
+            frameWidth: 96, frameHeight: 96,
+        }); 
+       this.load.spritesheet('boss1-hurt', "assets/enemies/Boss1/Hurt.png", {
+            frameWidth: 96, frameHeight: 96,
+        });
        this.load.spritesheet('boss1-idle', "assets/enemies/Boss1/Idle.png", {
             frameWidth: 96, frameHeight: 96,
         });
-        
+       this.load.spritesheet('boss1-bite', "assets/enemies/Boss1/Special.png", {
+            frameWidth: 96, frameHeight: 96,
+        });
+       this.load.spritesheet('boss1-walk', "assets/enemies/Boss1/Walk.png", {
+            frameWidth: 96, frameHeight: 96,
+        });
         //PROJECTILES
         this.load.spritesheet("fireball", "assets/weapons/fireball.png", {
             frameWidth: 32, frameHeight: 32

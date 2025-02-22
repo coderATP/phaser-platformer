@@ -84,6 +84,9 @@ export class BaseScene extends Phaser.Scene{
         //destroy enemy group
         this.enemies.destroy(true);
         this.enemies = null;
+        //destroy boss
+        this.boss1.destroy();
+        this.boss1 = null;
         //disable light
         this.light&& this.lights.disable();
         this.light = null;

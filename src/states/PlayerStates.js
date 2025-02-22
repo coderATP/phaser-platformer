@@ -262,6 +262,7 @@ export class PlayerStateMachine{
     }
     
     updateState(state, time, delta){
+        if(this.player.hasBeenHit) return;
         state.update(time, delta);
         if(this.player.body.onFloor()) this.player.jumpCount = 0;
     }
