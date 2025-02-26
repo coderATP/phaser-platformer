@@ -17,6 +17,7 @@ export class MenuScene extends BaseScene{
         eventEmitter.destroy("PAUSE_TO_MENU");
         eventEmitter.destroy("LEVELCOMPLETE_TO_MENU"); 
     }
+    
     enter(){
         this.destroyEvents();
         audio.menuSong.play();
@@ -36,6 +37,12 @@ export class MenuScene extends BaseScene{
         eventEmitter.once("MENU_TO_OPTIONS", ()=>{
             this.scene.start("OptionsScene");
         })
+        eventEmitter.once("MENU_TO_CONTINUE", ()=>{
+            this.loadGame();
+            this.registry.set("canLoadGame", true);
+            this.canLoadGame = this.registry.get("canLoadGame");
+            this.scene.start("TransitionToPlayScene");
+        })
     }
     
     initEvents(){
@@ -44,7 +51,10 @@ export class MenuScene extends BaseScene{
         })
         ui.menu_optionsBtn.addEventListener("click", ()=>{
             eventEmitter.emit("MENU_TO_OPTIONS");
-        }) 
+        })
+        ui.menu_continueBtn.addEventListener("click", ()=>{
+            eventEmitter.emit("MENU_TO_CONTINUE");
+        })
     }
 
 }

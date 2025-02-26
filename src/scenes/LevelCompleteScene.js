@@ -36,17 +36,17 @@ export class LevelCompleteScene extends BaseScene{
     
     processEvents(){
         eventEmitter.once("LEVELCOMPLETE_TO_RESTART", ()=>{
-            this.setCurrentScene();
+            this.getCurrentScene();
             this.scene.start("TransitionToPlayScene");
         })
         eventEmitter.once("LEVELCOMPLETE_TO_NEXT", ()=>{
             if(this.currentLevel < 3) this.registry.inc("currentLevel", 1);
             this.registry.set("currentScene", 1);
-            this.setCurrentScene();
+            this.getCurrentScene();
             this.scene.start("TransitionToPlayScene");
         })
         eventEmitter.once("LEVELCOMPLETE_TO_MENU", () => {
-            this.setCurrentScene();
+            this.getCurrentScene();
             this.scene.start("MenuScene");
         })
     }

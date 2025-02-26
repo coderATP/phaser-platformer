@@ -17,6 +17,7 @@ export class TransitionToPlayScene extends BaseScene{
         eventEmitter.destroy("PLAY_SCENECOMPLETE");
         eventEmitter.destroy("LEVELCOMPLETE_TO_RESTART");
         eventEmitter.destroy("LEVELCOMPLETE_TO_NEXT");
+        eventEmitter.destroy("MENU_TO_CONTINUE");
     }
     
     enter(){
@@ -89,7 +90,8 @@ export class TransitionToPlayScene extends BaseScene{
     }
 
     loadBG(){
-        this.setCurrentScene();
+        //this.loadGame()
+        this.getCurrentScene();
         const bgLength = 2;
         for(let i = 1; i <= bgLength; ++i){
             const key = 0+""+i;
@@ -104,7 +106,7 @@ export class TransitionToPlayScene extends BaseScene{
     } 
     
     loadTilemaps(){
-        this.setCurrentScene();
+        this.getCurrentScene();
         this.load.tilemapTiledJSON("map"+this.currentLevel+this.currentScene, "assets/json/" + LEVELS[this.currentLevel].name + "0" + this.currentScene + ".json");
     }
     

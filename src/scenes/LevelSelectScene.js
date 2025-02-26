@@ -20,7 +20,7 @@ export class LevelSelectScene extends BaseScene {
     }
     enter() {
         this.destroyEvents();
-        
+        this.canLoadGame = false;
         this.hideAllScreens();
         this.show(this.levelSelectScreen, "grid");
     }

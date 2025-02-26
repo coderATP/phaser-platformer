@@ -55,7 +55,7 @@ export class GameState extends Phaser.Scene{
         this.registry.set("currentScene", this.registry.get("currentScene") || 1);
     }
     
-    setCurrentScene() {
+    getCurrentScene() {
         this.currentLevel = this.registry.get("currentLevel");
         this.currentScene = this.registry.get("currentScene");
     }

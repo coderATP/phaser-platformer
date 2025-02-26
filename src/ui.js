@@ -10,6 +10,7 @@ class UI{
         this.menu_leaderboardBtn = document.getElementById("menu_leaderboardBtn");
         this.menu_tutorialBtn = document.getElementById("menu_tutorialBtn");
         this.menu_exitBtn = document.getElementById("menu_exitBtn");
+        this.menu_continueBtn = document.getElementById("menu_continueBtn"); 
         this.menuBtns = [this.menu_playBtn, this.menu_optionsBtn, this.menu_leaderboardBtn, this.menu_tutorialBtn, this.menu_exitBtn];
         
         //transition to play
@@ -41,7 +42,8 @@ class UI{
         this.pause_restartBtn = document.getElementById("pause_restartBtn");
         this.pause_resumeBtn = document.getElementById("pause_resumeBtn");
         this.pause_menuBtn = document.getElementById("pause_menuBtn");
-        this.pauseBtns = [this.pause_restartBtn, this.pause_resumeBtn, this.pause_menuBtn];
+        this.pause_saveBtn = document.getElementById("pause_saveBtn");
+        this.pauseBtns = [this.pause_restartBtn, this.pause_resumeBtn, this.pause_menuBtn, this.pause_saveBtn];
         
         //restart
         this.restart_yesBtn = document.getElementById("restart_yesBtn");

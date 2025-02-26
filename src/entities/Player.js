@@ -174,9 +174,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
    }
    
     update(time, delta){
-        super.update(time, delta );
-        
         if(!this.body) return;
+        super.update(time, delta)
         this.stateMachine.updateState(this.currentState, time, delta);
         this.healthbar.draw();
         this.handleAnimations();

@@ -30,13 +30,15 @@ export class BaseScene extends Phaser.Scene{
         this.map = null;
         this.currentLevel = null;
         this.currentScene = null;
-        
+
         this.mapLayers = null;
         this.bgLayers = null;
         this.light = null;
         this.player = null;
         this.enemies = null;
+        this.numberOfEnemies = undefined;
         this.doors = null;
+        this.numberOfDoors = undefined;
         this.mapWidth = this.mapHeight = undefined;
         this.gamePaused;
         this.endOfSceneImage = null;
@@ -54,18 +56,49 @@ export class BaseScene extends Phaser.Scene{
         this.shouldUpdate = true;
         this.shouldRender = true;
         this.opacity = 0;
-        
+        this.canLoadGame = false;
     }
     
     create(){
         this.registry.set("currentScene", this.registry.get("currentScene") || 1);
     }
     
-    setCurrentScene() {
+    getCurrentScene() {
         this.currentLevel = this.registry.get("currentLevel");
         this.currentScene = this.registry.get("currentScene");
     }
     
+    saveGame(){
+        this.getCurrentScene();
+        localStorage.setItem("currentLevel", JSON.stringify(this.currentLevel));
+        localStorage.setItem("currentScene", JSON.stringify(this.currentScene));
+        localStorage.setItem("player", JSON.stringify(this.player));
+        localStorage.setItem("light", JSON.stringify(this.light));
+        localStorage.setItem("camera", JSON.stringify(this.cam));
+        
+       // localStorage.setItem("enemies", JSON.stringify(this.enemies));
+       this.enemies.getChildren().forEach((enemy, i)=>{
+           localStorage.setItem("enemy"+i, JSON.stringify(enemy))
+       });
+       localStorage.setItem("numberOfEnemies", JSON.stringify(this.enemies.getChildren().length));
+      //  localStorage.setItem("map", JSON.stringify(this.map));
+        localStorage.setItem("map-layers", JSON.stringify(this.mapLayers));
+        localStorage.setItem("background-layers", JSON.stringify(this.bgLayers));
+        localStorage.setItem("boss1", JSON.stringify(this.boss1));
+       // localStorage.setItem("doors", JSON.stringify(this.doors));
+       this.doors.getChildren().forEach((door, i)=>{
+           localStorage.setItem("door"+i, JSON.stringify(door))
+       });
+       localStorage.setItem("numberOfDoors", JSON.stringify(this.doors.getChildren().length));
+    }
+
+    loadGame(){
+        const currentLevel = JSON.parse(localStorage.getItem("currentLevel"));
+        this.registry.set("currentLevel", currentLevel);
+        const currentScene = JSON.parse(localStorage.getItem("currentScene"));
+        this.registry.set("currentScene", currentScene);
+        this.canLoadGame = true;
+    }
     resetGame(){
         //remove exit sign/door(s)
         this.doors.destroy(true);
