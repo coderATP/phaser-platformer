@@ -235,7 +235,7 @@ export class PreloadScene extends BaseScene{
         //load audio
         //this.loadAudio(); 
         //load icons
-        this.loadDoors()
+        this.loadDoors();
         this.loadIcons();
         //load entities
         this.loadEntities();

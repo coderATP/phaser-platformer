@@ -90,7 +90,6 @@ export class TransitionToPlayScene extends BaseScene{
     }
 
     loadBG(){
-        //this.loadGame()
         this.getCurrentScene();
         const bgLength = 2;
         for(let i = 1; i <= bgLength; ++i){

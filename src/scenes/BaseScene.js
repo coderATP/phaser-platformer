@@ -1,4 +1,5 @@
 /**@type {import("../typings/phaser")} */
+import { ui } from "../ui.js";
 
 const STATES = {
     LOAD: 0,
@@ -66,12 +67,15 @@ export class BaseScene extends Phaser.Scene{
     getCurrentScene() {
         this.currentLevel = this.registry.get("currentLevel");
         this.currentScene = this.registry.get("currentScene");
+        console.log ("currentLevel: "+ this.currentLevel, "currentScene: "+this.currentScene)
     }
     
     saveGame(){
         this.getCurrentScene();
         localStorage.setItem("currentLevel", JSON.stringify(this.currentLevel));
         localStorage.setItem("currentScene", JSON.stringify(this.currentScene));
+        //enable continue button
+        localStorage.setItem("loadButtonDisabled", false);
         localStorage.setItem("player", JSON.stringify(this.player));
         localStorage.setItem("light", JSON.stringify(this.light));
         localStorage.setItem("camera", JSON.stringify(this.cam));
@@ -93,12 +97,25 @@ export class BaseScene extends Phaser.Scene{
     }
 
     loadGame(){
+        //idea here is that...
+        //we're setting currentLevel/Scene to...
+        //the numerical values saved on localStorage,
+        //not this.currentLevel/Scene's values
         const currentLevel = JSON.parse(localStorage.getItem("currentLevel"));
-        this.registry.set("currentLevel", currentLevel);
         const currentScene = JSON.parse(localStorage.getItem("currentScene"));
+        if ((currentLevel===null) || (currentScene===null)) {
+            alert("no saved game!");
+            return;
+        }
+       
+        this.registry.set("currentLevel", currentLevel);
         this.registry.set("currentScene", currentScene);
-        this.canLoadGame = true;
+        this.registry.set("canLoadGame", true);
+        this.canLoadGame = this.registry.get("canLoadGame");
+        this.scene.start("TransitionToPlayScene"); 
+
     }
+    
     resetGame(){
         //remove exit sign/door(s)
         this.doors.destroy(true);
