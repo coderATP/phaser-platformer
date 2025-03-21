@@ -1,5 +1,6 @@
 /**@type {import("../typings/phaser")} */
 import { ui } from "../ui.js";
+import { audio } from "../audio/AudioControl.js";
 
 const STATES = {
     LOAD: 0,
@@ -11,7 +12,7 @@ const STATES = {
 };
 
 export const LEVELS = [
-     {name: "forest", scenes: 3},
+     {name: "forest", scenes: 4},
      {name: "ruins", scenes: 2},
      {name: "crypt", scenes: 1},
      {name: "cemetery", scenes: 1},
@@ -67,7 +68,6 @@ export class BaseScene extends Phaser.Scene{
     getCurrentScene() {
         this.currentLevel = this.registry.get("currentLevel");
         this.currentScene = this.registry.get("currentScene");
-        console.log ("currentLevel: "+ this.currentLevel, "currentScene: "+this.currentScene)
     }
     
     saveGame(){
@@ -75,7 +75,7 @@ export class BaseScene extends Phaser.Scene{
         localStorage.setItem("currentLevel", JSON.stringify(this.currentLevel));
         localStorage.setItem("currentScene", JSON.stringify(this.currentScene));
         //enable continue button
-        localStorage.setItem("loadButtonDisabled", false);
+        //localStorage.setItem("loadButtonDisabled", false);
         localStorage.setItem("player", JSON.stringify(this.player));
         localStorage.setItem("light", JSON.stringify(this.light));
         localStorage.setItem("camera", JSON.stringify(this.cam));
@@ -103,10 +103,7 @@ export class BaseScene extends Phaser.Scene{
         //not this.currentLevel/Scene's values
         const currentLevel = JSON.parse(localStorage.getItem("currentLevel"));
         const currentScene = JSON.parse(localStorage.getItem("currentScene"));
-        if ((currentLevel===null) || (currentScene===null)) {
-            alert("no saved game!");
-            return;
-        }
+        if ((currentLevel===null) || (currentScene===null)) { return; }
        
         this.registry.set("currentLevel", currentLevel);
         this.registry.set("currentScene", currentScene);

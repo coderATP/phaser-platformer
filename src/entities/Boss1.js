@@ -13,7 +13,7 @@ export class Boss1 extends Phaser.Physics.Arcade.Sprite{
         this
             .setOrigin(0)
             
-            .setDepth(scene.player.depth || 200)
+            .setDepth(200)
             .setGravityY(980)
             .setCollideWorldBounds(true)
             .setImmovable(true)

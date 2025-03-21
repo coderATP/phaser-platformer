@@ -25,8 +25,8 @@ export class MenuScene extends BaseScene{
         this.hideAllScreens();
         this.show(this.menuScreen, "grid");
         //disable load button if no saved game is found
-        const loadButtonStatus = localStorage.getItem("loadButtonDisabled");
-        ui.menu_continueBtn.disabled = loadButtonStatus === null ? true : false;
+       // const loadButtonStatus = localStorage.getItem("loadButtonDisabled");
+        //ui.menu_continueBtn.disabled = loadButtonStatus === null ? true : false;
     }
 
     create(){
@@ -56,6 +56,12 @@ export class MenuScene extends BaseScene{
             eventEmitter.emit("MENU_TO_OPTIONS");
         })
         ui.menu_continueBtn.addEventListener("click", ()=>{
+            const currentLevel = JSON.parse(localStorage.getItem("currentLevel"));
+            const currentScene = JSON.parse(localStorage.getItem("currentScene"));
+            if ((currentLevel === null) || (currentScene === null)) {
+                audio.play(audio.errorSound);
+                return;
+            }
             eventEmitter.emit("MENU_TO_CONTINUE");
         })
         ui.menu_exitBtn.addEventListener("click", ()=>{

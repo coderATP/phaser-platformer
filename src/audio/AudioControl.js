@@ -11,8 +11,8 @@ class AudioControl{
         
         this.winSong = new Audio("assets/sounds/win.wav");
 
-        this.buttonClickSound = new Audio("assets/sounds/button_hover_sound.wav");
-        this.buttonHoverSound = new Audio("assets/sounds/button_sound.wav");
+        this.buttonClickSound = new Audio("assets/sounds/button_sound.wav");
+        this.buttonHoverSound = new Audio("assets/sounds/button_hover_sound.wav");
         
         this.punchSound = new Audio("assets/sounds/punch.wav");
         this.punchImpactSound = new Audio("assets/sounds/punch_impact.wav");
@@ -23,7 +23,10 @@ class AudioControl{
         this.playerHitSound = new Audio("assets/sounds/player_hit.mp3");
         this.walkSound = new Audio("assets/sounds/walk.wav");
         this.doorOpenSound = new Audio("assets/sounds/door_open.ogg");
+        this.errorSound = new Audio("assets/sounds/error_sound.wav");
+        this.saveSound = new Audio("assets/sounds/save_sound.wav");
          
+          
         this.playStateSongs = [this.forestSong, this.ruinsSong, this.cryptSong, this.cemeterySong];
         //ARRAY OF ALL SONGS
         this.songs = [this.menuSong, ...this.playStateSongs, this.winSong];

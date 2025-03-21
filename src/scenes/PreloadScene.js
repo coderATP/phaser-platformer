@@ -53,23 +53,38 @@ export class PreloadScene extends BaseScene{
     
     loadEntities(){
         //PLAYER
-        this.load.spritesheet('player', "assets/player/Idle-Sheet.png", {
-            frameWidth: 64, frameHeight: 64,
+        this.load.spritesheet('player', "assets/player/Idle.png", {
+            frameWidth: 120, frameHeight: 80,
+        });
+        this.load.spritesheet('player-climb', "assets/player/WallClimbNoMovement.png", {
+            frameWidth: 120, frameHeight: 80,
+        }); 
+        this.load.spritesheet('player-crouch', "assets/player/Crouch.png", {
+            frameWidth: 120, frameHeight: 80,
+        });
+        this.load.spritesheet('player-crouch-walk', "assets/player/CrouchWalk.png", {
+            frameWidth: 120, frameHeight: 80,
         });
         this.load.spritesheet('player-attack', "assets/player/Attack-01-Sheet.png", {
             frameWidth: 80, frameHeight: 80,
-        }); 
+        });
+        this.load.spritesheet('player-roll', "assets/player/Roll.png", {
+            frameWidth: 120, frameHeight: 80,
+        });
+        this.load.spritesheet('player-slide', "assets/player/Slide.png", {
+            frameWidth: 120, frameHeight: 80,
+        });  
         this.load.spritesheet('player-death', "assets/player/Dead-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         }); 
-        this.load.spritesheet('player-jump', "assets/player/Jump-Sheet.png", {
-            frameWidth: 64, frameHeight: 64,
+        this.load.spritesheet('player-jump', "assets/player/Jump.png", {
+            frameWidth: 120, frameHeight: 80,
         });
-        this.load.spritesheet('player-fall', "assets/player/Fall-Sheet.png", {
-            frameWidth: 64, frameHeight: 64,
+        this.load.spritesheet('player-fall', "assets/player/Fall.png", {
+            frameWidth: 120, frameHeight: 80,
         }); 
-        this.load.spritesheet('player-run', "assets/player/Run-Sheet.png", {
-            frameWidth: 80, frameHeight: 80,
+        this.load.spritesheet('player-run', "assets/player/Run.png", {
+            frameWidth: 120, frameHeight: 80,
         }); 
         
         //ENEMIES

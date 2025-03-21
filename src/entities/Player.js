@@ -3,17 +3,11 @@ import { Projectiles } from "../groups/Projectiles.js";
 import { PlayerHealthbar } from "../hud/Healthbar.js";
 import { ImageEffect } from "../effects/HitEffect.js";
 import { audio } from "../audio/AudioControl.js";
-import { PlayerWalk, PlayerStateMachine } from "../states/PlayerStates.js";
+import { PlayerWalk, PlayerCrouch, PlayerCrouchWalk, PlayerStateMachine } from "../states/PlayerStates.js";
+import { drawStatus } from "../hud/Status.js";
 
 
 export class Player extends Phaser.Physics.Arcade.Sprite{
-    //state design
-    static Status = {
-            Walking: 1,
-            Climbing: 2,
-            Jumping: 3,
-            Falling: 4
-    } 
     constructor(scene, x, y, texture){
         super(scene, x, y, texture);
         
@@ -21,7 +15,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         scene.add.existing(this);
         scene.physics.add.existing(this);
         this.init();
-        this.status = Player.Status.Walking;
+        this.status;
         
     }
     
@@ -52,9 +46,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         
         this
             .setOrigin(0.5, 1)
-            .setSize(15, 40)
-            .setOffset(this.width*0.4, this.height*0.4)
-            .setScale(0.5)
+            .setSize(15, 35)
+            .setOffset(this.width*0.4, this.height*0.55)
+            .setScale(0.8)
             .setDepth(100)
             .setGravityY(982)
             .setCollideWorldBounds(true);
@@ -62,12 +56,26 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.healthbar = new PlayerHealthbar(this.scene, this);
     }
     
+    updateBoundingBox(){
+
+        if(this.currentState.name === "PlayerCrouch" || this.currentState.name == "PlayerCrouchWalk" ){
+            this.setSize(15, 22)
+            if(this.flipX) this.setOffset(this.width*0.48, this.height*0.72)
+            else this.setOffset(this.width*0.4, this.height*0.72); 
+        }
+        else if(this.currentState.name === "PlayerSlide"  ){
+            this.setSize(15, 15)
+            if(this.flipX) this.setOffset(this.width*0.48, this.height*0.72)
+            else this.setOffset(this.width*0.4, this.height*0.82); 
+        } 
+        else{
+            this.setSize(15, 35)
+            if(this.flipX) this.setOffset(this.width*0.48, this.height*0.55)
+            else this.setOffset(this.width*0.4, this.height*0.55);
+        }
+    }
     addCollider(otherGameObject, callback){
         this.scene.physics.add.collider(this, otherGameObject, callback, null, this);
-    }
-    
-    setStatus(newStatus){
-        this.status = newStatus;
     }
     
     addCollider(otherGameObject, callback){
@@ -83,6 +91,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
             this.decreaseHealth(enemy);
             this.playDamageTween(enemy);
             audio.play(audio.playerHitSound);
+
             this.lastDirection === "left" ? this.setVelocityX(this.speedX) : this.setVelocityX(-this.speedX);
         }
     }
@@ -92,10 +101,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.scene.tweens.add({
             targets: this,
             health: this.health - source.damage,
-            duration: 800,
+            duration: 400,
             repeat: 0,
             onComplete: ()=>{
                 this.hasBeenHit = false;
+                this.setVelocity(0, 0);
                 if(this.health <= 0 ){
                     this.isDead = true;
                     this.setVelocity(0, -200);
@@ -124,19 +134,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         
     } 
     
-   handleAnimations(){
-       
-       if(this.body.onFloor()){
-           this.body.velocity.x === 0 ?
-            this.play("player-idle", true) : this.play("player-run", true);
-       }
-       else{
-           this.body.velocity.y < 0 && this.play("player-jump", true);
-           this.body.velocity.y > 0 && this.play("player-fall", true);
-       }
-       //on ladder
-       this.onLadder && this.play('player-idle', true);
-   }
    
    shoot(key, anim){
        if(this.hasBeenHit) return;
@@ -175,12 +172,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
    
     update(time, delta){
         if(!this.body) return;
-        super.update(time, delta)
+        super.update(time, delta);
+        
         this.stateMachine.updateState(this.currentState, time, delta);
         this.healthbar.draw();
-        this.handleAnimations();
         this.handleShooting();
-        
+        this.updateBoundingBox()
         //SETTING PLAYER Hitbox
         this.lastDirection = this.flipX ? "left" : "right";
         

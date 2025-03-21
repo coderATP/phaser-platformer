@@ -9,7 +9,7 @@ export class Doors extends Phaser.GameObjects.Group{
     createDoors() {
         if (!this.scene.mapLayers) return;
         this.scene.mapLayers.exit_zone.forEach(zone => {
-            this.add(new Door(this.scene, zone.x, zone.y, "exitDoor"));
+            this.add(new Door(this.scene, zone.x, zone.y, "exitSign"));
         })
     }
     

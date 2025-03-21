@@ -30,7 +30,6 @@ export class PlayScene extends BaseScene{
         this.playSceneAudio();
         this.hideAllScreens();
         this.show(this.playScreen, "grid");
-
     }
     
     //CREATE GAMEOBJECTS
@@ -84,6 +83,11 @@ export class PlayScene extends BaseScene{
         //EVENTS TRANSITIONING
         this.acceptEvents();
         this.processEvents();
+       
+        this.toPreviousScene(this.mapLayers);
+        
+        //STATUS
+        if(this.player) this.statusText = this.drawStatus(this.player);
         
         //COLLIDERS
         if(!this.player || !this.map) return;
@@ -122,7 +126,7 @@ export class PlayScene extends BaseScene{
         //OVERLAP
         //on scene complete
         const overlap = this.physics.add.overlap(this.doors, this.player, (source, target)=>{
-            overlap.active = false;
+            //overlap.active = false;
             this.onDoorOverlap(source, target)
         })
     }
@@ -169,7 +173,8 @@ export class PlayScene extends BaseScene{
     playSceneAudio(){
         this.getCurrentScene();
         const scene = LEVELS[this.currentLevel].name;
-        audio.play(audio[scene+"Song"]);
+        audio[scene+"Song"].loop = true;
+        audio[scene+"Song"].play();
     }
     
     createBackgroundLayers(map){
@@ -199,9 +204,13 @@ export class PlayScene extends BaseScene{
     createPlayer(layers){
         if(!layers) return;
         let player;
+        
+        const isGoingBack = localStorage.getItem("isGoingBack");
         layers.player_spawn_zone.forEach(zone=>{
-            player =  new Player(this, zone.x, zone.y, "player")
+            if(isGoingBack === "yes") player =  new Player(this, (this.map.tileWidth*this.map.width-48), zone.y-16, "player").setFlipX(true);
+            else player =  new Player(this, zone.x+16, zone.y, "player").setFlipX(false);
         })
+        localStorage.setItem("isGoingBack", "no");
         return player;
     }
     
@@ -259,37 +268,37 @@ export class PlayScene extends BaseScene{
         else this.platformCollider.active = true;
     }
     
-    //SCENE TRANSITION
-    onDoorOverlap(source, target){
-        //play door-open animation and sound
-        source.play("door-open", true);
-        audio.doorOpenSound.play();
+    toPreviousScene(mapLayers){
+        if(!mapLayers || !this.player) return;
+        const invisibleDoor = this.physics.add.image(0, mapLayers.player_spawn_zone[0].y-30, "invisibleDoor")
+            .setOrigin(0)
+            .setVisible(false)
+            .setDepth(this.player.depth);
 
-        //tween player's pos to center of door
-        source.on("animationcomplete", (animation)=>{
-            if(animation.key === "door-open"){
-                this.tweens.add({
-                    targets: target,
-                    x: source.body.center.x,
-                    duration: 1000,
-                    repeat: 0,
-                    
-                    onComplete: ()=>{
-                        target.setDepth(source.depth - 1);
-                    }
-                })
+        const bolOverlap = this.physics.add.overlap(this.player, invisibleDoor, (player, door)=>{
+            //bolOverlap.active = false;
+            
+            if(this.currentScene > 1 ){
+                localStorage.setItem("isGoingBack", "yes");
+                this.registry.set("currentScene", this.registry.get("currentScene")-1);
+                this.getCurrentScene();
+                this.scene.start("TransitionToPlayScene")
             }
         })
-        //emit scene complete event after 1000ms
-        setTimeout(()=>{
-        if(this.currentScene < LEVELS[this.currentLevel].scenes){
-            eventEmitter.emit("PLAY_SCENECOMPLETE"); 
+        
+    }
+    
+    //SCENE TRANSITION
+    onDoorOverlap(source, target){
+        {
+            //emit scene complete event
+            if(this.currentScene < LEVELS[this.currentLevel].scenes){
+                eventEmitter.emit("PLAY_SCENECOMPLETE"); 
+            }
+            else{
+                eventEmitter.emit("PLAY_LEVELCOMPLETE");
+            }
         }
-        else{
-            eventEmitter.emit("PLAY_LEVELCOMPLETE");
-        }  
-         
-        }, 1000*2) 
     }
     
     //CAMERA SETUP
@@ -305,10 +314,10 @@ export class PlayScene extends BaseScene{
         //camera bounds
         cam.setBounds(0, 0, this.mapWidth, this.mapHeight);
         //smooth px, also solved issue with tiles bleeding (to some degrees)
-        cam.roundPixels = false; 
+        //cam.roundPixels = false; 
         //lerp
         cam.setLerp(0.1, 0.1);
-
+        cam.fadeIn();
        // cam.rotateTo(0.1)
        
        return cam;
@@ -342,11 +351,8 @@ export class PlayScene extends BaseScene{
             this.show(this.restartConfirmScreen, "grid");
         })
         ui.pause_saveBtn.addEventListener("click", ()=>{
-            this.show(this.playScreen, "grid");
-            this.hide(this.pauseScreen);
             this.saveGame();
-            //save game state
-            if(this.scene.isPaused() )this.scene.resume("PlayScene");
+            audio.play(audio.saveSound);
         })
         eventEmitter.once("PAUSE_TO_MENU", ()=>{
             this.registry.set("currentScene", 1);
@@ -382,14 +388,35 @@ export class PlayScene extends BaseScene{
         })
     }
     
+    drawStatus(entity){
+        const x = entity.scene.config.topLeft.x;
+        const y = entity.scene.config.topLeft.y;
+
+        let playerState, lastInput;
+        playerState = this.add.text(0,0,"",{font: "10px Impact"})
+                .setDepth(20)
+                .setScrollFactor(0)
+                .setStyle({ fill: "white" });
+        lastInput = this.add.text(0,0,"",{font: "10px Serif"})
+                .setDepth(20)
+                .setScrollFactor(0)
+                .setStyle({ fill: "white" });
+
+       playerState.setPosition(x, y+20);
+       lastInput.setPosition(x, y+30)
+        return {playerState, lastInput};
+
+} 
     //UPDATE LOOP
     update(time, delta ){
         if(this.bgLayers){
             this.bgLayers.forEach((layer, index)=>{
-                layer.tilePositionX = this.cameras.main.scrollX * 0.3 * (index+1);
-            }) 
+                layer.tilePositionX = this.cameras.main.scrollX * 0.3 * (index+1);}) 
         }
-        
+        if(this.player){
+            this.statusText.playerState.setText("state: "+this.player.currentState.name);
+            this.statusText.lastInput.setText("last input: "+myInput.lastKey)
+        }
         if(this.light && this.player&& this.player.body){
             this.light.x = this.player.body.center.x;
             this.light.y = this.player.body.center.y;
