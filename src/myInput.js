@@ -65,7 +65,6 @@ class Input{
         window.addEventListener("touchmove", (e)=>{
             const dx = e.touches[0].clientX - this.touchX;
             const dy = e.touches[0].clientY - this.touchY;
-            console.log (this.keys)
             if(dx < -this.touchThreshold){
                 this.lastKey = "swipe left";
                 if(this.keys.indexOf(this.lastKey) === -1){

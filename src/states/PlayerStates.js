@@ -143,6 +143,7 @@ export class PlayerJump extends PlayerState{
     enter(){
         if(!this.player.body) return;
         this.player.jumpCount++;
+        audio.play(audio.jumpSound);
         this.player.play("player-jump", true);
         this.player.setVelocityY(-this.player.speedY);
     }
