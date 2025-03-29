@@ -48,6 +48,7 @@ export class PreloadScene extends BaseScene{
     }
     
     loadIcons(){
+        this.load.image("tile", "assets/icons/tile.png");
         this.load.image("lifeIcon", "assets/icons/lifeIcon.png");
     }
     
@@ -244,7 +245,7 @@ export class PreloadScene extends BaseScene{
             })
         })
         eventEmitter.once("PRELOAD_TO_MENU", ()=>{
-            this.toggleFullscreen()
+            //this.toggleFullscreen()
             this.scene.start("MenuScene");
         })
         //load audio

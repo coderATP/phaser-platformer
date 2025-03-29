@@ -37,6 +37,9 @@ export class PlayScene extends BaseScene{
         this.destroyEvents();
         
         this.enter();
+        //graphics
+        this.graphics = this.add.graphics().lineStyle(2, 0xffff33).setDepth(200);
+        
         //PROPERTIES THAT NEED TO BE RESET ON ENTERING A NEW SCENE
         if(this.canLoadGame){
             this.map = localStorage.getItem(JSON.parse("map"));
@@ -63,6 +66,7 @@ export class PlayScene extends BaseScene{
         this.map = this.createMap();
         this.bgLayers = this.createBackgroundLayers(this.map);
         this.mapLayers = this.createMapLayers(this.map);
+
         //player
         this.player = this.createPlayer(this.mapLayers);
         //exit doors
@@ -80,6 +84,11 @@ export class PlayScene extends BaseScene{
         this.container = new Container(this, 0, 0);
         }
         
+        //ground
+        this.grounds = this.createGround(this.mapLayers);
+        //debug
+        this.renderDebugGraphics();
+        
         //EVENTS TRANSITIONING
         this.acceptEvents();
         this.processEvents();
@@ -93,6 +102,7 @@ export class PlayScene extends BaseScene{
         if(!this.player || !this.map) return;
         //player vs platforms
         this.platformCollider = this.physics.add.collider(this.player, this.mapLayers.collisionblocks);
+        //player vs horizontal grounds
         //enemies vs platforms
         this.physics.add.collider(this.enemies, this.mapLayers.collisionblocks);
         //player vs ladders
@@ -130,7 +140,69 @@ export class PlayScene extends BaseScene{
             this.onDoorOverlap(source, target)
         })
     }
+    createGround(mapLayers){
+        if(!mapLayers) return;
+        const { leftIndexes, rightIndexes } = LEVELS[this.currentLevel].slopes;
+        const allIndexes = [...leftIndexes, ...rightIndexes];
+        const horizontal_bodies = [],
+        left_slopes = [], left_bodies = [],
+        right_slopes = [], right_bodies = [];
+        
+        mapLayers.grounds.forEach(ground=>{
+            if(!ground.name) ground.name = "horizontal";
+            switch(ground.name){
+                case "left":{
+                    left_bodies.push(new Phaser.Geom.Rectangle(
+                        ground.x, ground.y, ground.width, ground.height
+                    ));
+                    
+                    left_slopes.push(new Phaser.Geom.Triangle(
+                        ground.x, ground.y + ground.height,
+                        ground.x + ground.width, ground.y,
+                        ground.x + ground.width, ground.y + ground.height
+                    ))
+                break;
+                }
+                
+                case "right":{
+                    right_bodies.push(new Phaser.Geom.Rectangle(
+                        ground.x, ground.y, ground.width, ground.height
+                    ));
+                    
+                    right_slopes.push(new Phaser.Geom.Triangle(
+                        ground.x + ground.width, ground.y + ground.height,
+                        ground.x, ground.y,
+                        ground.x, ground.y + ground.height
+                    )) 
+                break;
+                }
+                //horizontal
+                default: {
+                    const img = this.physics.add.image(ground.x, ground.y, "tile").setOrigin(0).setDepth(0).setImmovable(true);
+                    img.setScale(ground.width/16, ground.height/16).setAlpha(0)
+                    img.body.setAllowGravity(false);
+                    horizontal_bodies.push(img);
+                    this.physics.add.collider( [...horizontal_bodies], this.player);
+ 
+                break;
+                }
+                
+            }
+        })
+
+        return { horizontal_bodies, left_slopes, left_bodies, right_slopes, right_bodies };
+    }
     
+    renderDebugGraphics(){
+        if(this.config.debug){
+            this.graphics.clear()
+            this.grounds.left_slopes.forEach(slope=>{ this.graphics.strokeTriangleShape(slope);})
+            this.grounds.left_bodies.forEach(body=>{ this.graphics.strokeRectShape(body);})
+            this.grounds.horizontal_bodies.forEach(body=>{ this.graphics.strokeRectShape(body);})
+            this.grounds.right_slopes.forEach(slope=>{ this.graphics.strokeTriangleShape(slope);})
+            this.grounds.right_bodies.forEach(body=>{ this.graphics.strokeRectShape(body);}) 
+        }
+    }
     createMap(){
         this.getCurrentScene();
         const map = this.make.tilemap({key: "map"+this.currentLevel+this.currentScene});
@@ -149,7 +221,8 @@ export class PlayScene extends BaseScene{
             if(!map) return;
             const tileset1 = map.getTileset("Assets");
             
-            const collisionblocks = map.createLayer( "collisionblocks", tileset1).setAlpha(0).setCollisionByExclusion(-1, true)
+            const grounds = map.getObjectLayer("ground").objects || null;
+            const collisionblocks = map.createLayer( "collisionblocks", tileset1).setAlpha(1).setCollisionByExclusion(-1, true);
             const mobile_platforms_zones = map.getObjectLayer("mobile_platforms", tileset1).objects;
             const stationary_platforms = map.createLayer( "stationary_platforms", tileset1).setDepth(9);
             
@@ -166,7 +239,7 @@ export class PlayScene extends BaseScene{
             const ladders = map.createLayer("ladders", tileset1).setDepth(10).setCollisionByExclusion(-1, true);
             ladders.y = -0.01;
             
-            return { collisionblocks, exit_zone, player_spawn_zone, enemy_spawn_zones, ladders, foreground, traps, stationary_platforms, mobile_platforms_zones, foreground_decoration, background_decoration};  
+            return { collisionblocks, exit_zone, player_spawn_zone, enemy_spawn_zones, ladders, foreground, traps, stationary_platforms, mobile_platforms_zones, foreground_decoration, background_decoration, grounds };  
         }
     }
     
@@ -306,6 +379,9 @@ export class PlayScene extends BaseScene{
         if(!this.map || !cameraPerson) return;
         const cam = this.cameras.main;
         
+        const minicam= this.cameras.add(this.config.width-100, 0, 100, 100).startFollow(cameraPerson);
+        
+        cam.setBackgroundColor(0xffffff)
         cam.startFollow(cameraPerson);
         cam.pan(0, 0, 0, 'Linear');
         cam.zoomTo(this.cameraZoomFactor, 0);
@@ -317,7 +393,7 @@ export class PlayScene extends BaseScene{
         //cam.roundPixels = false; 
         //lerp
         cam.setLerp(0.1, 0.1);
-        cam.fadeIn();
+        cam.fadeIn(6000);
        // cam.rotateTo(0.1)
        
        return cam;

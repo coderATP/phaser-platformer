@@ -72,8 +72,6 @@ export class PlayerIdle extends PlayerState{
         }
         
         if(this.player.body.onFloor()) this.player.jumpCount = 0;
-
-        
     }
 }
 

@@ -10,13 +10,11 @@ import { drawStatus } from "../hud/Status.js";
 export class Player extends Phaser.Physics.Arcade.Sprite{
     constructor(scene, x, y, texture){
         super(scene, x, y, texture);
-        
         this.scene = scene;
         scene.add.existing(this);
         scene.physics.add.existing(this);
         this.init();
         this.status;
-        
     }
     
     
@@ -43,14 +41,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.damage = 10;
         this.lastDirection = "left";
         this.projectiles = new Projectiles(this.scene, "iceball");
+        this.gravity = 982;
         
         this
             .setOrigin(0.5, 1)
-            .setSize(15, 35)
+            .setSize(15, 35) //body height
             .setOffset(this.width*0.4, this.height*0.55)
-            .setScale(0.8)
+            .setScale(0.8) //display height
             .setDepth(100)
-            .setGravityY(982)
+            .setGravityY(this.gravity)
             .setCollideWorldBounds(true);
             
         this.healthbar = new PlayerHealthbar(this.scene, this);
@@ -140,7 +139,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
        const projectile = this.projectiles.getFreeProjectile();
        if(projectile){
            projectile.key = key;
-           projectile.fire(this, this.getCenter().x, this.getCenter().y, anim);
+           projectile.fire(this, this.body.center.x, this.body.center.y, anim);
            audio.play(audio.projectileLaunchSound);
        }
    }
@@ -170,10 +169,67 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
        }
    }
    
+   jump(){
+       this.body.setAllowGravity(true);
+       this.body.gravity.y = this.gravity;
+       this.setVelocityY(-this.speedY);
+   }
+   intersects(rectangleBody, triangle){
+       return Phaser.Geom.Intersects.RectangleToTriangle(rectangleBody.getBounds(), triangle);
+   }
+
+   handleIntersection(){
+       const { horizontal_bodies, left_slopes, left_bodies, right_slopes, right_bodies } = this.scene.grounds;
+       //left
+       left_bodies.forEach(body=>{
+           if(this.scene.physics.world.intersects(this.body, body)){
+               left_slopes.forEach(slope=>{
+                   if(this.intersects(this, slope)){
+                       if(myInput.keys[0] === "up") { this.jump(); }
+                       else{
+                            if(myInput.keys[0] !== "right" && myInput.keys[0] !== "ArrowRight"){
+                                this.body.position.x -= 0.6; //auto slide
+                                this.setFlipX(true);
+                            } 
+                           const dX = this.body.right - body.left;
+                           this.body.position.y = body.bottom - this.body.height - dX;
+                           this.body.setAllowGravity(false);
+                       }
+                   }
+               })
+           }
+           else{
+               this.body.setAllowGravity(false);
+           }
+       })
+       //right
+       right_bodies.forEach(body=>{
+           if(this.scene.physics.world.intersects(this.body, body)){
+               right_slopes.forEach(slope=>{
+                   if(this.intersects(this, slope)){
+                       if(myInput.keys[0] === "up") { this.jump(); }
+                       else{
+                            if(myInput.keys[0] !== "left" && myInput.keys[0] !== "ArrowLeft"){
+                                this.body.position.x += 0.6; //auto slide
+                                this.setFlipX(false);
+                            } 
+                           const dX = body.right - this.body.left;
+                           this.body.position.y = body.bottom - this.body.height - dX;
+                           this.body.setAllowGravity(false);
+                       }
+                   }
+               })
+           }
+           else{
+               this.body.setAllowGravity(false);
+           }
+       }) 
+   }
+   
     update(time, delta){
         if(!this.body) return;
         super.update(time, delta);
-        
+        this.handleIntersection()
         this.stateMachine.updateState(this.currentState, time, delta);
         this.healthbar.draw();
         this.handleShooting();
@@ -185,3 +241,4 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.hitEffect&& this.hitEffect.updatePosition(this);
     }
 }
+
