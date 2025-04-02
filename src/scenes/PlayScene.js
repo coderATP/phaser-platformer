@@ -75,7 +75,7 @@ export class PlayScene extends BaseScene{
         //enemies
         this.enemies = this.createEnemies(this.mapLayers);
         //enemy bosses
-        this.boss1 = new Boss1(this, 0, 0, "boss1-idle");
+        this.boss1 = new Boss1(this, 800, 0, "boss1-idle");
         //camera
         this.cam = this.cameraSetup(this.player);
         //lighting
@@ -141,7 +141,7 @@ export class PlayScene extends BaseScene{
         })
     }
     createGround(mapLayers){
-        if(!mapLayers) return;
+        if(!mapLayers || !mapLayers.grounds) return;
         const { leftIndexes, rightIndexes } = LEVELS[this.currentLevel].slopes;
         const allIndexes = [...leftIndexes, ...rightIndexes];
         const horizontal_bodies = [],
@@ -221,7 +221,9 @@ export class PlayScene extends BaseScene{
             if(!map) return;
             const tileset1 = map.getTileset("Assets");
             
-            const grounds = map.getObjectLayer("ground").objects || null;
+            const layer = map.getObjectLayer("ground");
+            let grounds;
+            if(layer) grounds = layer.objects;
             const collisionblocks = map.createLayer( "collisionblocks", tileset1).setAlpha(1).setCollisionByExclusion(-1, true);
             const mobile_platforms_zones = map.getObjectLayer("mobile_platforms", tileset1).objects;
             const stationary_platforms = map.createLayer( "stationary_platforms", tileset1).setDepth(9);
@@ -378,8 +380,6 @@ export class PlayScene extends BaseScene{
     cameraSetup(cameraPerson){
         if(!this.map || !cameraPerson) return;
         const cam = this.cameras.main;
-        
-        const minicam= this.cameras.add(this.config.width-100, 0, 100, 100).startFollow(cameraPerson);
         
         cam.setBackgroundColor(0xffffff)
         cam.startFollow(cameraPerson);

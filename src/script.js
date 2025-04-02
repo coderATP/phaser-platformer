@@ -24,7 +24,7 @@ function toggleFullscreen(){
     
 const GAME_WIDTH = 1024;
 const GAME_HEIGHT = 576;
-const ZOOM_FACTOR = 3
+const ZOOM_FACTOR = 4;
 
 const SHARED_CONFIG = {
     width: GAME_WIDTH, 
@@ -73,8 +73,4 @@ const config= {
         new OptionsScene(SHARED_CONFIG)],
 };
 
-const game = new Phaser.Game(config);
-
-
-
-
+new Phaser.Game(config);

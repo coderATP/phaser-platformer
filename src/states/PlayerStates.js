@@ -178,6 +178,11 @@ export class PlayerJump extends PlayerState{
         if(this.player.body.velocity.y >= 0){
             this.player.stateMachine.setState(new PlayerFall(this.player));
         }
+        //climb
+        if (this.player.onLadder) {
+            this.player.body.setAllowGravity(false)
+            this.player.stateMachine.setState(new PlayerClimb(this.player))
+        } 
     }
 }
 
@@ -229,6 +234,11 @@ export class PlayerFall extends PlayerState{
             this.player.stateMachine.setState(new PlayerRoll(this.player));
             myInput.keypressed = false;
         }
+        //climb
+        if (this.player.onLadder) {
+            this.player.body.setAllowGravity(false)
+            this.player.stateMachine.setState(new PlayerClimb(this.player))
+        }  
     }
 }
 

@@ -21,7 +21,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     init(){
         this.scene.events.on("update", this.update, this);
         this.name = "player";
-        this.speedX = 120;
+        this.speedX = 85;
         this.speedY = 350;
         this.stateMachine = new PlayerStateMachine(this);
         this.currentState = new PlayerWalk(this);
@@ -119,7 +119,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     playDamageTween(source){
         //send player in opposite direction when taking damage
         source.flipX ? this.setVelocityX(-this.speedX*1) : this.setVelocityX(this.speedX*1);
-        this.setVelocityY(-this.speedY);
+        this.setVelocityY(-this.speedY*0.5);
         //play hit effect on player when taking damage
         const target = this;
         if (source.texture.key === "fireball"){
@@ -178,7 +178,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
        return Phaser.Geom.Intersects.RectangleToTriangle(rectangleBody.getBounds(), triangle);
    }
 
-   handleIntersection(){
+   handleSlopes(){
+       if(!this.scene.grounds) return;
        const { horizontal_bodies, left_slopes, left_bodies, right_slopes, right_bodies } = this.scene.grounds;
        //left
        left_bodies.forEach(body=>{
@@ -229,7 +230,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     update(time, delta){
         if(!this.body) return;
         super.update(time, delta);
-        this.handleIntersection()
+        this.handleSlopes()
         this.stateMachine.updateState(this.currentState, time, delta);
         this.healthbar.draw();
         this.handleShooting();

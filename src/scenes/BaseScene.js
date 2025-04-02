@@ -14,7 +14,7 @@ const STATES = {
 export const LEVELS = [
      {name: "forest", scenes: 4, slopes: {leftIndexes: [13, 37], rightIndexes: [16, 43]}},
      {name: "ruins", scenes: 2, slopes: {leftIndexes: [13, 37], rightIndexes: [16, 43]}},
-     {name: "crypt", scenes: 1, slopes: {leftIndexes: [13, 37], rightIndexes: [16, 43]}},
+     {name: "crypt", scenes: 2, slopes: {leftIndexes: [13, 37], rightIndexes: [16, 43]}},
      {name: "cemetery", scenes: 1, slopes: {leftIndexes: [13, 37], rightIndexes: [16, 43]}},
      {name: "garden", scenes: 0, slopes: {leftIndexes: [13, 37], rightIndexes: [16, 43]}},
      {name: "grassland", scenes: 0, slopes: {leftIndexes: [13, 37], rightIndexes: [16, 43]}},

@@ -252,7 +252,7 @@ export class Boss1Dead extends Boss1State{
        //to cleanup
        this.boss.once("animationcomplete", (animation)=>{
            if( animation.key === "boss1-death"){
-                this.boss.setVelocity(0, -200);
+                this.boss.setVelocity(0, -100);
                 this.boss.body.checkCollision.none = true;
                 this.boss.setCollideWorldBounds(false);
                 //then destroy boss
