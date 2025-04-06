@@ -65,6 +65,7 @@ export class PlayerIdle extends PlayerState{
             this.player.stateMachine.setState(new PlayerJump(this.player));
             myInput.keypressed = false;
         }
+        
         //climb
         if (this.player.canClimbUp || this.player.canClimbDown) {
             this.player.body.setAllowGravity(false)

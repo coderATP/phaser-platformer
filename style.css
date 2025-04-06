@@ -139,22 +139,22 @@ section#playScreen{
 
 #leftControlButtons
 {
-   /* border: 2px solid white; */
+  /*  border: 2px solid white; */
     position: absolute;
-    bottom: 2%;
-    left: 3%;
+    bottom: 6%;
+    left: 4%;
     width: 30%;
-    height: 30%;
+    height: 35%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 #rightControlButtons
 {
-   /* border: 2px solid white; */
+  /*  border: 2px solid white; */
     position: absolute;
-    bottom: 2%;
-    right: 3%;
+    bottom: 6%;
+    right: 4%;
     width: 30%;
     height: 40%;
     display: flex;
@@ -174,7 +174,7 @@ section#playScreen{
 }
 
 #rightControlButtons button{
-    width: 25%;
+    width: 40%;
     height: 40%;
     color: white;
     background: transparent;
@@ -188,22 +188,10 @@ section#playScreen{
 #left
 {
     position: absolute;
+    top: 0;
     left: 0;
 }
 #right
-{
-    position: absolute;
-    right: 0;
-}
-
-/*right control buttons*/
-#special
-{
-    position: absolute;
-    top: calc(50% - 20%);
-    left: calc(50% - 12.5%);
-}
-#up
 {
     position: absolute;
     top: 0;
@@ -212,22 +200,29 @@ section#playScreen{
 #down
 {
     position: absolute;
-    bottom: 3%;
-    right: 0;
+    bottom: 0;
+    left: calc(50%-40%);
  
 }
+/*right control buttons*/
+#up
+{
+    position: absolute;
+    top: 0;
+    left: calc(50%-40%);
+}
+
 #rangedShot
 {
     position: absolute;
-    bottom: 3%;
-    left: 0;
+    bottom: 0;
+    right: 0;
 }
 #slash
 {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
- 
 }
 /* LEVEL-COMPLETE */
 section#levelCompleteScreen{

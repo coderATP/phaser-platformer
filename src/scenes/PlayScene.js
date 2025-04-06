@@ -393,7 +393,7 @@ export class PlayScene extends BaseScene{
         //cam.roundPixels = false; 
         //lerp
         cam.setLerp(0.1, 0.1);
-        cam.fadeIn(6000);
+        cam.fadeIn(1000);
        // cam.rotateTo(0.1)
        
        return cam;

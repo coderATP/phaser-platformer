@@ -18,6 +18,14 @@ class Input{
                     this.keypressed = true;
                 }
             });
+            btn.addEventListener ('touchmove', (e)=>{
+                if(this.keys.indexOf(e.target.id) > -1){
+                    this.keys.splice(this.keys.indexOf(e.target.id), 1);
+                    this.lastKey = "";
+                    this.keypressed = false;
+                }
+            })
+            
             btn.addEventListener ('touchend', (e)=>{
                 if(this.keys.indexOf(e.target.id) > -1){
                     this.keys.splice(this.keys.indexOf(e.target.id), 1);

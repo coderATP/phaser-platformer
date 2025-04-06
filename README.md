@@ -13,3 +13,6 @@ TO-DO
 °Coin particles after enemy defeat
 °Text-box when player reaches certain dominants in a scene
 °Cutscenes
+
+FIXES
+°Touch control auto movement
