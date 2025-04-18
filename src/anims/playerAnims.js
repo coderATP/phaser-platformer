@@ -39,15 +39,32 @@
             repeat: -1 
         });
         scene.anims.create({
-            key: "player-attack",
+            key: "player-attack1",
             frames: scene.anims.generateFrameNumbers(
-                "player-attack",
-                {start: 0, end: 7},
+                "player-attack1",
+                {start: 0, end: 3},
             ),
-            frameRate: 8,
-            repeat: -1 
+            frameRate: 12,
+            repeat: 0 
         });
-        
+        scene.anims.create({
+            key: "player-attack2",
+            frames: scene.anims.generateFrameNumbers(
+                "player-attack2",
+                {start: 0, end: 5},
+            ),
+            frameRate: 12,
+            repeat: 0
+        });
+        scene.anims.create({
+            key: "player-attack-combo",
+            frames: scene.anims.generateFrameNumbers(
+                "player-attack-combo",
+                {start: 0, end: 9},
+            ),
+            frameRate: 12,
+            repeat: 0
+        });
         scene.anims.create({
             key: "player-jump",
             frames: scene.anims.generateFrameNumbers(
@@ -70,7 +87,7 @@
             key: "player-crouch",
             frames: scene.anims.generateFrameNumbers(
                 "player-crouch",
-                {start: 2, end: 2},
+                {start: 0, end: 2},
             ),
             frameRate: 5,
             repeat: 0

@@ -139,90 +139,92 @@ section#playScreen{
 
 #leftControlButtons
 {
-  /*  border: 2px solid white; */
+   /* border: 2px solid white; */
     position: absolute;
     bottom: 6%;
     left: 4%;
     width: 30%;
-    height: 35%;
+    height: 70%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 #rightControlButtons
 {
-  /*  border: 2px solid white; */
+    /*border: 2px solid white; */
     position: absolute;
     bottom: 6%;
     right: 4%;
     width: 30%;
-    height: 40%;
+    height: 70%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 #leftControlButtons button{
-    width: 40%;
-    height: 40%;
+    width: 30%;
+    height: 30%;
     color: white;
     background: transparent;
-    border-radius: 10%;
     font-family: myOtherFont;
-    font-size: 2rem;
+    font-size: 3rem;
     color: white;
-    border-radius: 50%;
 }
 
 #rightControlButtons button{
-    width: 40%;
-    height: 40%;
+    width: 30%;
+    height: 30%;
     color: white;
-    background: transparent;
-    border-radius: 10%;
+    background: transparent;;
     font-family: myOtherFont;
-    font-size: 2rem;
+    font-size: 3rem;
     color: white;
-    border-radius: 50%;
 }
 /*left control buttons*/
-#left
+button#left
 {
     position: absolute;
-    top: 0;
+    width: 50%;
+    bottom: 0;
     left: 0;
 }
-#right
+button#right
 {
     position: absolute;
-    top: 0;
+    width: 50%;
+    bottom: 0;
     right: 0;
 }
-#down
+
+/*right control buttons*/
+button#up
 {
     position: absolute;
+    width: 50%;
     bottom: 0;
-    left: calc(50%-40%);
+    left: 0;
+}
+button#down
+{
+    position: absolute;
+    width: 50%;
+    bottom: 0;
+    right: 0;
  
 }
-/*right control buttons*/
-#up
-{
-    position: absolute;
-    top: 0;
-    left: calc(50%-40%);
-}
-
 #rangedShot
 {
     position: absolute;
-    bottom: 0;
+    top: 0;
     right: 0;
+    border-radius: 50%;
 }
 #slash
 {
     position: absolute;
-    bottom: 0;
-    left: 0;
+    top: (30%+10%);
+    right: 0;
+    border-radius: 50%;
 }
 /* LEVEL-COMPLETE */
 section#levelCompleteScreen{

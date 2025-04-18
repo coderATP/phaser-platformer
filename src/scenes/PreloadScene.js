@@ -66,8 +66,14 @@ export class PreloadScene extends BaseScene{
         this.load.spritesheet('player-crouch-walk', "assets/player/CrouchWalk.png", {
             frameWidth: 120, frameHeight: 80,
         });
-        this.load.spritesheet('player-attack', "assets/player/Attack-01-Sheet.png", {
-            frameWidth: 80, frameHeight: 80,
+        this.load.spritesheet('player-attack1', "assets/player/Attack1.png", {
+            frameWidth: 120, frameHeight: 80,
+        });
+        this.load.spritesheet('player-attack2', "assets/player/Attack2.png", {
+            frameWidth: 120, frameHeight: 80,
+        }); 
+        this.load.spritesheet('player-attack-combo', "assets/player/AttackCombo.png", {
+            frameWidth: 120, frameHeight: 80,
         });
         this.load.spritesheet('player-roll', "assets/player/Roll.png", {
             frameWidth: 120, frameHeight: 80,
@@ -209,6 +215,13 @@ export class PreloadScene extends BaseScene{
         }); 
     }
     
+    loadPlugins(){
+        this.load.scenePlugin({
+            key: 'rexuiplugin',
+            url: '../../lib/plugins/rexuiplugin.min.js',
+            sceneKey: 'rexUI'
+        });
+    }
     preload(){
         this.enterScene();
 
@@ -245,7 +258,7 @@ export class PreloadScene extends BaseScene{
             })
         })
         eventEmitter.once("PRELOAD_TO_MENU", ()=>{
-            this.toggleFullscreen()
+           // this.toggleFullscreen()
             this.scene.start("MenuScene");
         })
         //load audio
@@ -255,6 +268,8 @@ export class PreloadScene extends BaseScene{
         this.loadIcons();
         //load entities
         this.loadEntities();
+        //load plugins
+        this.loadPlugins();
         this.registry.set("currentLevel", 0);
     }
     toggleFullscreen(){

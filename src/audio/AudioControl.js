@@ -14,8 +14,8 @@ class AudioControl{
         this.buttonClickSound = new Audio("assets/sounds/button_sound.wav");
         this.buttonHoverSound = new Audio("assets/sounds/button_hover_sound.wav");
         
-        this.punchSound = new Audio("assets/sounds/punch.wav");
-        this.punchImpactSound = new Audio("assets/sounds/punch_impact.wav");
+        this.slashSound = new Audio("assets/sounds/slash.wav");
+        this.slashImpactSound = new Audio("assets/sounds/slash_impact.wav");
         this.jumpSound = new Audio("assets/sounds/jump.wav");
         this.coinCollectedSound = new Audio("assets/sounds/coin_collected.wav");
         this.projectileLaunchSound = new Audio("assets/sounds/projectile_launch.wav");

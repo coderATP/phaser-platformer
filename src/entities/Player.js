@@ -1,11 +1,12 @@
 import {myInput} from "../myInput.js";
 import { Projectiles } from "../groups/Projectiles.js";
-import { PlayerHealthbar } from "../hud/Healthbar.js";
+import { PlayerHealthbar, PlayerEnergybar } from "../hud/Healthbar.js";
+import { Scoreboard } from "../hud/Score.js";
 import { ImageEffect } from "../effects/HitEffect.js";
 import { audio } from "../audio/AudioControl.js";
 import { PlayerWalk, PlayerCrouch, PlayerCrouchWalk, PlayerStateMachine } from "../states/PlayerStates.js";
-import { drawStatus } from "../hud/Status.js";
-
+import { Status } from "../hud/Status.js";
+import { Sword } from "../entities/Sword.js";
 
 export class Player extends Phaser.Physics.Arcade.Sprite{
     constructor(scene, x, y, texture){
@@ -42,6 +43,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.lastDirection = "left";
         this.projectiles = new Projectiles(this.scene, "iceball");
         this.gravity = 982;
+        this.score = 0;
+        this.scoreboard = new Scoreboard(this.scene);
+        this.scoreboard.draw(this.score);
         
         this
             .setOrigin(0.5, 1)
@@ -51,8 +55,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
             .setDepth(100)
             .setGravityY(this.gravity)
             .setCollideWorldBounds(true);
-            
+        //HUD
         this.healthbar = new PlayerHealthbar(this.scene, this);
+        this.energybar = new PlayerEnergybar(this.scene, this);
+        
+        this.status = new Status(this.scene);
+        this.status.draw();
+        
+        this.sword = new Sword(this.scene);
     }
     
     updateBoundingBox(){
@@ -188,10 +198,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
                    if(this.intersects(this, slope)){
                        if(myInput.keys[0] === "up") { this.jump(); }
                        else{
-                            if(myInput.keys[0] !== "right" && myInput.keys[0] !== "ArrowRight"){
-                                this.body.position.x -= 0.6; //auto slide
-                                this.setFlipX(true);
-                            } 
                            const dX = this.body.right - body.left;
                            this.body.position.y = body.bottom - this.body.height - dX;
                            this.body.setAllowGravity(false);
@@ -210,10 +216,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
                    if(this.intersects(this, slope)){
                        if(myInput.keys[0] === "up") { this.jump(); }
                        else{
-                            if(myInput.keys[0] !== "left" && myInput.keys[0] !== "ArrowLeft"){
-                                this.body.position.x += 0.6; //auto slide
-                                this.setFlipX(false);
-                            } 
                            const dX = body.right - this.body.left;
                            this.body.position.y = body.bottom - this.body.height - dX;
                            this.body.setAllowGravity(false);
@@ -233,13 +235,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.handleSlopes()
         this.stateMachine.updateState(this.currentState, time, delta);
         this.healthbar.draw();
+        this.energybar.draw();
+        this.status.update(this.currentState, myInput.lastKey);
         this.handleShooting();
-        this.updateBoundingBox()
+        this.updateBoundingBox();
+        this.scoreboard.update(this.score);
+        
         //SETTING PLAYER Hitbox
         this.lastDirection = this.flipX ? "left" : "right";
-        
+        //sword
+        this.sword.draw(this);
         //hit effect
         this.hitEffect&& this.hitEffect.updatePosition(this);
+        
     }
 }
 

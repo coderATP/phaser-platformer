@@ -18,6 +18,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
     
     init(){
         this.health = 30;
+        this.maxHealth = this.health;
         this.damage = 5;
         this.isDead = false;
         this.gravity = 982;
@@ -66,6 +67,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
                 this.hasBeenHit = false; 
                 if(this.health <= 0){
                     //this.isDead = true;
+                    this.scene.player.score += this.maxHealth;
+                    
                     this.setVelocity(0, -200);
                     this.body.checkCollision.none = true;
                     this.setCollideWorldBounds(false);

@@ -13,6 +13,8 @@ import { Container } from "../hud/Container.js";
 import { createOrcAnimKeys } from "../anims/OrcAnims.js";
 import { createSkeletonAnimKeys } from "../anims/skeletonAnims.js"
 import { audio } from "../audio/AudioControl.js";
+import { createTextBox, texts } from "../ui/TextBox.js";
+
 
 
 export class PlayScene extends BaseScene{
@@ -32,14 +34,25 @@ export class PlayScene extends BaseScene{
         this.show(this.playScreen, "grid");
     }
     
+    preload(){
+        this.load.scenePlugin({
+            key: 'rexuiplugin',
+            url: '../../lib/plugins/rexuiplugin.min.js',
+            sceneKey: 'rexUI'
+        });
+    }
+    
     //CREATE GAMEOBJECTS
     create(){
         this.destroyEvents();
         
         this.enter();
+
+        
         //graphics
         this.graphics = this.add.graphics().lineStyle(2, 0xffff33).setDepth(200);
         
+       
         //PROPERTIES THAT NEED TO BE RESET ON ENTERING A NEW SCENE
         if(this.canLoadGame){
             this.map = localStorage.getItem(JSON.parse("map"));
@@ -89,15 +102,6 @@ export class PlayScene extends BaseScene{
         //debug
         this.renderDebugGraphics();
         
-        //EVENTS TRANSITIONING
-        this.acceptEvents();
-        this.processEvents();
-       
-        this.toPreviousScene(this.mapLayers);
-        
-        //STATUS
-        if(this.player) this.statusText = this.drawStatus(this.player);
-        
         //COLLIDERS
         if(!this.player || !this.map) return;
         //player vs platforms
@@ -133,13 +137,20 @@ export class PlayScene extends BaseScene{
         //player-projectiles vs platforms
         this.player.projectiles.onPlatformHit(); 
         
-        //OVERLAP
-        //on scene complete
-        const overlap = this.physics.add.overlap(this.doors, this.player, (source, target)=>{
-            //overlap.active = false;
-            this.onDoorOverlap(source, target)
+        //EVENTS TRANSITIONING
+        this.acceptEvents();
+        this.processEvents();
+        this.toNextScene();
+        this.toPreviousScene(this.mapLayers);
+        
+        this.textBox = createTextBox(this,
+            {x: 0, y: 120, width: innerWidth + innerWidth/3, height: 50 }
+        ).start(texts.intro, 50)
+        window.addEventListener('resize', ()=>{
+            this.textBox.setSize(innerWidth, innerHeight)
         })
     }
+
     createGround(mapLayers){
         if(!mapLayers || !mapLayers.grounds) return;
         const { leftIndexes, rightIndexes } = LEVELS[this.currentLevel].slopes;
@@ -152,10 +163,14 @@ export class PlayScene extends BaseScene{
             if(!ground.name) ground.name = "horizontal";
             switch(ground.name){
                 case "left":{
+                    const img = this.physics.add.image(ground.x, ground.y, "tile").setOrigin(0).setDepth(30).setImmovable(true);
+                    img.setScale(ground.width/16, ground.height/16).setAlpha(0)
+                    img.body.setAllowGravity(false);
+                    //left_bodies.push(img)
                     left_bodies.push(new Phaser.Geom.Rectangle(
                         ground.x, ground.y, ground.width, ground.height
                     ));
-                    
+                
                     left_slopes.push(new Phaser.Geom.Triangle(
                         ground.x, ground.y + ground.height,
                         ground.x + ground.width, ground.y,
@@ -194,8 +209,8 @@ export class PlayScene extends BaseScene{
     }
     
     renderDebugGraphics(){
-        if(this.config.debug){
-            this.graphics.clear()
+        if(this.config.debug && this.grounds){
+            this.graphics.clear();
             this.grounds.left_slopes.forEach(slope=>{ this.graphics.strokeTriangleShape(slope);})
             this.grounds.left_bodies.forEach(body=>{ this.graphics.strokeRectShape(body);})
             this.grounds.horizontal_bodies.forEach(body=>{ this.graphics.strokeRectShape(body);})
@@ -342,7 +357,13 @@ export class PlayScene extends BaseScene{
         }
         else this.platformCollider.active = true;
     }
-    
+    toNextScene(){
+        //on scene complete
+        const overlap = this.physics.add.overlap(this.doors, this.player, (source, target)=>{
+            //overlap.active = false;
+            if(myInput.keys[0] === "Enter" || myInput.keys[0] === "rangedShot") this.onDoorOverlap(source, target)
+        }) 
+    } 
     toPreviousScene(mapLayers){
         if(!mapLayers || !this.player) return;
         const invisibleDoor = this.physics.add.image(0, mapLayers.player_spawn_zone[0].y-30, "invisibleDoor")
@@ -353,7 +374,7 @@ export class PlayScene extends BaseScene{
         const bolOverlap = this.physics.add.overlap(this.player, invisibleDoor, (player, door)=>{
             //bolOverlap.active = false;
             
-            if(this.currentScene > 1 ){
+            if(this.currentScene > 1 && (myInput.keys[0] === "Enter" || myInput.keys[0] === "rangedShot") ){
                 localStorage.setItem("isGoingBack", "yes");
                 this.registry.set("currentScene", this.registry.get("currentScene")-1);
                 this.getCurrentScene();
@@ -464,34 +485,11 @@ export class PlayScene extends BaseScene{
         })
     }
     
-    drawStatus(entity){
-        const x = entity.scene.config.topLeft.x;
-        const y = entity.scene.config.topLeft.y;
-
-        let playerState, lastInput;
-        playerState = this.add.text(0,0,"",{font: "10px Impact"})
-                .setDepth(20)
-                .setScrollFactor(0)
-                .setStyle({ fill: "white" });
-        lastInput = this.add.text(0,0,"",{font: "10px Serif"})
-                .setDepth(20)
-                .setScrollFactor(0)
-                .setStyle({ fill: "white" });
-
-       playerState.setPosition(x, y+20);
-       lastInput.setPosition(x, y+30)
-        return {playerState, lastInput};
-
-} 
     //UPDATE LOOP
     update(time, delta ){
         if(this.bgLayers){
             this.bgLayers.forEach((layer, index)=>{
                 layer.tilePositionX = this.cameras.main.scrollX * 0.3 * (index+1);}) 
-        }
-        if(this.player){
-            this.statusText.playerState.setText("state: "+this.player.currentState.name);
-            this.statusText.lastInput.setText("last input: "+myInput.lastKey)
         }
         if(this.light && this.player&& this.player.body){
             this.light.x = this.player.body.center.x;

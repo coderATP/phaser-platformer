@@ -33,7 +33,7 @@ export class MenuScene extends BaseScene{
 
         this.enter();
         this.initEvents();
-        
+
         eventEmitter.once("MENU_TO_LEVELSELECT", ()=>{
             this.scene.start("LevelSelectScene");
         })

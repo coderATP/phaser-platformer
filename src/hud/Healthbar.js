@@ -1,6 +1,7 @@
 export class Healthbar{
     constructor(scene, gameObject){
         this.scene = scene;
+        this.config = scene.config;
         this.gameObject = gameObject;
         this.graphics = scene.add.graphics()
             .setDepth(20);
@@ -48,6 +49,39 @@ export class PlayerHealthbar extends Healthbar{
 
 }
 
+export class PlayerEnergybar extends Healthbar{
+    constructor(scene, gameObject){
+        super(scene, gameObject)
+        this.graphics.setScrollFactor(0);
+        this.width = 80;
+        this.height = 5;
+        this.pixelPerHealth = this.width/gameObject.health;
+        this.topMargin = 12;
+        this.leftMargin = 2;
+    }
+    
+    draw(){
+        const padding = 1;
+        this.graphics.clear();
+        //blue border
+        this.graphics.fillStyle(0x0000ff);
+        const borderRect = new Phaser.Geom.Rectangle(
+            this.config.topLeft.x + this.leftMargin,
+            this.config.topLeft.y + this.topMargin,
+            this.width + padding,
+            this.height + padding);
+        this.graphics.strokeRectShape(borderRect);
+        //light blue energy
+        this.graphics.fillStyle(0x00ffff);
+        const energybar = new Phaser.Geom.Rectangle(
+            this.config.topLeft.x + this.leftMargin + padding/2,
+            this.config.topLeft.y + this.topMargin + padding/2,
+            this.width,
+            this.height);
+        this.graphics.fillRectShape(energybar);
+    }
+
+}
 export class EnemyHealthbar extends Healthbar{
     constructor(scene, gameObject){
         super(scene, gameObject);

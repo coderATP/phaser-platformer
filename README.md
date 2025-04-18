@@ -15,4 +15,7 @@ TO-DO
 °Cutscenes
 
 FIXES
-°Touch control auto movement
+°Touch control auto movement (cancelled touchmove on buttons)
+°Slash while in the air - Player stops floating while striking in the air
+°Score board at the right side of the screen
+

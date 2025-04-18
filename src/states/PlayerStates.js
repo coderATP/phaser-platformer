@@ -19,7 +19,8 @@ export class PlayerIdle extends PlayerState{
         if(!this.player.body) return;
         this.player.play("player-idle", true);
         this.player.setVelocityX(0);
-        this.player.setVelocityY(0)
+        this.player.setVelocityY(0);
+        this.player.setAlpha(1);
     }
     
     update(time, delta){
@@ -65,7 +66,11 @@ export class PlayerIdle extends PlayerState{
             this.player.stateMachine.setState(new PlayerJump(this.player));
             myInput.keypressed = false;
         }
-        
+        //slash
+        else if (( myInput.keys[0] === "slash"  || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.stateMachine.setState(new PlayerSlashAttack1(this.player));
+            myInput.keypressed = false;
+        } 
         //climb
         if (this.player.canClimbUp || this.player.canClimbDown) {
             this.player.body.setAllowGravity(false)
@@ -92,25 +97,21 @@ export class PlayerWalk extends PlayerState{
     update(time, delta){
         if(!this.player.body) return;
         this.player.body.setAllowGravity(true);
-
-        //idle     
-        if(myInput.keys.length === 0 ){
-            this.player.stateMachine.setState(new PlayerIdle(this.player));
-        }
+        
+        //climb
+        if (this.player.canClimbUp || this.player.canClimbDown) {
+            this.player.body.setAllowGravity(false)
+            this.player.stateMachine.setState(new PlayerClimb(this.player))
+        } 
         //jump
         if(this.player.body.onFloor()) this.player.jumpCount = 0;
         if (( myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") && myInput.keypressed && this.player.jumpCount < this.player.maxJumps) {
             this.player.stateMachine.setState(new PlayerJump(this.player))
             myInput.keypressed = false;
         }
-        //climb
-        if (this.player.canClimbUp || this.player.canClimbDown) {
-            this.player.body.setAllowGravity(false)
-            this.player.stateMachine.setState(new PlayerClimb(this.player))
-        }
         //crouch
-        if(!this.player.canClimbDown){
-            if(myInput.keys[0] === "down") this.player.stateMachine.setState(new PlayerCrouch(this.player))
+        else if(myInput.keys[0] === "down"){
+            if(!this.player.canClimbDown) this.player.stateMachine.setState(new PlayerCrouch(this.player))
         }
         //slide
         else if ( (myInput.keys[0] === "swipe down"  || myInput.keys[0] === "ArrowSlide") && myInput.keypressed){
@@ -128,6 +129,15 @@ export class PlayerWalk extends PlayerState{
             this.player.setFlipX(true);
             this.player.stateMachine.setState(new PlayerRoll(this.player));
             myInput.keypressed = false;
+        }
+        //slash-combo
+        else if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
+            myInput.keypressed = false;
+        }
+        //idle     
+        else if(myInput.keys.length === 0 ){
+            this.player.stateMachine.setState(new PlayerIdle(this.player));
         } 
     }
 }
@@ -151,16 +161,21 @@ export class PlayerJump extends PlayerState{
         if(!this.player.body) return;
         this.player.body.setAllowGravity(true);
         
+        //jump again (double-jump)
+        if ((myInput.keys[0] === "up" || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") && myInput.keypressed && this.player.jumpCount < this.player.maxJumps ) {
+            this.player.stateMachine.setState(new PlayerJump(this.player))
+            myInput.keypressed = false;
+        } 
         //move right
         if(myInput.keys[0] === "right" || myInput.keys[0] === "ArrowRight" || myInput.keys[0] == "d"){
             this.player.setFlipX(false);
-            this.player.setVelocityX(this.player.speedX);
+            this.player.setVelocityX(this.player.speedX*0.75);
             myInput.keypressed = false;
         }
         //move left
         if(myInput.keys[0] === "left" || myInput.keys[0] === "ArrowLeft" || myInput.keys[0] === "a"){
             this.player.setFlipX(true);
-            this.player.setVelocityX(-this.player.speedX)
+            this.player.setVelocityX(-this.player.speedX*0.75)
             myInput.keypressed = false;
         }
         //roll right
@@ -175,8 +190,14 @@ export class PlayerJump extends PlayerState{
             this.player.stateMachine.setState(new PlayerRoll(this.player));
             myInput.keypressed = false;
         }
+        //slash-combo
+        if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
+            myInput.keypressed = false;
+        }
         //fall
         if(this.player.body.velocity.y >= 0){
+            if(this.player.currentState.name !== "PlayerSlashAttackCombo")
             this.player.stateMachine.setState(new PlayerFall(this.player));
         }
         //climb
@@ -233,6 +254,11 @@ export class PlayerFall extends PlayerState{
         else if ((myInput.keys[0] === "swipe left" || myInput.keys[0] === "l") && myInput.keypressed) {
             this.player.setFlipX(true);
             this.player.stateMachine.setState(new PlayerRoll(this.player));
+            myInput.keypressed = false;
+        }
+        //slash
+        if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
             myInput.keypressed = false;
         }
         //climb
@@ -335,11 +361,13 @@ export class PlayerCrouch extends PlayerState{
     enter(){
         if(!this.player.body) return;
         this.player.play("player-crouch", true);
-        this.player.setVelocityX(0)
+        this.player.setVelocityX(0);
+        this.player.setAlpha(0.3);
     }
     
     update(time, delta){
         if(!this.player.body) return;
+        
         //crouch walk right
         if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
             this.player.setFlipX(false);
@@ -372,6 +400,11 @@ export class PlayerCrouch extends PlayerState{
             this.player.stateMachine.setState(new PlayerIdle(this.player));
             myInput.keypressed = false;
         }
+        //slash-attack1
+        else if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.stateMachine.setState(new PlayerSlashAttack1(this.player));
+            myInput.keypressed = false;
+        }
         //climb ladder
         if(this.player.canClimbUp || this.player.canClimbDown){
             this.player.stateMachine.setState(new PlayerClimb(this.player));
@@ -389,11 +422,13 @@ export class PlayerCrouchWalk extends PlayerState{
     enter(){
         if(!this.player.body) return;
         this.player.play("player-crouch-walk", true);
+        this.player.setAlpha(0.3);
         this.player.flipX ? this.player.setVelocityX(-this.player.speedX*0.35) : this.player.setVelocityX(this.player.speedX*0.35);
     }
     
     update(time, delta){
         if(!this.player.body) return;
+        
         if(myInput.keys[0]==="right"){
             this.player.play("player-crouch-walk", true);
             this.player.setFlipX(false);
@@ -426,7 +461,11 @@ export class PlayerCrouchWalk extends PlayerState{
             this.player.stateMachine.setState(new PlayerSlide(this.player));
             myInput.keypressed = false;
         }
-        
+        //slash-combo
+        else if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
+            myInput.keypressed = false;
+        }
     }
     
 }
@@ -446,7 +485,7 @@ export class PlayerRoll extends PlayerState{
     
     update(time, delta){
         if(!this.player.body) return;
-        this.player.on("animationcomplete", (animation)=>{
+        this.player.once("animationcomplete", (animation)=>{
             if(animation.key=== "player-roll")
             this.player.stateMachine.setState(new PlayerIdle(this.player))
         })
@@ -478,7 +517,7 @@ export class PlayerSlide extends PlayerState{
     
     update(time, delta){
         if(!this.player.body) return;
-        this.player.on("animationcomplete", (animation)=>{
+        this.player.once("animationcomplete", (animation)=>{
             if(animation.key === "player-slide")
             this.player.stateMachine.setState(new PlayerIdle(this.player))
         })
@@ -507,6 +546,86 @@ export class PlayerSlide extends PlayerState{
     }
 }
 
+//Slash-ATTACK-1
+export class PlayerSlashAttack1 extends PlayerState{
+    constructor(player){
+        super(player);
+        this.name = "PlayerSlashAttack1";
+        audio.play(audio.slashSound);
+    }
+    
+    enter(){
+        if(!this.player.body) return;
+        this.player.play("player-attack1", true);
+        this.player.flipX ? this.player.setVelocityX(-this.player.speedX*0.3) : this.player.setVelocityX(this.player.speedX*0.3);
+ 
+    }
+    
+    update(time, delta){
+        if(!this.player.body) return;
+        
+        this.player.once("animationcomplete", (animation) => {
+            if (animation.key === "player-attack1")
+                this.player.stateMachine.setState(new PlayerIdle(this.player))
+        })
+        //slash
+        if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.stateMachine.setState(new PlayerSlashAttack2(this.player));
+            myInput.keypressed = false;
+        }
+    }
+}
+
+//Slash-ATTACK-2
+export class PlayerSlashAttack2 extends PlayerState{
+    constructor(player){
+        super(player);
+        this.name = "PlayerSlashAttack2";
+        audio.play(audio.slashSound); 
+    }
+    
+    enter(){
+        if(!this.player.body) return;
+        this.player.play("player-attack2", true);
+        this.player.flipX ? this.player.setVelocityX(-this.player.speedX*0.3) : this.player.setVelocityX(this.player.speedX*0.3);
+  
+    }
+    
+    update(time, delta){
+        if(!this.player.body) return;
+        
+        this.player.once("animationcomplete", (animation) => {
+            if (animation.key === "player-attack2")
+                this.player.stateMachine.setState(new PlayerIdle(this.player))
+        })
+    }
+}
+
+//Slash-ATTACK-COMBO
+export class PlayerSlashAttackCombo extends PlayerState {
+    constructor(player) {
+        super(player);
+        this.name = "PlayerSlashAttackCombo";
+        audio.play(audio.slashSound);
+    }
+    
+    enter() {
+        if (!this.player.body) return;
+        this.player.play("player-attack-combo", true);
+        this.player.setVelocityY(this.player.speedY*0.5)
+        this.player.flipX ? this.player.setVelocityX(-this.player.speedX*0.7) : this.player.setVelocityX(this.player.speedX*0.7);
+   
+    }
+    
+    update(time, delta) {
+        if (!this.player.body) return;
+        
+        this.player.once("animationcomplete", (animation) => {
+            if (animation.key === "player-attack-combo")
+                this.player.stateMachine.setState(new PlayerIdle(this.player))
+        })
+    }
+}
 
 export class PlayerStateMachine{
     constructor(player){
