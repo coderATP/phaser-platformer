@@ -13,8 +13,6 @@ import { Container } from "../hud/Container.js";
 import { createOrcAnimKeys } from "../anims/OrcAnims.js";
 import { createSkeletonAnimKeys } from "../anims/skeletonAnims.js"
 import { audio } from "../audio/AudioControl.js";
-import { createTextBox, texts } from "../ui/TextBox.js";
-
 
 
 export class PlayScene extends BaseScene{
@@ -100,7 +98,7 @@ export class PlayScene extends BaseScene{
         //ground
         this.grounds = this.createGround(this.mapLayers);
         //debug
-        this.renderDebugGraphics();
+        this.createDebug();
         
         //COLLIDERS
         if(!this.player || !this.map) return;
@@ -143,12 +141,6 @@ export class PlayScene extends BaseScene{
         this.toNextScene();
         this.toPreviousScene(this.mapLayers);
         
-        this.textBox = createTextBox(this,
-            {x: 0, y: 120, width: innerWidth + innerWidth/3, height: 50 }
-        ).start(texts.intro, 50)
-        window.addEventListener('resize', ()=>{
-            this.textBox.setSize(innerWidth, innerHeight)
-        })
     }
 
     createGround(mapLayers){
@@ -163,14 +155,13 @@ export class PlayScene extends BaseScene{
             if(!ground.name) ground.name = "horizontal";
             switch(ground.name){
                 case "left":{
-                    const img = this.physics.add.image(ground.x, ground.y, "tile").setOrigin(0).setDepth(30).setImmovable(true);
-                    img.setScale(ground.width/16, ground.height/16).setAlpha(0)
+                    //left bodies
+                    const img = this.physics.add.image(ground.x, ground.y, "tile")
+                    .setOrigin(0).setDepth(20).setImmovable(true);
+                    img.setScale(ground.width/16, ground.height/16).setAlpha(0);
                     img.body.setAllowGravity(false);
-                    //left_bodies.push(img)
-                    left_bodies.push(new Phaser.Geom.Rectangle(
-                        ground.x, ground.y, ground.width, ground.height
-                    ));
-                
+                    left_bodies.push(img)
+                    //left slopes
                     left_slopes.push(new Phaser.Geom.Triangle(
                         ground.x, ground.y + ground.height,
                         ground.x + ground.width, ground.y,
@@ -180,10 +171,13 @@ export class PlayScene extends BaseScene{
                 }
                 
                 case "right":{
-                    right_bodies.push(new Phaser.Geom.Rectangle(
-                        ground.x, ground.y, ground.width, ground.height
-                    ));
-                    
+                    //right bodies
+                    const img = this.physics.add.image(ground.x, ground.y, "tile")
+                    .setOrigin(0).setDepth(20).setImmovable(true);
+                    img.setScale(ground.width/16, ground.height/16).setAlpha(0);
+                    img.body.setAllowGravity(false);
+                    right_bodies.push(img)
+                    //right slopes
                     right_slopes.push(new Phaser.Geom.Triangle(
                         ground.x + ground.width, ground.y + ground.height,
                         ground.x, ground.y,
@@ -193,6 +187,7 @@ export class PlayScene extends BaseScene{
                 }
                 //horizontal
                 default: {
+                    //bodies at slope's ends
                     const img = this.physics.add.image(ground.x, ground.y, "tile").setOrigin(0).setDepth(0).setImmovable(true);
                     img.setScale(ground.width/16, ground.height/16).setAlpha(0)
                     img.body.setAllowGravity(false);
@@ -203,21 +198,44 @@ export class PlayScene extends BaseScene{
                 }
                 
             }
-        })
-
+        });
         return { horizontal_bodies, left_slopes, left_bodies, right_slopes, right_bodies };
     }
     
-    renderDebugGraphics(){
-        if(this.config.debug && this.grounds){
-            this.graphics.clear();
-            this.grounds.left_slopes.forEach(slope=>{ this.graphics.strokeTriangleShape(slope);})
-            this.grounds.left_bodies.forEach(body=>{ this.graphics.strokeRectShape(body);})
-            this.grounds.horizontal_bodies.forEach(body=>{ this.graphics.strokeRectShape(body);})
-            this.grounds.right_slopes.forEach(slope=>{ this.graphics.strokeTriangleShape(slope);})
-            this.grounds.right_bodies.forEach(body=>{ this.graphics.strokeRectShape(body);}) 
-        }
+    createDebug() {
+/*        
+       ui.debugBtn.addEventListener("click", () => {
+          if (!this.physics.world.drawDebug)
+            this.physics.world.createDebugGraphic();
+          this.physics.world.debugGraphic.visible = this.debug = !this.debug;
+        }); 
+        */
+      }
+     
+    renderSlopes(){
+        if(!this.player || !this.grounds) return;
+        this.graphics.clear();
+        
+        this.grounds.left_slopes.forEach(slope=> {
+            
+            if(this.player.intersects(new Phaser.Geom.Rectangle(this.player.body.x, this.player.body.y, this.player.body.width, this.player.body.height), slope) &&
+                this.debug
+            ){
+                this.graphics.lineStyle(2, 0x00ff00)
+                this.graphics.strokeTriangleShape(slope);
+            }
+        })
+        this.grounds.right_slopes.forEach(slope=> {
+            
+            if(this.player.intersects(new Phaser.Geom.Rectangle(this.player.body.x, this.player.body.y, this.player.body.width, this.player.body.height), slope) &&
+                this.debug
+            ){
+                this.graphics.lineStyle(2, 0x00ff00)
+                this.graphics.strokeTriangleShape(slope);
+            }
+        }) 
     }
+    
     createMap(){
         this.getCurrentScene();
         const map = this.make.tilemap({key: "map"+this.currentLevel+this.currentScene});
@@ -239,6 +257,7 @@ export class PlayScene extends BaseScene{
             const layer = map.getObjectLayer("ground");
             let grounds;
             if(layer) grounds = layer.objects;
+            
             const collisionblocks = map.createLayer( "collisionblocks", tileset1).setAlpha(1).setCollisionByExclusion(-1, true);
             const mobile_platforms_zones = map.getObjectLayer("mobile_platforms", tileset1).objects;
             const stationary_platforms = map.createLayer( "stationary_platforms", tileset1).setDepth(9);
@@ -495,6 +514,7 @@ export class PlayScene extends BaseScene{
             this.light.x = this.player.body.center.x;
             this.light.y = this.player.body.center.y;
         }
+        this.renderSlopes()
         this.togglePlatformCollider();
     }
 }

@@ -8,7 +8,7 @@ export class Status {
     
     draw() {
         this.statusText = this.scene.add.text(0,0,"",
-            {fontSize: "30px", fontFamily: "myOtherFont"}
+            {fontSize: "20px", fontFamily: "myOtherFont"}
         )
             .setOrigin(0)
             .setScale(1/this.config.zoomFactor)
@@ -19,7 +19,7 @@ export class Status {
             .setPosition(this.config.topLeft.x + this.leftMargin,this.config.topLeft.y + this.topMargin);//
         
         this.lastKey = this.scene.add.text(0,0,"",
-            {fontSize: "30px", fontFamily: "myOtherFont"} 
+            {fontSize: "20px", fontFamily: "myOtherFont"} 
         )
             .setOrigin(0)
             .setScale(1/this.config.zoomFactor)

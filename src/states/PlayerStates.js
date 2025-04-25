@@ -25,8 +25,8 @@ export class PlayerIdle extends PlayerState{
     
     update(time, delta){
         if(!this.player.body) return;
-        this.player.body.setAllowGravity(true);
-
+        //disable gravity when on slope, and vice versa
+        this.player.isOnSlope ? this.player.body.setAllowGravity(false) : this.player.body.setAllowGravity(true);
         //walk right
         if (myInput.keys[0] === "right"  || myInput.keys[0] === "ArrowRight" || myInput.keys[0] === "d") {
             this.player.playWalkSound(delta);
@@ -52,7 +52,7 @@ export class PlayerIdle extends PlayerState{
             myInput.keypressed = false;
         }
         //slide
-        else if ( (myInput.keys[0] === "swipe down"  || myInput.keys[0] === "ArrowSlide") && myInput.keypressed){
+        else if ( !this.player.isOnSlope && (myInput.keys[0] === "swipe down"  || myInput.keys[0] === "ArrowSlide") && myInput.keypressed){
             this.player.stateMachine.setState(new PlayerSlide(this.player));
             myInput.keypressed = false;
         }
@@ -62,22 +62,24 @@ export class PlayerIdle extends PlayerState{
             myInput.keypressed = false;
         }
         //jump
-        else if (( myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") && myInput.keypressed && this.player.jumpCount < this.player.maxJumps) {
+        else if ( ( myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") && myInput.keypressed && this.player.jumpCount < this.player.maxJumps) {
             this.player.stateMachine.setState(new PlayerJump(this.player));
             myInput.keypressed = false;
         }
         //slash
         else if (( myInput.keys[0] === "slash"  || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttack1(this.player));
             myInput.keypressed = false;
-        } 
+        }
+
         //climb
         if (this.player.canClimbUp || this.player.canClimbDown) {
             this.player.body.setAllowGravity(false)
             this.player.stateMachine.setState(new PlayerClimb(this.player))
         }
         
-        if(this.player.body.onFloor()) this.player.jumpCount = 0;
+        if(this.player.body.onFloor() || this.player.isOnSlope) this.player.jumpCount = 0;
     }
 }
 
@@ -96,7 +98,6 @@ export class PlayerWalk extends PlayerState{
     
     update(time, delta){
         if(!this.player.body) return;
-        this.player.body.setAllowGravity(true);
         
         //climb
         if (this.player.canClimbUp || this.player.canClimbDown) {
@@ -104,7 +105,7 @@ export class PlayerWalk extends PlayerState{
             this.player.stateMachine.setState(new PlayerClimb(this.player))
         } 
         //jump
-        if(this.player.body.onFloor()) this.player.jumpCount = 0;
+        if(this.player.body.onFloor() || this.player.isOnSlope) this.player.jumpCount = 0;
         if (( myInput.keys[0] === "up"  || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") && myInput.keypressed && this.player.jumpCount < this.player.maxJumps) {
             this.player.stateMachine.setState(new PlayerJump(this.player))
             myInput.keypressed = false;
@@ -132,6 +133,7 @@ export class PlayerWalk extends PlayerState{
         }
         //slash-combo
         else if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
             myInput.keypressed = false;
         }
@@ -159,7 +161,6 @@ export class PlayerJump extends PlayerState{
     
     update(time, delta){
         if(!this.player.body) return;
-        this.player.body.setAllowGravity(true);
         
         //jump again (double-jump)
         if ((myInput.keys[0] === "up" || myInput.keys[0] === "ArrowUp" || myInput.keys[0] === "w") && myInput.keypressed && this.player.jumpCount < this.player.maxJumps ) {
@@ -192,6 +193,7 @@ export class PlayerJump extends PlayerState{
         }
         //slash-combo
         if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
             myInput.keypressed = false;
         }
@@ -222,7 +224,6 @@ export class PlayerFall extends PlayerState{
     
     update(time, delta){
         if(!this.player.body) return;
-        this.player.body.setAllowGravity(true);
         //move right
         if( (myInput.keys[0] === "right" || myInput.keys[0] === "ArrowRight" || myInput.keys[0] == "d") && myInput.keypressed){
             this.player.setFlipX(false);
@@ -241,7 +242,7 @@ export class PlayerFall extends PlayerState{
             myInput.keypressed = false;
         }
         //idle 
-        if(this.player.body.onFloor()){
+        if(this.player.body.onFloor() || this.player.isOnSlope){
             this.player.stateMachine.setState(new PlayerIdle(this.player));
         }
         //roll right
@@ -258,6 +259,7 @@ export class PlayerFall extends PlayerState{
         }
         //slash
         if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
             myInput.keypressed = false;
         }
@@ -402,6 +404,7 @@ export class PlayerCrouch extends PlayerState{
         }
         //slash-attack1
         else if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttack1(this.player));
             myInput.keypressed = false;
         }
@@ -463,6 +466,7 @@ export class PlayerCrouchWalk extends PlayerState{
         }
         //slash-combo
         else if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
+            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
             myInput.keypressed = false;
         }
@@ -552,26 +556,35 @@ export class PlayerSlashAttack1 extends PlayerState{
         super(player);
         this.name = "PlayerSlashAttack1";
         audio.play(audio.slashSound);
+        this.hasDealtDamage = false;
     }
     
     enter(){
         if(!this.player.body) return;
         this.player.play("player-attack1", true);
         this.player.flipX ? this.player.setVelocityX(-this.player.speedX*0.3) : this.player.setVelocityX(this.player.speedX*0.3);
- 
     }
     
     update(time, delta){
         if(!this.player.body) return;
-        
         this.player.once("animationcomplete", (animation) => {
-            if (animation.key === "player-attack1")
+            if (animation.key === "player-attack1"){
+                
                 this.player.stateMachine.setState(new PlayerIdle(this.player))
+            }
         })
         //slash
         if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
             this.player.stateMachine.setState(new PlayerSlashAttack2(this.player));
             myInput.keypressed = false;
+        }
+        
+        //deal damage
+        const attack = this.player.checkSwordIntersection();
+        //check if sword is intersecting with victim, once
+        if(attack.isIntersecting && !this.hasDealtDamage){
+            attack.victim.decreaseHealth(this.player.sword.swordObject)
+            this.hasDealtDamage = true
         }
     }
 }
@@ -588,16 +601,23 @@ export class PlayerSlashAttack2 extends PlayerState{
         if(!this.player.body) return;
         this.player.play("player-attack2", true);
         this.player.flipX ? this.player.setVelocityX(-this.player.speedX*0.3) : this.player.setVelocityX(this.player.speedX*0.3);
-  
     }
     
     update(time, delta){
         if(!this.player.body) return;
         
         this.player.once("animationcomplete", (animation) => {
+            
             if (animation.key === "player-attack2")
                 this.player.stateMachine.setState(new PlayerIdle(this.player))
         })
+        //deal damage
+        const attack = this.player.checkSwordIntersection();
+        //check if sword is intersecting with victim, once
+        if(attack.isIntersecting && !this.hasDealtDamage){
+            attack.victim.decreaseHealth(this.player.sword.swordObject)
+            this.hasDealtDamage = true
+        } 
     }
 }
 
@@ -614,16 +634,23 @@ export class PlayerSlashAttackCombo extends PlayerState {
         this.player.play("player-attack-combo", true);
         this.player.setVelocityY(this.player.speedY*0.5)
         this.player.flipX ? this.player.setVelocityX(-this.player.speedX*0.7) : this.player.setVelocityX(this.player.speedX*0.7);
-   
     }
     
     update(time, delta) {
         if (!this.player.body) return;
         
         this.player.once("animationcomplete", (animation) => {
+            
             if (animation.key === "player-attack-combo")
                 this.player.stateMachine.setState(new PlayerIdle(this.player))
         })
+        //deal damage
+        const attack = this.player.checkSwordIntersection();
+        //check if sword is intersecting with victim, once
+        if(attack.isIntersecting && !this.hasDealtDamage){
+            attack.victim.decreaseHealth(this.player.sword.swordObject, 1.5)
+            this.hasDealtDamage = true
+        }
     }
 }
 
@@ -640,6 +667,6 @@ export class PlayerStateMachine{
     updateState(state, time, delta){
         if(this.player.hasBeenHit) return;
         state.update(time, delta);
-        if(this.player.body.onFloor()) this.player.jumpCount = 0;
+        if(this.player.body.onFloor() || this.player.isOnSlope) this.player.jumpCount = 0;
     }
 } 

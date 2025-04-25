@@ -56,11 +56,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         this.scene.events.on("update", this.update, this);
     }
 
-    decreaseHealth(source){
+    decreaseHealth(source, factor = 1){
+        if(!this.scene.player) return;
         this.hasBeenHit = true; 
         this.scene.tweens.add({
             targets: this,
-            health: this.health - source.damage,
+            health: this.health - source.damage*factor,
             duration: 100,
             repeat: 0,
             onComplete: ()=>{

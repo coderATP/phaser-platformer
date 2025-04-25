@@ -8,7 +8,7 @@ export class Scoreboard {
         const margin = 2;
         const { x, y } = this.scene.config.topRight;
         this.scoreText = this.scene.add.text( 0, 0, "Score: 0",
-            { fontSize: "40px", fontFamily: "myOtherFont", color: "green", } )
+            { fontSize: "20px", fontFamily: "myOtherFont", color: "green", } )
             .setInteractive()
             .setOrigin(0)
             .setDepth(20)
@@ -20,7 +20,7 @@ export class Scoreboard {
             .setPosition(x-this.scoreText.displayWidth-margin, y)
             
         this.scoreText2 = this.scene.add.text( 0, 0, "Score: 0",
-            { fontSize: "40px", fontFamily: "myOtherFont", color: "gold" } )
+            { fontSize: "20px", fontFamily: "myOtherFont", color: "gold" } )
             .setInteractive()
             .setOrigin(0)
             .setDepth(20)

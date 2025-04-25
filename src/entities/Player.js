@@ -22,11 +22,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
     init(){
         this.scene.events.on("update", this.update, this);
         this.name = "player";
-        this.speedX = 85;
+        this.speedX = 130;
         this.speedY = 350;
         this.stateMachine = new PlayerStateMachine(this);
         this.currentState = new PlayerWalk(this);
         
+        this.isOnSlope = false;
+        this.updatedBounds = undefined;
         this.onLadder = false;
         this.canClimbDown = false;
         this.canClimbUp = false;
@@ -62,7 +64,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.status = new Status(this.scene);
         this.status.draw();
         
-        this.sword = new Sword(this.scene);
+        this.sword = new Sword(this.scene, this);
+        
     }
     
     updateBoundingBox(){
@@ -184,55 +187,105 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
        this.body.gravity.y = this.gravity;
        this.setVelocityY(-this.speedY);
    }
-   intersects(rectangleBody, triangle){
-       return Phaser.Geom.Intersects.RectangleToTriangle(rectangleBody.getBounds(), triangle);
+   intersects(rectangleBounds, triangle){
+       return Phaser.Geom.Intersects.RectangleToTriangle(rectangleBounds, triangle);
    }
 
-   handleSlopes(){
-       if(!this.scene.grounds) return;
-       const { horizontal_bodies, left_slopes, left_bodies, right_slopes, right_bodies } = this.scene.grounds;
-       //left
-       left_bodies.forEach(body=>{
-           if(this.scene.physics.world.intersects(this.body, body)){
-               left_slopes.forEach(slope=>{
-                   if(this.intersects(this, slope)){
-                       if(myInput.keys[0] === "up") { this.jump(); }
-                       else{
-                           const dX = this.body.right - body.left;
-                           this.body.position.y = body.bottom - this.body.height - dX;
-                           this.body.setAllowGravity(false);
-                       }
-                   }
-               })
-           }
-           else{
-               this.body.setAllowGravity(false);
+    handleSlopes(){
+        if(!this.scene.grounds) return;
+        const { left_slopes, left_bodies, right_slopes, right_bodies } = this.scene.grounds;
+        this.isOnSlope = false;
+        if(!this.isOnSlope) this.body.setAllowGravity(true);
+        
+        left_bodies.forEach(body=> {
+            if(this.scene.physics.world.intersects(this.body, body.body)){
+                left_slopes.forEach(slope=>{
+                    if(this.intersects(new Phaser.Geom.Rectangle(this.body.x, this.body.y, this.body.width, this.body.height), slope) ){
+                        this.isOnSlope = true;
+                        //if(myInput.keys[0] === "up") { this.jump() }
+                        {
+                            const dX = this.body.right - body.body.left;
+                            this.body.position.y = body.body.bottom - this.body.height - dX;
+                            this.body.setAllowGravity(false);
+                        }
+                    }
+                    else{
+                        this.body.setAllowGravity(true)
+                    }
+                })
+            }
+        })
+        right_bodies.forEach(body=> {
+            if(this.scene.physics.world.intersects(this.body, body.body)){
+                right_slopes.forEach(slope=>{
+                    if(this.intersects(new Phaser.Geom.Rectangle(this.body.x, this.body.y, this.body.width, this.body.height), slope) ){
+                        this.isOnSlope = true;
+                        //if(myInput.keys[0] === "up") { this.jump() }
+                        {
+                            const dX = this.body.left - body.body.right;
+                            this.body.position.y = body.body.bottom - this.body.height + dX;
+                            this.body.setAllowGravity(false);
+                        }
+                    }
+                    else{
+                        this.body.setAllowGravity(true);
+                    }
+                })
+            }
+        }) 
+    }
+    
+   checkSwordIntersection(){
+       if(!this.scene.enemies) return;
+       let isIntersecting = false;
+       let victim = undefined;
+       
+       this.scene.enemies.getChildren().forEach(enemy=>{
+           const enemyBounds ={
+               x: enemy.body.x,
+               y: enemy.body.y,
+               width: enemy.body.width,
+               height: enemy.body.height
+            }
+           if(Phaser.Geom.Intersects.RectangleToRectangle(enemyBounds, this.sword.swordObject)){
+               isIntersecting = true;
+               victim = enemy;
            }
        })
-       //right
-       right_bodies.forEach(body=>{
-           if(this.scene.physics.world.intersects(this.body, body)){
-               right_slopes.forEach(slope=>{
-                   if(this.intersects(this, slope)){
-                       if(myInput.keys[0] === "up") { this.jump(); }
-                       else{
-                           const dX = body.right - this.body.left;
-                           this.body.position.y = body.bottom - this.body.height - dX;
-                           this.body.setAllowGravity(false);
-                       }
-                   }
-               })
-           }
-           else{
-               this.body.setAllowGravity(false);
-           }
-       }) 
+       return {isIntersecting, victim}
    }
-   
+
+    handleMovement(){
+        const isGround =
+            this.body.touching.down || this.body.blocked.down || this.body.onFloor()
+        //movement
+        if(myInput.keys[0] === "left"){
+           // this.play("run", true);
+            this.setVelocityX(-this.speedX);
+            this.setFlipX(true);
+        }
+        else if(myInput.keys[0] === "right"){
+           // this.play("run", true);
+            this.setVelocityX(this.speedX);
+            this.setFlipX(false);
+        }
+        else{
+           // this.play("idle");
+            this.body.setVelocityX(0); 
+        }
+        
+        if(isGround && myInput.keys[0]==="up"){
+           // this.play("jump", true);
+            this.jump();
+        }
+ 
+    } 
     update(time, delta){
         if(!this.body) return;
         super.update(time, delta);
-        this.handleSlopes()
+        //this.handleMovement();
+        this.handleSlopes();
+        
         this.stateMachine.updateState(this.currentState, time, delta);
         this.healthbar.draw();
         this.energybar.draw();
@@ -247,7 +300,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.sword.draw(this);
         //hit effect
         this.hitEffect&& this.hitEffect.updatePosition(this);
-        
     }
 }
 

@@ -222,6 +222,10 @@ export class PreloadScene extends BaseScene{
             sceneKey: 'rexUI'
         });
     }
+    
+    loadMe(){
+        this.load.image('tour-guide', "assets/me.jpg");
+    }
     preload(){
         this.enterScene();
 
@@ -258,7 +262,7 @@ export class PreloadScene extends BaseScene{
             })
         })
         eventEmitter.once("PRELOAD_TO_MENU", ()=>{
-            this.toggleFullscreen()
+            //this.toggleFullscreen()
             this.scene.start("MenuScene");
         })
         //load audio
@@ -266,6 +270,8 @@ export class PreloadScene extends BaseScene{
         //load icons
         this.loadDoors();
         this.loadIcons();
+        //me
+        this.loadMe();
         //load entities
         this.loadEntities();
         //load plugins

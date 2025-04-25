@@ -18,7 +18,7 @@ export class PlayerHealthbar extends Healthbar{
     constructor(scene, gameObject){
         super(scene, gameObject)
         this.graphics.setScrollFactor(0);
-        this.width = 80;
+        this.width = 50;
         this.height = 5;
         this.pixelPerHealth = this.width/gameObject.health;
     }
@@ -53,7 +53,7 @@ export class PlayerEnergybar extends Healthbar{
     constructor(scene, gameObject){
         super(scene, gameObject)
         this.graphics.setScrollFactor(0);
-        this.width = 80;
+        this.width = 50;
         this.height = 5;
         this.pixelPerHealth = this.width/gameObject.health;
         this.topMargin = 12;
