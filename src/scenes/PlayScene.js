@@ -119,8 +119,8 @@ export class PlayScene extends BaseScene{
         })
         //player landed on 
         //enemies
-        this.physics.add.collider(this.player, this.enemies, (source, target)=>{
-            this.player.onEnemyLanded(target);
+        this.physics.add.overlap(this.player, this.enemies, (source, target)=>{
+            if(source.depth <= target.depth) source.depth = target.depth + 1;
         });
         //boss 
         this.physics.add.collider(this.player, this.boss1, (source, target)=>{
@@ -140,6 +140,8 @@ export class PlayScene extends BaseScene{
         this.processEvents();
         this.toNextScene();
         this.toPreviousScene(this.mapLayers);
+        
+        //temp
         
     }
 
@@ -516,5 +518,8 @@ export class PlayScene extends BaseScene{
         }
         this.renderSlopes()
         this.togglePlatformCollider();
+        
+        //temp
+      //  if(this.enemies)console.log(this.enemies.getChildren()[0].currentState.name)
     }
 }

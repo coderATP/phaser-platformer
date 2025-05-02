@@ -4,10 +4,10 @@ export function createSkeletonAnimKeys(scene){
             key: "skeleton-base-death",
             frames: scene.anims.generateFrameNumbers(
                 "skeleton-base-death",
-                {start: 0, end: 5},
+                {start: 7, end: 7},
             ),
             frameRate: 8,
-            repeat: -1 
+            repeat: 0
         });
         
         scene.anims.create({
@@ -34,10 +34,10 @@ export function createSkeletonAnimKeys(scene){
             key: "skeleton-rogue-death",
             frames: scene.anims.generateFrameNumbers(
                 "skeleton-rogue-death",
-                {start: 0, end: 5},
+                {start: 5, end: 5},
             ),
             frameRate: 8,
-            repeat: -1 
+            repeat: 0
         });
         
         scene.anims.create({
@@ -64,10 +64,10 @@ export function createSkeletonAnimKeys(scene){
             key: "skeleton-mage-death",
             frames: scene.anims.generateFrameNumbers(
                 "skeleton-mage-death",
-                {start: 0, end: 5},
+                {start: 5, end: 5},
             ),
             frameRate: 8,
-            repeat: -1 
+            repeat: 0
         });
         
         scene.anims.create({
@@ -93,10 +93,10 @@ export function createSkeletonAnimKeys(scene){
             key: "skeleton-warrior-death",
             frames: scene.anims.generateFrameNumbers(
                 "skeleton-warrior-death",
-                {start: 0, end: 5},
+                {start: 5, end: 5},
             ),
             frameRate: 8,
-            repeat: -1 
+            repeat: 0
         });
         scene.anims.create({
             key: "skeleton-warrior-idle",

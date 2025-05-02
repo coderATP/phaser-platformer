@@ -13,6 +13,7 @@ export class Orc extends Enemy{
 export class OrcBase extends Orc{
     constructor(scene, x, y){
         super(scene, x, y, "orc-base");
+        
     }
     handleAnimations() {
         if (this.body && this.health > 0) {
@@ -61,7 +62,8 @@ export class OrcShaman extends Orc {
     }
 
     handleAnimations() {
-        if (this.body && this.health > 0) {
+        if (!this.body || this.health <= 0) return;
+        if(!this.immuneToDamage){
             if (this.body.velocity.x !== 0) {
                 this.play("orc-shaman-run", true)
                 this.flipX ? this.setOffset(this.width * 0.4, this.height * 0.58) :
@@ -70,11 +72,12 @@ export class OrcShaman extends Orc {
             else {
                 this.play("orc-shaman-idle", true)
                 this.setOffset(this.width * 0.35, this.height * 0.2);
-            }
+                } 
         }
-        else {
+        else{
             this.play("orc-shaman-death", true);
         }
+
     }
 }
 

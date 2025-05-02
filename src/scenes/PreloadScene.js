@@ -140,7 +140,7 @@ export class PreloadScene extends BaseScene{
             frameWidth: 64, frameHeight: 64,
         });
         this.load.spritesheet('skeleton-base-death', "assets/enemies/Skeleton Base/Death-Sheet.png", {
-            frameWidth: 64, frameHeight: 64,
+            frameWidth: 96, frameHeight: 64,
         });  
         this.load.spritesheet('skeleton-rogue', "assets/enemies/Skeleton Rogue/Idle-Sheet.png", {
             frameWidth: 32, frameHeight: 32,
@@ -262,7 +262,7 @@ export class PreloadScene extends BaseScene{
             })
         })
         eventEmitter.once("PRELOAD_TO_MENU", ()=>{
-            //this.toggleFullscreen()
+            this.toggleFullscreen()
             this.scene.start("MenuScene");
         })
         //load audio

@@ -151,7 +151,7 @@ section#playScreen{
 }
 #rightControlButtons
 {
-    border: 2px solid white; 
+   /* border: 2px solid white; */
     position: absolute;
     bottom: 6%;
     right: 4%;

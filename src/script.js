@@ -53,7 +53,7 @@ const config= {
          mode: Phaser.Scale.Fit,
          //autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    pixelArt: true, 
+    pixelArt: false, 
     physics:{
         default: 'arcade',
         arcade:{

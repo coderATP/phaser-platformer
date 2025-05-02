@@ -108,11 +108,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         }
     }
     
-    decreaseHealth(source){
+    decreaseHealth(source, factor = 1){
         this.hasBeenHit = true;
         this.scene.tweens.add({
             targets: this,
-            health: this.health - source.damage,
+            health: this.health - source.damage * factor,
             duration: 400,
             repeat: 0,
             onComplete: ()=>{
@@ -128,7 +128,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
             }
         })
     }
-    
     playDamageTween(source){
         //send player in opposite direction when taking damage
         source.flipX ? this.setVelocityX(-this.speedX*1) : this.setVelocityX(this.speedX*1);
@@ -145,9 +144,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         }
         
     } 
-    
-   
-   shoot(key, anim){
+    shoot(key, anim){
        if(this.hasBeenHit) return;
        const projectile = this.projectiles.getFreeProjectile();
        if(projectile){
@@ -156,8 +153,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
            audio.play(audio.projectileLaunchSound);
        }
    }
-   
-   handleShooting(){
+    handleShooting(){
        if(this.hasBeenHit) return;
         //shoot
         if(myInput.keys[0] === "rangedShot" && myInput.keypressed){
@@ -170,8 +166,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         }
           
    }
-   
-   playWalkSound(delta){
+    playWalkSound(delta){
        if(this.body.velocity.y !== 0 && this.body.velocity.x !== 0) return;
        if(this.walkSoundCounter < this.walkSoundInterval){
            this.walkSoundCounter+= delta;
@@ -181,16 +176,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
            audio.play(audio.walkSound);
        }
    }
-   
-   jump(){
+    jump(){
        this.body.setAllowGravity(true);
        this.body.gravity.y = this.gravity;
        this.setVelocityY(-this.speedY);
    }
-   intersects(rectangleBounds, triangle){
+    intersects(rectangleBounds, triangle){
        return Phaser.Geom.Intersects.RectangleToTriangle(rectangleBounds, triangle);
    }
-
     handleSlopes(){
         if(!this.scene.grounds) return;
         const { left_slopes, left_bodies, right_slopes, right_bodies } = this.scene.grounds;
@@ -234,8 +227,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
             }
         }) 
     }
-    
-   checkSwordIntersection(){
+    checkSwordIntersection(){
        if(!this.scene.enemies) return;
        let isIntersecting = false;
        let victim = undefined;
@@ -247,14 +239,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
                width: enemy.body.width,
                height: enemy.body.height
             }
-           if(Phaser.Geom.Intersects.RectangleToRectangle(enemyBounds, this.sword.swordObject)){
+           if(Phaser.Geom.Intersects.RectangleToRectangle(
+               new Phaser.Geom.Rectangle(enemy.body.x, enemy.body.y, enemy.body.width, enemy.body.height), this.sword.swordObject)){
                isIntersecting = true;
                victim = enemy;
            }
        })
        return {isIntersecting, victim}
    }
-
     handleMovement(){
         const isGround =
             this.body.touching.down || this.body.blocked.down || this.body.onFloor()

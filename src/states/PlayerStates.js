@@ -1,4 +1,5 @@
 import { myInput } from "../myInput.js";
+import { ENEMY_STATES } from "../states/EnemyStates.js";
 import { audio } from "../audio/AudioControl.js";
 
 class PlayerState{
@@ -68,7 +69,6 @@ export class PlayerIdle extends PlayerState{
         }
         //slash
         else if (( myInput.keys[0] === "slash"  || myInput.keys[0] === "Enter") && myInput.keypressed) {
-            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttack1(this.player));
             myInput.keypressed = false;
         }
@@ -133,7 +133,6 @@ export class PlayerWalk extends PlayerState{
         }
         //slash-combo
         else if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
-            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
             myInput.keypressed = false;
         }
@@ -193,7 +192,6 @@ export class PlayerJump extends PlayerState{
         }
         //slash-combo
         if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
-            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
             myInput.keypressed = false;
         }
@@ -259,7 +257,6 @@ export class PlayerFall extends PlayerState{
         }
         //slash
         if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
-            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
             myInput.keypressed = false;
         }
@@ -404,7 +401,6 @@ export class PlayerCrouch extends PlayerState{
         }
         //slash-attack1
         else if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
-            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttack1(this.player));
             myInput.keypressed = false;
         }
@@ -466,7 +462,6 @@ export class PlayerCrouchWalk extends PlayerState{
         }
         //slash-combo
         else if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
-            this.player.sword.setVisible(true)
             this.player.stateMachine.setState(new PlayerSlashAttackCombo(this.player));
             myInput.keypressed = false;
         }
@@ -519,8 +514,26 @@ export class PlayerSlide extends PlayerState{
         this.player.flipX ? this.player.setVelocityX(-this.player.speedX) : this.player.setVelocityX(this.player.speedX);
     }
     
+    onHitEnemy(){
+        const { x, y, width, height} = this.player.body;
+        this.player.scene.enemies.getChildren().forEach(enemy=> {
+            if(Phaser.Geom.Intersects.RectangleToRectangle(
+                new Phaser.Geom.Rectangle(x, y, width, height),
+                new Phaser.Geom.Rectangle(enemy.body.x, enemy.body.y, enemy.body.width, enemy.body.height)
+            )){
+                //console.log ("overlapping with enemy in sliding");
+                //enemy.setVelocityY(-enemy.speedY)
+                //this.player.flipX ? enemy.setVelocityX(-enemy.speedX*4) : enemy.setVelocityX(enemy.speedX*4);
+                //enemy.decreaseHealth(this.player, 1.2)
+                //enemy.playDamageTween(this.player);
+                enemy.stateMachine.setState(ENEMY_STATES.FALL, enemy);
+            }
+        })
+    }
     update(time, delta){
         if(!this.player.body) return;
+        
+        this.onHitEnemy();
         this.player.once("animationcomplete", (animation)=>{
             if(animation.key === "player-slide")
             this.player.stateMachine.setState(new PlayerIdle(this.player))
@@ -573,7 +586,7 @@ export class PlayerSlashAttack1 extends PlayerState{
                 this.player.stateMachine.setState(new PlayerIdle(this.player))
             }
         })
-        //slash
+        //slash again
         if ((myInput.keys[0] === "slash" || myInput.keys[0] === "Enter") && myInput.keypressed) {
             this.player.stateMachine.setState(new PlayerSlashAttack2(this.player));
             myInput.keypressed = false;

@@ -2,7 +2,7 @@
 
 class EnemyState {
     constructor(){
-        
+        this.name;
     }
     
 }
@@ -12,16 +12,22 @@ export class EnemyIdle extends EnemyState{
         super();
         this.idleDelay = 0;
         this.idleInterval = Phaser.Math.Between(500, 1000);
+        this.name = "EnemyIdle";
     }
     
     enter(enemy){
         if(!enemy.body) return;
+        enemy.immuneToDamage = false;
         enemy.setVelocityX(0);
-        
     }
     
     update(enemy, time, delta){
         if(!enemy.body) return;
+        enemy.play(enemy.name+"-idle", true);
+        enemy.setSize(10, 26);
+        enemy.setOffset(enemy.width * 0.35, enemy.height * 0.2);
+        
+        if(enemy.hasBeenHit) return;
         this.idleInterval = Phaser.Math.Between(500, 1000);
         this.idleDelay+= delta;
         
@@ -47,15 +53,18 @@ export class EnemyRun extends EnemyState{
         super();
         this.distanceCovered = 0;
         this.canIdle = false;
+        this.name = "EnemyRun";
     }
     
     enter(enemy){
         if(!enemy.body) return;
+        enemy.immuneToDamage = false;
         (enemy.lastDirection === "right") ? enemy.setVelocityX(enemy.speedX) : enemy.setVelocityX(-enemy.speedX);
     }
     
     updateDistanceCovered(enemy){
         if(!enemy.body) return;
+        if(enemy.hasBeenHit) return;
         const bodyPosDiff = Math.abs(enemy.x - enemy.body.prev.x);
         
         let maxDistance = Phaser.Math.Between(600, 1000);
@@ -73,6 +82,10 @@ export class EnemyRun extends EnemyState{
     
     update(enemy, time, delta){
         if(!enemy.body) return;
+        enemy.setSize(10, 26);
+        (enemy.flipX) ? enemy.setOffset(enemy.width * 0.4, enemy.height * 0.58) : enemy.setOffset(enemy.width * 0.45, enemy.height * 0.58); 
+ 
+        enemy.play(enemy.name+"-run", true); 
         this.updateDistanceCovered(enemy);
         
         enemy.turnTimer += delta;
@@ -102,10 +115,54 @@ export class EnemyRun extends EnemyState{
     }
 }
 
+export class EnemyFall extends EnemyState{
+    constructor(){
+        super();
+        this.fallTimer = 0;
+        this.fallInterval = 3000; //ms
+        this.name = "EnemyFall";
+
+    }
+    enter(enemy){
+        if(!enemy.body) return;
+        enemy.scene.player.flipX ? enemy.setVelocity(-80, -400) : enemy.setVelocity(80, -400);
+    }
+    
+    update(enemy, time, delta){
+        if(!enemy || !enemy.body) return;
+        enemy.play(enemy.name+"-death", true);
+        enemy.on("animationcomplete", (animation)=>{
+            switch(animation.key){
+                case "skeleton-base-death" : case "skeleton-mage-death" : case "skeleton-rogue-death":{
+                    enemy.setSize(10, 8);
+                    enemy.setOffset(enemy.width * 0.43, enemy.height * 0.82);
+                break;
+                }
+                case "skeleton-warrior-death":{
+                    enemy.setSize(10, 8);
+                    enemy.setOffset(enemy.width * 0.43, enemy.height * 0.76);
+                break;
+                }
+            } 
+        });
+        
+        if(this.fallTimer < this.fallInterval){
+            this.fallTimer+= delta;
+            enemy.immuneToDamage = true;
+        }
+        else{
+            this.fallTimer = 0;
+            enemy.immuneToDamage = false;
+            enemy.stateMachine.setState(ENEMY_STATES.IDLE, enemy);
+        }
+        
+    }
+}
 
 export const ENEMY_STATES = {
     IDLE: new EnemyIdle(),
-    RUN: new EnemyRun()
+    RUN: new EnemyRun(),
+    FALL: new EnemyFall()
 }
 
 export class EnemyStateMachine{

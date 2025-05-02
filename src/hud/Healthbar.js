@@ -89,11 +89,16 @@ export class EnemyHealthbar extends Healthbar{
         this.width =  gameObject.body.width*1.4;
         this.height = 1.8;
         this.pixelPerHealth = this.width/gameObject.health;
+        if(this.config.debug) this.statusText = this.scene.add.text(0,0,gameObject.name,
+            { fontSize: "20px", fontFamily: "myOtherFont"}
+        ).setOrigin(0).setDepth(22).setScale(1/this.config.zoomFactor);
     }
     
     draw(){
+        
         this.x = this.gameObject.body.center.x - this.width * 0.5;
         this.y = this.gameObject.body.y - this.height - 4;
+        if(this.config.debug) this.statusText.setPosition(this.gameObject.body.left, this.gameObject.body.top);
         
         this.graphics.clear();
         // white background

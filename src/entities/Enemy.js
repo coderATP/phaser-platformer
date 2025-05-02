@@ -10,19 +10,21 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         this.scene = scene;
         this.config = scene.config;
         this.texture = texture;
-        
+        this.name = texture;
         scene.add.existing(this);
         scene.physics.add.existing(this);
         this.init();
     }
     
     init(){
+        
         this.health = 30;
         this.maxHealth = this.health;
         this.damage = 5;
         this.isDead = false;
         this.gravity = 982;
         this.speedX = 25;
+        this.speedY = 300;
         this.rayGraphics = this.scene.add.graphics({lineStyle: { width: 1, color: "0xffffff"}});
         this.sensorGraphics = this.scene.add.graphics({lineStyle: { width: 1, color: "0x0000aa"}});
 
@@ -30,6 +32,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         this.hasBeenHit = false;
         this.bodyPositionDiff = 0;
         this.rayHasHit;
+        this.immuneToDamage = undefined;
         this.turnTimer = 0;
         this.turnInterval = 100;
         this.shootTimer = 0;
@@ -39,7 +42,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
             .setSize(10, 26)
             .setDepth(20)
             .setGravityY(this.gravity)
-            .setImmovable(true);
+            .setImmovable(true)
+            .setCollideWorldBounds(true);
             
         //healthbar
         this.healthbar = new EnemyHealthbar(this.scene, this);
@@ -47,7 +51,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         
         //states
         this.stateMachine = new EnemyStateMachine();
-        this.currentState = ENEMY_STATES.RUN;
+        this.currentState = ENEMY_STATES.FALL;
         //hit effect
         this.hitEffect = null;
         //projectiles
@@ -213,19 +217,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         }
     }
     
-    
-    handleAnimations() {
-        if (this.body && this.health > 0) {
-            if (this.body.velocity.x !== 0) {
-                this.flipX ? this.setOffset(this.width * 0.4, this.height * 0.58) :
-                    this.setOffset(this.width * 0.45, this.height * 0.58);
-            }
-            else {
-                this.setOffset(this.width * 0.35, this.height * 0.2);
-            }
-        }
-    }
-    
     update(time, delta){
         super.update(time, delta);
         
@@ -239,8 +230,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
             this.rayGraphics.strokeLineShape(this.ray);
             this.rayGraphics.strokeLineShape(this.sensors.horizontal);
         }
-        
-        this.handleAnimations();
         
         this.stateMachine.updateState(this.currentState, this, time, delta);
         this.shootProjectile(delta);
