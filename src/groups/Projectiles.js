@@ -29,11 +29,13 @@ export class Projectiles extends Phaser.Physics.Arcade.Group{
     
     onPlayerHit(){
         if(!this.scene) return;
-        this.scene.physics.add.collider(this, this.scene.player, (target, source)=>{
-            target.decreaseHealth(source);
-            target.playDamageTween(source);
-            audio.play(audio.projectileImpactSound);
-            audio.play(audio.playerHitSound);
+        this.scene.physics.add.overlap(this, this.scene.player, (target, source)=>{
+            if(!this.scene.player.immuneToDamage){
+                target.decreaseHealth(source);
+                target.playDamageTween(source);
+                audio.play(audio.projectileImpactSound);
+                audio.play(audio.playerHitSound);
+            }
             source.deactivate();
         })
     }
@@ -42,9 +44,11 @@ export class Projectiles extends Phaser.Physics.Arcade.Group{
         if(!this.scene) return;
         this.scene.enemies.getChildren().forEach(enemy=>{
             this.scene.physics.add.collider(this, enemy, (target, source)=>{
-                target.decreaseHealth(source);
-                target.playDamageTween(source);
-                audio.play(audio.projectileImpactSound);
+                if(!enemy.immuneToDamage){
+                    target.decreaseHealth(source, 1);
+                    target.playDamageTween(source);
+                    audio.play(audio.projectileImpactSound);
+                }
                 source.deactivate();
             })
         })

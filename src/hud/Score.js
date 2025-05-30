@@ -2,6 +2,9 @@ export class Scoreboard {
     constructor(scene) {
         this.scene = scene;
         this.score = 0;
+        //origin
+        this.x;
+        this.y;
     }
     
     draw() {
@@ -30,7 +33,9 @@ export class Scoreboard {
             
         this.scoreText2
             .setPosition(this.scoreText.x-1, this.scoreText.y-1) 
-    
+        
+        this.x = this.scoreText.x;
+        this.y = this.scoreText.y;
     }
     
     update(score){

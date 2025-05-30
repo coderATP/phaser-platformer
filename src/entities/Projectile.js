@@ -20,8 +20,8 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite{
         this.scene.events.on("update", this.update, this);
     }
     
-    fire(initiator, x, y, anim){
-        this.speed = 200;
+    fire(initiator, x, y, anim, speed = 120){
+        this.speed = speed;
         this.setActive(true);
         this.setVisible(true);
         this.x = x;

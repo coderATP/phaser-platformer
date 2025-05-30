@@ -8,6 +8,7 @@ import { createPlayerAnimKeys } from "../anims/playerAnims.js";
 import { createProjectileAnimKeys } from "../anims/projectileAnims.js";
 import { createBoss1AnimKeys } from "../anims/boss1Anims.js";
 import { createDoorAnimKeys } from "../anims/doorAnims.js";
+import { createCoinAnimKeys } from "../anims/coinAnims.js";
 
 
 export class PreloadScene extends BaseScene{
@@ -29,6 +30,7 @@ export class PreloadScene extends BaseScene{
         createProjectileAnimKeys(this);
         createBoss1AnimKeys(this);
         createDoorAnimKeys(this);
+        createCoinAnimKeys(this);
     }
     
     loadDoors(){
@@ -52,6 +54,11 @@ export class PreloadScene extends BaseScene{
         this.load.image("lifeIcon", "assets/icons/lifeIcon.png");
     }
     
+    loadCoins(){
+        this.load.spritesheet('gold-coin', "assets/collectibles/coinGold.png", {
+            frameWidth: 16, frameHeight: 16,
+        }); 
+    }
     loadEntities(){
         //PLAYER
         this.load.spritesheet('player', "assets/player/Idle.png", {
@@ -102,7 +109,7 @@ export class PreloadScene extends BaseScene{
         this.load.spritesheet('orc-base-run', "assets/enemies/Orc Base/Run-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
-        this.load.spritesheet('orc-base-death', "assets/enemies/Orc Base/Death-Sheet.png", {
+        this.load.spritesheet('orc-base-fall', "assets/enemies/Orc Base/Death-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });  
         this.load.spritesheet('orc-rogue', "assets/enemies/Orc Rogue/Idle-Sheet.png", {
@@ -111,7 +118,7 @@ export class PreloadScene extends BaseScene{
         this.load.spritesheet('orc-rogue-run', "assets/enemies/Orc Rogue/Run-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
-        this.load.spritesheet('orc-rogue-death', "assets/enemies/Orc Rogue/Death-Sheet.png", {
+        this.load.spritesheet('orc-rogue-fall', "assets/enemies/Orc Rogue/Death-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });   
         this.load.spritesheet('orc-shaman', "assets/enemies/Orc Shaman/Idle-Sheet.png", {
@@ -120,7 +127,7 @@ export class PreloadScene extends BaseScene{
         this.load.spritesheet('orc-shaman-run', "assets/enemies/Orc Shaman/Run-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
-        this.load.spritesheet('orc-shaman-death', "assets/enemies/Orc Shaman/Death-Sheet.png", {
+        this.load.spritesheet('orc-shaman-fall', "assets/enemies/Orc Shaman/Death-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });  
         this.load.spritesheet('orc-warrior', "assets/enemies/Orc Warrior/Idle-Sheet.png", {
@@ -129,7 +136,7 @@ export class PreloadScene extends BaseScene{
         this.load.spritesheet('orc-warrior-run', "assets/enemies/Orc Warrior/Run-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
-        this.load.spritesheet('orc-warrior-death', "assets/enemies/Orc Warrior/Death-Sheet.png", {
+        this.load.spritesheet('orc-warrior-fall', "assets/enemies/Orc Warrior/Death-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
         //SKELETONS
@@ -139,7 +146,7 @@ export class PreloadScene extends BaseScene{
         this.load.spritesheet('skeleton-base-run', "assets/enemies/Skeleton Base/Run-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
-        this.load.spritesheet('skeleton-base-death', "assets/enemies/Skeleton Base/Death-Sheet.png", {
+        this.load.spritesheet('skeleton-base-fall', "assets/enemies/Skeleton Base/Death-Sheet.png", {
             frameWidth: 96, frameHeight: 64,
         });  
         this.load.spritesheet('skeleton-rogue', "assets/enemies/Skeleton Rogue/Idle-Sheet.png", {
@@ -148,7 +155,7 @@ export class PreloadScene extends BaseScene{
         this.load.spritesheet('skeleton-rogue-run', "assets/enemies/Skeleton Rogue/Run-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
-        this.load.spritesheet('skeleton-rogue-death', "assets/enemies/Skeleton Rogue/Death-Sheet.png", {
+        this.load.spritesheet('skeleton-rogue-fall', "assets/enemies/Skeleton Rogue/Death-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });   
         this.load.spritesheet('skeleton-mage', "assets/enemies/Skeleton Mage/Idle-Sheet.png", {
@@ -157,7 +164,7 @@ export class PreloadScene extends BaseScene{
         this.load.spritesheet('skeleton-mage-run', "assets/enemies/Skeleton Mage/Run-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });
-        this.load.spritesheet('skeleton-mage-death', "assets/enemies/Skeleton Mage/Death-Sheet.png", {
+        this.load.spritesheet('skeleton-mage-fall', "assets/enemies/Skeleton Mage/Death-Sheet.png", {
             frameWidth: 64, frameHeight: 64,
         });  
         this.load.spritesheet('skeleton-warrior', "assets/enemies/Skeleton Warrior/Idle-Sheet.png", {
@@ -167,7 +174,7 @@ export class PreloadScene extends BaseScene{
             frameWidth: 64, frameHeight: 64,
         });
        
-       this.load.spritesheet('skeleton-warrior-death', "assets/enemies/Skeleton Warrior/Death-Sheet.png", {
+       this.load.spritesheet('skeleton-warrior-fall', "assets/enemies/Skeleton Warrior/Death-Sheet.png", {
             frameWidth: 64, frameHeight: 48,
         });
         
@@ -270,6 +277,8 @@ export class PreloadScene extends BaseScene{
         //load icons
         this.loadDoors();
         this.loadIcons();
+        //coins
+        this.loadCoins();
         //me
         this.loadMe();
         //load entities

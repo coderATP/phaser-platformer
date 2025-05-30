@@ -1,4 +1,7 @@
 /**@type {import("../typings/phaser")} */
+import { FloatingMessage } from "../entities/FloatingMessage.js";
+import { Coins } from "../groups/Coins.js";
+
 
 class EnemyState {
     constructor(){
@@ -23,6 +26,7 @@ export class EnemyIdle extends EnemyState{
     
     update(enemy, time, delta){
         if(!enemy.body) return;
+        enemy.shootProjectile(delta);
         enemy.play(enemy.name+"-idle", true);
         enemy.setSize(10, 26);
         enemy.setOffset(enemy.width * 0.35, enemy.height * 0.2);
@@ -31,6 +35,7 @@ export class EnemyIdle extends EnemyState{
         this.idleInterval = Phaser.Math.Between(500, 1000);
         this.idleDelay+= delta;
         
+        //run
         if(this.idleDelay >= this.idleInterval){
             let randomNumber = Math.random ();
             if(randomNumber < 0.33){
@@ -43,6 +48,10 @@ export class EnemyIdle extends EnemyState{
                 enemy.stateMachine.setState(ENEMY_STATES.RUN, enemy);
             }
             this.idleDelay = 0;
+        }
+        //fall
+        if(enemy.health <= 0){
+            enemy.stateMachine.setState(ENEMY_STATES.FALL, enemy);
         }
     }
 }
@@ -64,8 +73,7 @@ export class EnemyRun extends EnemyState{
     
     updateDistanceCovered(enemy){
         if(!enemy.body) return;
-        if(enemy.hasBeenHit) return;
-        const bodyPosDiff = Math.abs(enemy.x - enemy.body.prev.x);
+        const bodyPosDiff = Math.abs(enemy.body.x - enemy.body.prev.x);
         
         let maxDistance = Phaser.Math.Between(600, 1000);
         
@@ -82,6 +90,7 @@ export class EnemyRun extends EnemyState{
     
     update(enemy, time, delta){
         if(!enemy.body) return;
+        enemy.shootProjectile(delta)
         enemy.setSize(10, 26);
         (enemy.flipX) ? enemy.setOffset(enemy.width * 0.4, enemy.height * 0.58) : enemy.setOffset(enemy.width * 0.45, enemy.height * 0.58); 
  
@@ -89,10 +98,14 @@ export class EnemyRun extends EnemyState{
         this.updateDistanceCovered(enemy);
         
         enemy.turnTimer += delta;
-        
+        //idle
         if(this.canIdle){
            enemy.stateMachine.setState(ENEMY_STATES.IDLE, enemy);
         }
+        //fall
+        if(enemy.health <= 0){
+            enemy.stateMachine.setState(ENEMY_STATES.FALL, enemy);
+        } 
         //RAY
         if (!enemy.rayHasHit && enemy.turnTimer > enemy.turnInterval) {
             enemy.speedX *= -1;
@@ -121,41 +134,41 @@ export class EnemyFall extends EnemyState{
         this.fallTimer = 0;
         this.fallInterval = 3000; //ms
         this.name = "EnemyFall";
-
     }
     enter(enemy){
         if(!enemy.body) return;
+        enemy.immuneToDamage = true;
         enemy.scene.player.flipX ? enemy.setVelocity(-80, -400) : enemy.setVelocity(80, -400);
+        enemy.play(enemy.name+"-fall", true);
+        enemy.setSize(10, 8);
+        enemy.setOffset(enemy.width * 0.43, enemy.height * 0.82);
     }
     
     update(enemy, time, delta){
         if(!enemy || !enemy.body) return;
-        enemy.play(enemy.name+"-death", true);
-        enemy.on("animationcomplete", (animation)=>{
-            switch(animation.key){
-                case "skeleton-base-death" : case "skeleton-mage-death" : case "skeleton-rogue-death":{
-                    enemy.setSize(10, 8);
-                    enemy.setOffset(enemy.width * 0.43, enemy.height * 0.82);
-                break;
-                }
-                case "skeleton-warrior-death":{
-                    enemy.setSize(10, 8);
-                    enemy.setOffset(enemy.width * 0.43, enemy.height * 0.76);
-                break;
-                }
-            } 
-        });
+        this.floatingMessage&& this.floatingMessage.update();
         
+        enemy.setDrag(40, 200); //slow down over time
+        const { topLeft } = enemy.scene.config;
         if(this.fallTimer < this.fallInterval){
             this.fallTimer+= delta;
-            enemy.immuneToDamage = true;
         }
         else{
             this.fallTimer = 0;
-            enemy.immuneToDamage = false;
+            //if enemy's health is drained
+            if(enemy.health <= 0){
+                enemy.sendToGrave(); //disable world bounds (:
+                enemy.scene.player.increaseScore(enemy.maxHealth); //increase player score
+                enemy.scene.player.playCoinCollectSound(); // play coin_collected sound
+                const { topLeft, topRight} = enemy.config;
+                //enemy drop coins
+                enemy.coins = new Coins(enemy.scene, 'gold-coin')
+                    .dropCoins(enemy.body.center.x, enemy.body.center.y-8, 'gold-coin');
+                
+                return;
+            }
             enemy.stateMachine.setState(ENEMY_STATES.IDLE, enemy);
         }
-        
     }
 }
 

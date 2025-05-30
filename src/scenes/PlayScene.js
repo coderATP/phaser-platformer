@@ -331,13 +331,13 @@ export class PlayScene extends BaseScene{
         {
             enemies = new Enemies(this);
             layers.enemy_spawn_zones.forEach((zone, index)=>{
-              //  if(index > 0) return;
+               // if(index > 0) return;
                 
                 const randomNumber = Math.random();
-                if(randomNumber < 0.25) enemies.add(new SkeletonBase(this, zone.x, zone.y));
-                else if(randomNumber < 0.5) enemies.add(new SkeletonRogue(this, zone.x, zone.y));
-                else if(randomNumber < 0.75) enemies.add(new SkeletonMage(this, zone.x, zone.y));
-                else enemies.add(new SkeletonWarrior(this, zone.x, zone.y));
+                if(randomNumber < 0.25) enemies.add(new OrcBase(this, zone.x, zone.y));
+                else if(randomNumber < 0.5) enemies.add(new OrcRogue(this, zone.x, zone.y));
+                else if(randomNumber < 0.75) enemies.add(new OrcShaman(this, zone.x, zone.y));
+                else enemies.add(new OrcWarrior(this, zone.x, zone.y));
             })
         }
         return enemies;
@@ -520,6 +520,5 @@ export class PlayScene extends BaseScene{
         this.togglePlatformCollider();
         
         //temp
-      //  if(this.enemies)console.log(this.enemies.getChildren()[0].currentState.name)
     }
 }

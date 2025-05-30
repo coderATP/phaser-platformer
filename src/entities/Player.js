@@ -7,6 +7,7 @@ import { audio } from "../audio/AudioControl.js";
 import { PlayerWalk, PlayerCrouch, PlayerCrouchWalk, PlayerStateMachine } from "../states/PlayerStates.js";
 import { Status } from "../hud/Status.js";
 import { Sword } from "../entities/Sword.js";
+import { Coins } from "../groups/Coins.js";
 
 export class Player extends Phaser.Physics.Arcade.Sprite{
     constructor(scene, x, y, texture){
@@ -17,7 +18,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.init();
         this.status;
     }
-    
     
     init(){
         this.scene.events.on("update", this.update, this);
@@ -40,7 +40,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.health = this.maxHealth;
         this.hasBeenHit = false;
         this.hitEffect = null;
-        this.isDead = false;
+        this.immuneToDamage = undefined;
         this.damage = 10;
         this.lastDirection = "left";
         this.projectiles = new Projectiles(this.scene, "iceball");
@@ -63,9 +63,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         
         this.status = new Status(this.scene);
         this.status.draw();
-        
+        //sword
         this.sword = new Sword(this.scene, this);
-        
+        //collectible coins
+        this.coins = new Coins(this.scene, 'gold-coin');
+
     }
     
     updateBoundingBox(){
@@ -98,6 +100,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.scene.physics.add.overlap(this, otherGameObject, callback, null, this);
     }
     
+    increaseScore(amount){
+        this.score += amount;
+    }
+    playCoinCollectSound(){
+        audio.play(audio.coinCollectedSound);
+    }
     onEnemyLanded(enemy){
         if(this.body.touching.down || this.body.blocked.down){
             this.decreaseHealth(enemy);
@@ -119,14 +127,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
                 this.hasBeenHit = false;
                 this.setVelocity(0, 0);
                 if(this.health <= 0 ){
-                    this.isDead = true;
-                    this.setVelocity(0, -200);
-                    this.body.checkCollision.none = true;
-                    this.setCollideWorldBounds(false);
-                    //then destroy player
+                    this.sendToGrave();
                 }
             }
         })
+    }
+    sendToGrave(){
+        this.isDead = true;
+        this.setVelocity(0, -200);
+        this.body.checkCollision.none = true;
+        this.setCollideWorldBounds(false);
     }
     playDamageTween(source){
         //send player in opposite direction when taking damage
@@ -149,7 +159,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
        const projectile = this.projectiles.getFreeProjectile();
        if(projectile){
            projectile.key = key;
-           projectile.fire(this, this.body.center.x, this.body.center.y, anim);
+           projectile.fire(this, this.body.center.x, this.body.center.y, anim, 200);
            audio.play(audio.projectileLaunchSound);
        }
    }
@@ -247,35 +257,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
        })
        return {isIntersecting, victim}
    }
-    handleMovement(){
-        const isGround =
-            this.body.touching.down || this.body.blocked.down || this.body.onFloor()
-        //movement
-        if(myInput.keys[0] === "left"){
-           // this.play("run", true);
-            this.setVelocityX(-this.speedX);
-            this.setFlipX(true);
-        }
-        else if(myInput.keys[0] === "right"){
-           // this.play("run", true);
-            this.setVelocityX(this.speedX);
-            this.setFlipX(false);
-        }
-        else{
-           // this.play("idle");
-            this.body.setVelocityX(0); 
-        }
-        
-        if(isGround && myInput.keys[0]==="up"){
-           // this.play("jump", true);
-            this.jump();
-        }
- 
-    } 
+    
     update(time, delta){
         if(!this.body) return;
         super.update(time, delta);
-        //this.handleMovement();
         this.handleSlopes();
         
         this.stateMachine.updateState(this.currentState, time, delta);
@@ -292,6 +277,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.sword.draw(this);
         //hit effect
         this.hitEffect&& this.hitEffect.updatePosition(this);
+       
+
     }
 }
 

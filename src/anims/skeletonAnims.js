@@ -1,13 +1,13 @@
 export function createSkeletonAnimKeys(scene){
     //skeleton-base
        scene.anims.create({
-            key: "skeleton-base-death",
+            key: "skeleton-base-fall",
             frames: scene.anims.generateFrameNumbers(
-                "skeleton-base-death",
-                {start: 7, end: 7},
+                "skeleton-base-fall",
+                {start: 0, end: 7},
             ),
             frameRate: 8,
-            repeat: 0
+            repeat: 0,
         });
         
         scene.anims.create({
@@ -31,13 +31,13 @@ export function createSkeletonAnimKeys(scene){
         
        //skeleton-rogue 
        scene.anims.create({
-            key: "skeleton-rogue-death",
+            key: "skeleton-rogue-fall",
             frames: scene.anims.generateFrameNumbers(
-                "skeleton-rogue-death",
-                {start: 5, end: 5},
+                "skeleton-rogue-fall",
+                {start: 0, end: 5},
             ),
             frameRate: 8,
-            repeat: 0
+            repeat: 0,
         });
         
         scene.anims.create({
@@ -61,13 +61,13 @@ export function createSkeletonAnimKeys(scene){
         
        //skeleton-mage
        scene.anims.create({
-            key: "skeleton-mage-death",
+            key: "skeleton-mage-fall",
             frames: scene.anims.generateFrameNumbers(
-                "skeleton-mage-death",
-                {start: 5, end: 5},
+                "skeleton-mage-fall",
+                {start: 0, end: 5},
             ),
             frameRate: 8,
-            repeat: 0
+            repeat: 0,
         });
         
         scene.anims.create({
@@ -90,13 +90,13 @@ export function createSkeletonAnimKeys(scene){
         });
        //skeleton-warrior 
        scene.anims.create({
-            key: "skeleton-warrior-death",
+            key: "skeleton-warrior-fall",
             frames: scene.anims.generateFrameNumbers(
-                "skeleton-warrior-death",
-                {start: 5, end: 5},
+                "skeleton-warrior-fall",
+                {start: 0, end: 5},
             ),
             frameRate: 8,
-            repeat: 0
+            repeat: 0,
         });
         scene.anims.create({
             key: "skeleton-warrior-idle",

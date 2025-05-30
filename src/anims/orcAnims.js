@@ -1,13 +1,13 @@
 export function createOrcAnimKeys(scene){
     //orc-base
        scene.anims.create({
-            key: "orc-base-death",
+            key: "orc-base-fall",
             frames: scene.anims.generateFrameNumbers(
-                "orc-base-death",
+                "orc-base-fall",
                 {start: 0, end: 5},
             ),
             frameRate: 8,
-            repeat: -1 
+            repeat: 0 
         });
         
         scene.anims.create({
@@ -31,13 +31,13 @@ export function createOrcAnimKeys(scene){
         
        //orc-rogue 
        scene.anims.create({
-            key: "orc-rogue-death",
+            key: "orc-rogue-fall",
             frames: scene.anims.generateFrameNumbers(
-                "orc-rogue-death",
+                "orc-rogue-fall",
                 {start: 0, end: 5},
             ),
             frameRate: 8,
-            repeat: -1 
+            repeat: 0 
         });
         
         scene.anims.create({
@@ -61,13 +61,13 @@ export function createOrcAnimKeys(scene){
         
        //orc-shaman
        scene.anims.create({
-            key: "orc-shaman-death",
+            key: "orc-shaman-fall",
             frames: scene.anims.generateFrameNumbers(
-                "orc-shaman-death",
+                "orc-shaman-fall",
                 {start: 0, end: 5},
             ),
             frameRate: 8,
-            repeat: -1 
+            repeat: 0 
         });
         
         scene.anims.create({
@@ -90,13 +90,13 @@ export function createOrcAnimKeys(scene){
         });
        //orc-warrior 
        scene.anims.create({
-            key: "orc-warrior-death",
+            key: "orc-warrior-fall",
             frames: scene.anims.generateFrameNumbers(
-                "orc-warrior-death",
+                "orc-warrior-fall",
                 {start: 0, end: 5},
             ),
             frameRate: 8,
-            repeat: -1 
+            repeat: 0
         });
         
         scene.anims.create({

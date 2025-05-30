@@ -29,10 +29,10 @@ export class Sword extends Phaser.GameObjects.Graphics{
            this.swordObject.x = gameObject.body.right;
        else
            this.swordObject.x = gameObject.body.left - this.swordObject.width;
-           
-       this.clear();
-       this.fillStyle(0xff0000);
-       this.strokeRectShape(this.swordObject); 
-       
+       if(this.config.debug){
+           this.clear();
+           this.fillStyle(0xff0000);
+           this.strokeRectShape(this.swordObject);  
+       }
     }
 }

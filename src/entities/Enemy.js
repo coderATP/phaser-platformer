@@ -21,7 +21,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         this.health = 30;
         this.maxHealth = this.health;
         this.damage = 5;
-        this.isDead = false;
         this.gravity = 982;
         this.speedX = 25;
         this.speedY = 300;
@@ -51,17 +50,18 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         
         //states
         this.stateMachine = new EnemyStateMachine();
-        this.currentState = ENEMY_STATES.FALL;
+        this.currentState = ENEMY_STATES.IDLE;
         //hit effect
         this.hitEffect = null;
         //projectiles
         this.projectiles = new Projectiles(this.scene, "fireball");
-        
+        //coins
+        this.coins = null;
         this.scene.events.on("update", this.update, this);
     }
 
     decreaseHealth(source, factor = 1){
-        if(!this.scene.player) return;
+        if(!this.body || !this.scene.player) return;
         this.hasBeenHit = true; 
         this.scene.tweens.add({
             targets: this,
@@ -69,18 +69,17 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
             duration: 100,
             repeat: 0,
             onComplete: ()=>{
-                this.hasBeenHit = false; 
-                if(this.health <= 0){
-                    //this.isDead = true;
-                    this.scene.player.score += this.maxHealth;
-                    
-                    this.setVelocity(0, -200);
-                    this.body.checkCollision.none = true;
-                    this.setCollideWorldBounds(false);
-                }
+                this.hasBeenHit = false;
             }
         })
     }
+    
+    sendToGrave(){
+        this.setVelocity(0, -200);
+        this.body.checkCollision.none = true;
+        this.setCollideWorldBounds(false); 
+    }
+    
     playDamageTween(source){
         const target = this;
         if (source.texture.key === "fireball"){
@@ -129,7 +128,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
             this.shootInterval = Phaser.Math.Between(1500, 4000);
             this.shootTimer = 0;
             const projectile = this.projectiles.getFreeProjectile();
-            if(projectile) projectile.fire(this, this.body.center.x, this.body.center.y, "fire");
+            if(projectile) projectile.fire(this, this.body.center.x, this.body.center.y, "fire", 60);
         }
     }
     
@@ -224,15 +223,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite{
         
         this.optimiseRaycast();
         this.detectPlatformCollisionWithRay();
-       
+        
         if (this.config.debug&& this.rayGraphics) {
             this.rayGraphics.clear();
             this.rayGraphics.strokeLineShape(this.ray);
             this.rayGraphics.strokeLineShape(this.sensors.horizontal);
         }
-        
         this.stateMachine.updateState(this.currentState, this, time, delta);
-        this.shootProjectile(delta);
+        
         this.cleanupAfterDeath();
         this.hitEffect&& this.hitEffect.updatePosition(this);
     }

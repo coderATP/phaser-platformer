@@ -19,9 +19,10 @@ export class PlayerIdle extends PlayerState{
     enter(){
         if(!this.player.body) return;
         this.player.play("player-idle", true);
-        this.player.setVelocityX(0);
-        this.player.setVelocityY(0);
-        this.player.setAlpha(1);
+        this.player.setVelocityY(0)
+            .setVelocityX(0)
+            .setAlpha(1);
+        this.player.immuneToDamage = false;
     }
     
     update(time, delta){
@@ -94,11 +95,18 @@ export class PlayerWalk extends PlayerState{
         if(!this.player.body) return;
         this.player.play("player-run", true); 
         this.player.flipX ? this.player.setVelocityX(-this.player.speedX) : this.player.setVelocityX(this.player.speedX);
+        this.player.immuneToDamage = false; 
     }
     
     update(time, delta){
         if(!this.player.body) return;
-        
+        //player maxVelocity
+        if (this.player.body.velocity.x > this.player.speedX){
+            this.player.body.velocity.x = this.player.speedX
+        }
+        if (this.player.body.velocity.x < -this.player.speedX){
+            this.player.body.velocity.x = -this.player.speedX
+        }
         //climb
         if (this.player.canClimbUp || this.player.canClimbDown) {
             this.player.body.setAllowGravity(false)
@@ -156,6 +164,7 @@ export class PlayerJump extends PlayerState{
         audio.play(audio.jumpSound);
         this.player.play("player-jump", true);
         this.player.setVelocityY(-this.player.speedY);
+        this.player.immuneToDamage = false;
     }
     
     update(time, delta){
@@ -218,6 +227,7 @@ export class PlayerFall extends PlayerState{
     enter(){
         if(!this.player.body) return;
         this.player.play("player-fall", true);
+        this.player.immuneToDamage = false;
     }
     
     update(time, delta){
@@ -277,7 +287,10 @@ export class PlayerClimb extends PlayerState{
     
     enter(){
         if(!this.player.body) return;
-        this.player.play("player-climb", true)
+        this.player.play("player-climb", true);
+        this.player.setVelocityX(0);
+        this.player.setVelocityX(0);
+        this.player.immuneToDamage = false;
     }
     
     update(time, delta){
@@ -342,7 +355,7 @@ export class PlayerHurt extends PlayerState{
     
     enter(){
         if(!this.player.body) return;
-        
+        this.player.immuneToDamage = true;
     }
     
     update(time, delta){
@@ -362,6 +375,7 @@ export class PlayerCrouch extends PlayerState{
         this.player.play("player-crouch", true);
         this.player.setVelocityX(0);
         this.player.setAlpha(0.3);
+        this.player.immuneToDamage = false;
     }
     
     update(time, delta){
@@ -423,6 +437,7 @@ export class PlayerCrouchWalk extends PlayerState{
         this.player.play("player-crouch-walk", true);
         this.player.setAlpha(0.3);
         this.player.flipX ? this.player.setVelocityX(-this.player.speedX*0.35) : this.player.setVelocityX(this.player.speedX*0.35);
+        this.player.immuneToDamage = false;
     }
     
     update(time, delta){
@@ -479,7 +494,8 @@ export class PlayerRoll extends PlayerState{
     enter(){
         if(!this.player.body) return;
         this.player.play("player-roll", true);
-        this.player.flipX ? this.player.setVelocityX(-this.player.speedX) : this.player.setVelocityX(this.player.speedX);
+        this.player.flipX ? this.player.setVelocityX(-this.player.speedX*1.5) : this.player.setVelocityX(this.player.speedX*1.5);
+        this.player.immuneToDamage = true;
     }
     
     update(time, delta){
@@ -511,7 +527,8 @@ export class PlayerSlide extends PlayerState{
     enter(){
         if(!this.player.body) return;
         this.player.play("player-slide", true);
-        this.player.flipX ? this.player.setVelocityX(-this.player.speedX) : this.player.setVelocityX(this.player.speedX);
+        this.player.flipX ? this.player.setVelocityX(-this.player.speedX*1.5) : this.player.setVelocityX(this.player.speedX*1.5);
+        this.player.immuneToDamage = false;
     }
     
     onHitEnemy(){
@@ -521,11 +538,8 @@ export class PlayerSlide extends PlayerState{
                 new Phaser.Geom.Rectangle(x, y, width, height),
                 new Phaser.Geom.Rectangle(enemy.body.x, enemy.body.y, enemy.body.width, enemy.body.height)
             )){
-                //console.log ("overlapping with enemy in sliding");
-                //enemy.setVelocityY(-enemy.speedY)
-                //this.player.flipX ? enemy.setVelocityX(-enemy.speedX*4) : enemy.setVelocityX(enemy.speedX*4);
-                //enemy.decreaseHealth(this.player, 1.2)
-                //enemy.playDamageTween(this.player);
+                enemy.decreaseHealth(enemy.scene.player, 1.5);
+                enemy.playDamageTween(enemy.scene.player);
                 enemy.stateMachine.setState(ENEMY_STATES.FALL, enemy);
             }
         })
@@ -576,6 +590,7 @@ export class PlayerSlashAttack1 extends PlayerState{
         if(!this.player.body) return;
         this.player.play("player-attack1", true);
         this.player.flipX ? this.player.setVelocityX(-this.player.speedX*0.3) : this.player.setVelocityX(this.player.speedX*0.3);
+        this.player.immuneToDamage = false;
     }
     
     update(time, delta){
@@ -614,6 +629,7 @@ export class PlayerSlashAttack2 extends PlayerState{
         if(!this.player.body) return;
         this.player.play("player-attack2", true);
         this.player.flipX ? this.player.setVelocityX(-this.player.speedX*0.3) : this.player.setVelocityX(this.player.speedX*0.3);
+        this.player.immuneToDamage = false;
     }
     
     update(time, delta){
@@ -647,6 +663,7 @@ export class PlayerSlashAttackCombo extends PlayerState {
         this.player.play("player-attack-combo", true);
         this.player.setVelocityY(this.player.speedY*0.5)
         this.player.flipX ? this.player.setVelocityX(-this.player.speedX*0.7) : this.player.setVelocityX(this.player.speedX*0.7);
+        this.player.immuneToDamage = false;
     }
     
     update(time, delta) {

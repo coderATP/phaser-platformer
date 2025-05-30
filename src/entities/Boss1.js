@@ -113,6 +113,6 @@ export class Boss1 extends Phaser.Physics.Arcade.Sprite{
         super.update(time, delta);
         if(!this.body) return;
         this.cleanupAfterDeath()
-        this.stateMachine.updateState(this.currentState, time, delta);
+        //this.stateMachine.updateState(this.currentState, time, delta);
     }
 }

@@ -129,8 +129,8 @@ export class BaseScene extends Phaser.Scene{
         this.enemies.getChildren().forEach(enemy=>{
             enemy.projectiles.destroy(true);
             enemy.projectiles = null;
-            enemy.destroy();
-            enemy = null;
+            enemy.coins&& enemy.coins.destroy(true, true);
+            enemy.coins = null;
         })
         //destroy enemy group
         this.enemies.destroy(true);

@@ -34,7 +34,7 @@ class AudioControl{
         this.sounds = [this.buttonClickSound, this.buttonHoverSound, this.coinCollectedSound, this.projectileLaunchSound, this.walkSound];
         //REDUCE VOLUME AT STARTUP, UNLESS OTHERWISE SPECIFIED BY USER
         this.songs.forEach(song=>{song.volume = 0.2;});
-        this.sounds.forEach(sound=>{sound.volume = 0.1});
+        this.sounds.forEach(sound=>{sound.volume = 0.4;});
         this.onHover();
         this.onClick();
     }
