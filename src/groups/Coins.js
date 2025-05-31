@@ -9,7 +9,7 @@ export class Coins extends Phaser.Physics.Arcade.Group{
         this.createMultiple({
             key: key,
             frameQuantity: 5,
-            visible: true,
+            visible: false,
             active: false,
             classType: Coin,
         })
@@ -36,5 +36,6 @@ export class Coins extends Phaser.Physics.Arcade.Group{
     }
     
     update(time, delta){
+      //  console.log (this.getChildren()[0].initialX )
     }
 }

@@ -24,7 +24,7 @@ function toggleFullscreen(){
     
 const GAME_WIDTH = 1024;
 const GAME_HEIGHT = 576;
-const ZOOM_FACTOR = 2.2;
+const ZOOM_FACTOR = 2.5;
 
 const SHARED_CONFIG = {
     width: GAME_WIDTH, 

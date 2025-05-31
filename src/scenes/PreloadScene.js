@@ -293,6 +293,7 @@ export class PreloadScene extends BaseScene{
             screen.orientation.lock("landscape");
             }else if(document.exitFullscreen){
                 document.exitFullscreen();
+                screen.orientation.lock("landscape"); 
             }
         } 
 }

@@ -1,7 +1,7 @@
 import {myInput} from "../myInput.js";
 import { Projectiles } from "../groups/Projectiles.js";
 import { PlayerHealthbar, PlayerEnergybar } from "../hud/Healthbar.js";
-import { Scoreboard } from "../hud/Score.js";
+import { Scoreboard } from "../hud/Scoreboard.js";
 import { ImageEffect } from "../effects/HitEffect.js";
 import { audio } from "../audio/AudioControl.js";
 import { PlayerWalk, PlayerCrouch, PlayerCrouchWalk, PlayerStateMachine } from "../states/PlayerStates.js";
@@ -277,8 +277,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite{
         this.sword.draw(this);
         //hit effect
         this.hitEffect&& this.hitEffect.updatePosition(this);
-       
-
     }
 }
 
